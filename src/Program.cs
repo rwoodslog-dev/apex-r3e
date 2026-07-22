@@ -57,6 +57,7 @@ static class Program
         double hz = 60.0;
         int port = DEFAULT_PORT;
         bool keepInvalid = false, noBrowser = false;
+        string hotkey = "C";
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -67,6 +68,7 @@ static class Program
                 int.TryParse(args[++i], out port);
             else if (args[i] == "--keep-invalid") keepInvalid = true;
             else if (args[i] == "--no-browser") noBrowser = true;
+            else if (args[i] == "--key" && i + 1 < args.Length) hotkey = args[++i];
             else if (args[i] == "--help" || args[i] == "-h")
             {
                 Console.WriteLine("APEX — options :");
@@ -75,6 +77,7 @@ static class Program
                 Console.WriteLine("  --port N           port du dashboard (defaut: 8422)");
                 Console.WriteLine("  --keep-invalid     garde les tours passes par les stands");
                 Console.WriteLine("  --no-browser       n'ouvre pas le navigateur");
+                Console.WriteLine("  --key TOUCHE       raccourci d'annonce (defaut: C)");
                 return;
             }
         }
@@ -110,6 +113,38 @@ static class Program
         Console.WriteLine("En attente de RaceRoom...  (Ctrl+C pour arreter)");
         Console.WriteLine();
 
+        // ---- hook clavier global -----------------------------------------
+        // Permet de declencher l'annonce vocale meme quand RaceRoom a le focus.
+        KeyHook hook = null;
+        try
+        {
+            int vk = KeyHook.ParseKey(hotkey);
+            if (vk == 0) vk = KeyHook.ParseKey("C");
+            hook = new KeyHook(vk);
+            hook.Triggered += delegate {
+                server.Broadcast("{\"type\":\"say\"}");
+            };
+            hook.KeyLearned += delegate(int k) {
+                Console.WriteLine("  Touche assignee : " + KeyHook.KeyName(k));
+                server.Broadcast("{\"type\":\"keybind\",\"key\":" + JsonStr(KeyHook.KeyName(k)) + "}");
+            };
+            if (hook.Start())
+                Console.WriteLine("  Raccourci global : " + KeyHook.KeyName(vk)
+                                  + "  (fonctionne meme en jeu)");
+            else
+            {
+                Console.WriteLine("  [!] Raccourci global indisponible.");
+                Console.WriteLine("      L'annonce reste possible depuis le dashboard.");
+                hook = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("  [!] Raccourci global indisponible : " + ex.Message);
+            hook = null;
+        }
+        Console.WriteLine();
+
         MemoryMappedFile mmf = null;
         MemoryMappedViewAccessor acc = null;
         byte[] buf = new byte[Telemetry.SHARED_SIZE];
@@ -135,6 +170,7 @@ static class Program
             Console.WriteLine();
             Console.WriteLine("Arret. " + saved + " tour(s) dans " + Path.GetFullPath(outDir));
             try { server.Stop(); } catch { }
+            try { if (hook != null) hook.Dispose(); } catch { }
         };
 
         while (true)
@@ -298,10 +334,11 @@ static class Program
                         if (f.Length < 9) continue;
                         if (!first) tr.Append(',');
                         first = false;
-                        // [t, distance, vitesse, gaz, frein, direction]
+                        // [t, distance, vitesse, gaz, frein, direction, x, z]
                         tr.Append('[').Append(f[0]).Append(',').Append(f[2]).Append(',')
                           .Append(f[4]).Append(',').Append(f[5]).Append(',')
-                          .Append(f[6]).Append(',').Append(f[8]).Append(']');
+                          .Append(f[6]).Append(',').Append(f[8]).Append(',')
+                          .Append(f[12]).Append(',').Append(f[14]).Append(']');
                     }
                     tr.Append(']');
 
@@ -355,7 +392,52 @@ static class Program
             {
                 lastPush = sw.ElapsedMilliseconds;
                 double delta = (curLap > 0 && bestLap > 0) ? curLap - bestLap : double.NaN;
-                var sb = new StringBuilder(256);
+
+                // ---- donnees de course ----
+                int pos = BitConverter.ToInt32(buf, Telemetry.OFF_Position);
+                int posCls = BitConverter.ToInt32(buf, Telemetry.OFF_PositionClass);
+                int nCars = BitConverter.ToInt32(buf, Telemetry.OFF_NumCars);
+                int totalLaps = BitConverter.ToInt32(buf, Telemetry.OFF_NumberOfLaps);
+                float fuelLeft = BitConverter.ToSingle(buf, Telemetry.OFF_FuelLeft);
+                float fuelCap = BitConverter.ToSingle(buf, Telemetry.OFF_FuelCapacity);
+                float fuelPerLap = BitConverter.ToSingle(buf, Telemetry.OFF_FuelPerLap);
+                float sessRemain = BitConverter.ToSingle(buf, Telemetry.OFF_SessionTimeRemaining);
+                float dFront = BitConverter.ToSingle(buf, Telemetry.OFF_DeltaFront);
+                float dBehind = BitConverter.ToSingle(buf, Telemetry.OFF_DeltaBehind);
+                int penalties = BitConverter.ToInt32(buf, Telemetry.OFF_NumPenalties);
+                int pitWin = BitConverter.ToInt32(buf, Telemetry.OFF_PitWindowStatus);
+                int sessPhase = BitConverter.ToInt32(buf, Telemetry.OFF_SessionPhase);
+
+                // carburant : pourcentage + autonomie estimee
+                double fuelPct = (fuelCap > 0 && fuelLeft >= 0) ? fuelLeft / fuelCap * 100.0 : -1;
+                double lapsLeft = (fuelPerLap > 0.01 && fuelLeft > 0) ? fuelLeft / fuelPerLap : -1;
+
+                // tours restants : soit compte de tours, soit estime au temps
+                double lapsRemain = -1;
+                if (totalLaps > 0) lapsRemain = totalLaps - laps;
+
+                // usure pneus : on prend la plus usee des 4
+                double wearWorst = -1;
+                if (BitConverter.ToInt32(buf, Telemetry.OFF_TireWearActive) == 1)
+                {
+                    wearWorst = 1.0;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float w = BitConverter.ToSingle(buf, Telemetry.OFF_TireWear + i * 4);
+                        if (w >= 0 && w < wearWorst) wearWorst = w;
+                    }
+                    wearWorst = wearWorst * 100.0;
+                }
+
+                // drapeaux
+                string flag = "";
+                if (BitConverter.ToInt32(buf, Telemetry.OFF_FlagCheckered) == 1) flag = "damier";
+                else if (BitConverter.ToInt32(buf, Telemetry.OFF_FlagBlack) == 1) flag = "noir";
+                else if (BitConverter.ToInt32(buf, Telemetry.OFF_FlagBlue) == 1) flag = "bleu";
+                else if (BitConverter.ToInt32(buf, Telemetry.OFF_FlagYellow) == 1) flag = "jaune";
+                else if (BitConverter.ToInt32(buf, Telemetry.OFF_FlagWhite) == 1) flag = "blanc";
+
+                var sb = new StringBuilder(512);
                 sb.Append("{\"type\":\"telemetry\",\"speed\":").Append(J(speedKmh, 1))
                   .Append(",\"gear\":").Append(gear)
                   .Append(",\"rpm\":").Append(J(rps * 9.5492966, 0))
@@ -367,6 +449,23 @@ static class Program
                   .Append(",\"delta\":").Append(double.IsNaN(delta) ? "null" : J(delta, 3))
                   .Append(",\"track\":").Append(JsonStr(curTrack))
                   .Append(",\"layout\":").Append(JsonStr(curLayout))
+                  .Append(",\"pos\":").Append(pos)
+                  .Append(",\"posClass\":").Append(posCls)
+                  .Append(",\"cars\":").Append(nCars)
+                  .Append(",\"lap\":").Append(laps)
+                  .Append(",\"totalLaps\":").Append(totalLaps)
+                  .Append(",\"lapsRemain\":").Append(J(lapsRemain, 0))
+                  .Append(",\"fuelLeft\":").Append(J(fuelLeft, 2))
+                  .Append(",\"fuelPct\":").Append(J(fuelPct, 1))
+                  .Append(",\"fuelLaps\":").Append(J(lapsLeft, 1))
+                  .Append(",\"sessRemain\":").Append(J(sessRemain, 0))
+                  .Append(",\"dFront\":").Append(J(dFront, 2))
+                  .Append(",\"dBehind\":").Append(J(dBehind, 2))
+                  .Append(",\"penalties\":").Append(penalties)
+                  .Append(",\"tireWear\":").Append(J(wearWorst, 1))
+                  .Append(",\"pitWindow\":").Append(pitWin)
+                  .Append(",\"phase\":").Append(sessPhase)
+                  .Append(",\"flag\":").Append(JsonStr(flag))
                   .Append("}");
                 server.Broadcast(sb.ToString());
             }
