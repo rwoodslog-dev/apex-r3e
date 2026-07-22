@@ -82,6 +82,22 @@ tbody tr.new{animation:flash .8s ease-out}
   padding:20px;text-align:center;border:1px solid var(--line);background:var(--ink-2)}
 .trk{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.06em}
 .trk b{color:var(--bone);font-weight:500}
+.sw{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);cursor:pointer;
+  white-space:nowrap}
+.sw input{accent-color:var(--amber);cursor:pointer}
+.btn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  background:transparent;color:var(--dim);border:1px solid var(--line);
+  padding:4px 9px;cursor:pointer}
+.btn:hover{color:var(--bone);border-color:var(--amber)}
+.tip{display:flex;gap:13px;align-items:flex-start;padding:13px 15px;
+  border:1px solid var(--line);background:var(--ink-2);margin-bottom:8px}
+.tip .n{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--amber);
+  font-variant-numeric:tabular-nums;line-height:1.15;min-width:34px}
+.tip .body{flex:1;min-width:0}
+.tip .msg{font-size:14px;line-height:1.45;margin-bottom:4px}
+.tip .meta{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em}
+.tip.top{border-color:var(--amber)}
 @media(max-width:640px){
   .g .v{font-size:21px}.g.big .v{font-size:26px}
   .pedals{flex-direction:column}
@@ -117,6 +133,15 @@ tbody tr.new{animation:flash .8s ease-out}
       <div class="bar b"><i id="brb"></i></div></div>
     <div class="ped"><div class="lbl"><span>Direction</span><b id="stv">0</b></div>
       <div class="steer"><i id="stb"></i></div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h2>Coach</h2><div class="rule"></div>
+      <label class="sw"><input type="checkbox" id="voiceOn" checked><span>Voix</span></label>
+      <button class="btn" id="testVoice" type="button">Test</button>
+    </div>
+    <div id="coachBox"><div class="note">Le coach a besoin de deux tours valides :
+      un de référence, puis un à comparer.</div></div>
   </div>
 
   <div class="sec">
@@ -169,10 +194,79 @@ function onTelemetry(d){
 const esc = t => String(t).replace(/[&<>"']/g,c=>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+/* ---- coaching ---- */
+let refTrace = null;     // trace du meilleur tour valide
+let refTime = null;
+let turns = null;        // virages detectes sur la reference
+
+function toSamples(trace){
+  // trace = [[t, distance, vitesse, gaz, frein, direction], ...]
+  if (!trace || !trace.length) return null;
+  return trace.map(r => ({ t:r[0], d:r[1], spd:r[2], th:r[3], br:r[4], st:r[5] }));
+}
+
+function speak(text){
+  if (!$('voiceOn').checked) return;
+  if (!('speechSynthesis' in window)) return;
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'fr-FR';
+    u.rate = 1.05;
+    window.speechSynthesis.speak(u);
+  } catch(e){ /* voix indisponible : on affiche quand meme */ }
+}
+
+function runCoach(l){
+  const cur = toSamples(l.trace);
+  if (!cur) return;
+
+  // premier tour valide -> devient la reference
+  if (!refTrace){
+    if (l.valid && l.time > 0){
+      refTrace = cur; refTime = l.time;
+      turns = detectTurns(refTrace);
+      $('coachBox').innerHTML = '<div class="note">Tour de référence enregistré — '
+        + turns.length + ' virages détectés. Le prochain tour sera analysé.</div>';
+    }
+    return;
+  }
+  if (!turns || !turns.length) return;
+
+  const tips = makeAdvice(compareLaps(refTrace, cur, turns));
+
+  if (!tips.length){
+    $('coachBox').innerHTML = '<div class="note">Tour propre — rien à corriger '
+      + 'par rapport à ta référence.</div>';
+    if (l.valid && l.time > 0 && l.time < refTime){
+      refTrace = cur; refTime = l.time; turns = detectTurns(refTrace);
+      speak('Nouveau meilleur tour.');
+    }
+    return;
+  }
+
+  $('coachBox').innerHTML = tips.map((t,i) =>
+    `<div class="tip${i===0?' top':''}">
+       <div class="n">T${t.turn}</div>
+       <div class="body">
+         <div class="msg">${esc(phrase(t))}</div>
+         <div class="meta">${t.lostS > 0.01 ? '−'+t.lostS.toFixed(3)+' s · ' : ''}virage à ${esc(t.dir)}</div>
+       </div>
+     </div>`).join('');
+
+  // voix : on enonce les conseils l'un apres l'autre
+  tips.forEach(t => speak(phrase(t)));
+
+  // le tour devient la nouvelle reference s'il est meilleur
+  if (l.valid && l.time > 0 && l.time < refTime){
+    refTrace = cur; refTime = l.time; turns = detectTurns(refTrace);
+  }
+}
+
 function onLap(l){
   laps.push(l);
   if (l.valid && l.time > 0 && (best == null || l.time < best)) best = l.time;
   renderLaps(true);
+  try { runCoach(l); } catch(e){ console.error('coach:', e); }
 }
 
 function renderLaps(flash){
@@ -194,6 +288,170 @@ function renderLaps(flash){
     <th>Tour</th><th>Temps</th><th class="r">Écart</th>
     <th class="r opt">V max</th><th class="r opt">Roue libre</th><th class="r"></th>
   </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ================= MOTEUR DE COACHING ================= */
+
+/* Detecte les virages a partir du braquage.
+   samples: [{d, spd, th, br, st, t}] tries par distance croissante. */
+function detectTurns(samples, minGapM){
+  minGapM = minGapM || 150;
+  const n = samples.length;
+  if (n < 10) return [];
+
+  let peak = 0;
+  for (let i=0;i<n;i++){ const a=Math.abs(samples[i].st); if(a>peak) peak=a; }
+  if (peak < 0.05) return [];
+  const thr = Math.max(0.08, peak*0.25);
+
+  const zones = [];
+  let i = 0;
+  while (i < n){
+    if (Math.abs(samples[i].st) >= thr){
+      let j = i;
+      while (j+1 < n && Math.abs(samples[j+1].st) >= thr*0.6) j++;
+      zones.push([i,j]);
+      i = j+1;
+    } else i++;
+  }
+
+  const merged = [];
+  for (const z of zones){
+    if (merged.length && samples[z[0]].d - samples[merged[merged.length-1][1]].d < minGapM)
+      merged[merged.length-1][1] = z[1];
+    else merged.push([z[0], z[1]]);
+  }
+
+  const turns = [];
+  for (const [a,b] of merged){
+    if (samples[b].d - samples[a].d < 20) continue;
+    let k = a, best = -1;
+    for (let x=a;x<=b;x++){
+      const v = Math.abs(samples[x].st);
+      if (v > best){ best = v; k = x; }
+    }
+    turns.push({
+      startM: samples[a].d, apexM: samples[k].d, endM: samples[b].d,
+      peakSteer: best, dir: samples[k].st > 0 ? 'gauche' : 'droite'
+    });
+  }
+  return turns;
+}
+
+function idxAt(samples, target, lo){
+  for (let i = lo||0; i < samples.length; i++)
+    if (samples[i].d >= target) return i;
+  return samples.length - 1;
+}
+
+/* Metriques d'un virage sur une fenetre incluant l'approche. */
+function turnMetrics(samples, startM, endM, approachM){
+  approachM = approachM || 250;
+  const a = idxAt(samples, Math.max(0, startM - approachM));
+  const b = idxAt(samples, endM, a);
+  if (b <= a) return null;
+
+  let brakePt = null, peakBrake = 0, minSpd = Infinity, minSpdM = null;
+  let coast = 0, throttleM = null;
+
+  for (let i=a;i<=b;i++){
+    const s = samples[i];
+    if (s.br > 0.05 && brakePt === null) brakePt = s.d;
+    if (s.br > peakBrake) peakBrake = s.br;
+    if (s.spd < minSpd){ minSpd = s.spd; minSpdM = s.d; }
+    if (i > a){
+      const dt = s.t - samples[i-1].t;
+      if (dt > 0 && dt < 1 && s.th < 0.05 && s.br < 0.05 && s.spd > 30) coast += dt;
+    }
+  }
+  if (minSpdM !== null){
+    const k = idxAt(samples, minSpdM, a);
+    for (let i=k;i<=b;i++) if (samples[i].th > 0.5){ throttleM = samples[i].d; break; }
+  }
+  return {
+    brakePointM: brakePt, peakBrake: peakBrake,
+    minSpeed: isFinite(minSpd) ? minSpd : null, minSpeedM: minSpdM,
+    coastS: coast, throttleM: throttleM,
+    tStart: samples[a].t, tEnd: samples[b].t
+  };
+}
+
+function compareLaps(refS, curS, turns){
+  const out = [];
+  for (let i=0;i<turns.length;i++){
+    const t = turns[i];
+    const r = turnMetrics(refS, t.startM, t.endM);
+    const c = turnMetrics(curS, t.startM, t.endM);
+    if (!r || !c) continue;
+    const d = {
+      turn: i+1, dir: t.dir, startM: t.startM,
+      lostS: (c.tEnd - c.tStart) - (r.tEnd - r.tStart),
+      ref: r, cur: c, coastDeltaS: c.coastS - r.coastS
+    };
+    if (r.brakePointM !== null && c.brakePointM !== null)
+      d.brakeDeltaM = c.brakePointM - r.brakePointM;
+    if (r.peakBrake && c.peakBrake)
+      d.brakeForceDelta = (c.peakBrake - r.peakBrake) * 100;
+    if (r.minSpeed && c.minSpeed)
+      d.minSpeedDelta = c.minSpeed - r.minSpeed;
+    if (r.throttleM !== null && c.throttleM !== null)
+      d.throttleDeltaM = c.throttleM - r.throttleM;
+    out.push(d);
+  }
+  return out;
+}
+
+/* Conseils tries par score = temps perdu + gravite technique. */
+function makeAdvice(comparisons, maxItems){
+  maxItems = maxItems || 3;
+  const tips = [];
+  for (const c of comparisons){
+    const bd = c.brakeDeltaM, bf = c.brakeForceDelta;
+    const cd = c.coastDeltaS || 0, td = c.throttleDeltaM, msd = c.minSpeedDelta;
+    let kind = null, detail = null, sev = 0;
+
+    if (bd != null && bd < -6){
+      kind = 'freinage_tot';
+      detail = 'tu freines ' + Math.round(-bd) + ' mètres trop tôt';
+      sev = Math.min(Math.abs(bd)/100, 0.35);
+    } else if (bf != null && bf < -12){
+      kind = 'freinage_mou';
+      detail = 'tu freines à ' + Math.round(c.cur.peakBrake*100)
+             + '% au lieu de ' + Math.round(c.ref.peakBrake*100) + '%';
+      sev = Math.min(Math.abs(bf)/100, 0.35);
+    } else if (cd > 0.12){
+      kind = 'coasting';
+      detail = 'tu restes ' + cd.toFixed(1) + ' seconde sans gaz ni frein';
+      sev = Math.min(cd/2, 0.35);
+    } else if (td != null && td > 8){
+      kind = 'gaz_tard';
+      detail = 'tu remets les gaz ' + Math.round(td) + ' mètres trop tard';
+      sev = Math.min(td/100, 0.35);
+    } else if (msd != null && msd < -4){
+      kind = 'trop_lent';
+      detail = 'tu passes ' + Math.round(-msd) + ' km/h moins vite';
+      sev = Math.min(Math.abs(msd)/40, 0.35);
+    }
+
+    if (kind) tips.push({
+      turn: c.turn, lostS: c.lostS, kind: kind, detail: detail, dir: c.dir,
+      score: Math.max(0, c.lostS) + sev
+    });
+  }
+  tips.sort((a,b) => b.score - a.score);
+  return tips.slice(0, maxItems);
+}
+
+function phrase(tip){
+  const t = tip.turn;
+  switch (tip.kind){
+    case 'freinage_tot':  return 'Virage ' + t + ', ' + tip.detail + '. Freine plus tard.';
+    case 'freinage_mou':  return 'Virage ' + t + ', ' + tip.detail + '. Appuie plus fort.';
+    case 'coasting':      return 'Virage ' + t + ', ' + tip.detail + '. Enchaîne frein et gaz.';
+    case 'gaz_tard':      return 'Virage ' + t + ', ' + tip.detail + '. Rouvre plus tôt.';
+    case 'trop_lent':     return 'Virage ' + t + ', ' + tip.detail + '. Porte plus de vitesse.';
+    default:              return 'Virage ' + t + ' : ' + tip.detail + '.';
+  }
 }
 
 /* ---- WebSocket avec reconnexion automatique ---- */
@@ -222,6 +480,10 @@ function scheduleRetry(){
   retry = Math.min(retry+1, 10);
   setTimeout(connect, 400 * retry);
 }
+$('testVoice').addEventListener('click', () => {
+  speak("Virage 3, tu freines 12 mètres trop tôt. Freine plus tard.");
+});
+
 connect();
 </script>
 </body>
