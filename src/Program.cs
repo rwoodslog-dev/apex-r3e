@@ -34,6 +34,29 @@ static class Program
         return r.ToString(INV);
     }
 
+
+    /// <summary>Extrait la valeur texte d'un champ JSON simple. null si absent.</summary>
+    static string JsonField(string json, string field)
+    {
+        if (string.IsNullOrEmpty(json)) return null;
+        string needle = "\"" + field + "\"";
+        int i = json.IndexOf(needle, StringComparison.Ordinal);
+        if (i < 0) return null;
+        i += needle.Length;
+        // saute espaces et deux-points
+        while (i < json.Length && (json[i] == ' ' || json[i] == ':' || json[i] == '\t')) i++;
+        if (i >= json.Length || json[i] != '"') return null;
+        i++;                       // on est maintenant sur le 1er caractere de la valeur
+        var sb = new StringBuilder();
+        while (i < json.Length && json[i] != '"')
+        {
+            if (json[i] == '\\' && i + 1 < json.Length) i++;   // gere l'echappement
+            sb.Append(json[i]);
+            i++;
+        }
+        return sb.ToString();
+    }
+
     static string JsonStr(string s)
     {
         if (s == null) return "\"\"";
@@ -137,11 +160,32 @@ static class Program
                 Console.WriteLine("      L'annonce reste possible depuis le dashboard.");
                 hook = null;
             }
+
         }
         catch (Exception ex)
         {
             Console.WriteLine("  [!] Raccourci global indisponible : " + ex.Message);
             hook = null;
+        }
+
+        // Le navigateur peut changer la touche a la volee.
+        // Enregistre meme si le hook global a echoue : le dashboard garde
+        // alors son propre raccourci local, et le reglage reste coherent.
+        {
+            var hookRef = hook;
+            server.MessageReceived += delegate(string msg)
+            {
+                if (msg == null || msg.IndexOf("setkey", StringComparison.Ordinal) < 0) return;
+                string name = JsonField(msg, "key");
+                if (name == null) return;
+                int nv = KeyHook.ParseKey(name);
+                if (nv == 0) return;
+                if (hookRef != null) hookRef.WatchedKey = nv;
+                Console.WriteLine("  Raccourci change : " + KeyHook.KeyName(nv)
+                    + (hookRef == null ? "  (dashboard uniquement)" : ""));
+                server.Broadcast("{\"type\":\"keybind\",\"key\":"
+                                 + JsonStr(KeyHook.KeyName(nv)) + "}");
+            };
         }
         Console.WriteLine();
 
@@ -164,6 +208,7 @@ static class Program
 
         var sw = Stopwatch.StartNew();
         long lastPush = 0;
+        int lastClients = 0;
 
         Console.CancelKeyPress += (s, e) =>
         {
@@ -386,6 +431,16 @@ static class Program
             }
 
             lastDist = dist;
+
+            // annonce la touche courante quand un nouveau client arrive
+            if (server.ClientCount > 0 && server.ClientCount != lastClients)
+            {
+                lastClients = server.ClientCount;
+                if (hook != null)
+                    server.Broadcast("{\"type\":\"keybind\",\"key\":"
+                        + JsonStr(KeyHook.KeyName(hook.WatchedKey)) + "}");
+            }
+            else if (server.ClientCount == 0) lastClients = 0;
 
             // ---- diffusion live (limitee a ~20 Hz) ---------------------------
             if (sw.ElapsedMilliseconds - lastPush >= 50 && server.ClientCount > 0)
