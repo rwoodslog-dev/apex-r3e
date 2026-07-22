@@ -157,19 +157,75 @@ class WebServer
         return parts.Length >= 2 ? parts[1] : "/";
     }
 
+    /// <summary>Recoit les messages texte envoyes par le navigateur.</summary>
+    public event Action<string> MessageReceived;
+
     void DrainUntilClose(TcpClient c, NetworkStream s)
     {
-        var buf = new byte[1024];
+        var acc = new List<byte>();
+        var buf = new byte[4096];
+
         while (running && c.Connected)
         {
-            try
-            {
-                int n = s.Read(buf, 0, buf.Length);
-                if (n <= 0) return;
-                // frame de fermeture (opcode 0x8)
-                if (n >= 1 && (buf[0] & 0x0F) == 0x8) return;
-            }
+            int n;
+            try { n = s.Read(buf, 0, buf.Length); }
             catch { return; }
+            if (n <= 0) return;
+
+            for (int i = 0; i < n; i++) acc.Add(buf[i]);
+
+            // decode toutes les trames completes presentes dans le tampon
+            while (true)
+            {
+                if (acc.Count < 2) break;
+
+                int opcode = acc[0] & 0x0F;
+                bool masked = (acc[1] & 0x80) != 0;
+                long len = acc[1] & 0x7F;
+                int off = 2;
+
+                if (len == 126)
+                {
+                    if (acc.Count < 4) break;
+                    len = (acc[2] << 8) | acc[3];
+                    off = 4;
+                }
+                else if (len == 127)
+                {
+                    if (acc.Count < 10) break;
+                    len = 0;
+                    for (int k = 0; k < 8; k++) len = (len << 8) | acc[2 + k];
+                    off = 10;
+                }
+
+                // garde-fou : un message anormalement gros = flux corrompu
+                if (len < 0 || len > 1 << 20) return;
+
+                int maskOff = off;
+                if (masked) off += 4;
+                if (acc.Count < off + len) break;   // trame incomplete
+
+                if (opcode == 0x8) return;          // fermeture
+
+                if (opcode == 0x1)                  // texte
+                {
+                    var payload = new byte[len];
+                    for (long k = 0; k < len; k++)
+                    {
+                        byte b = acc[(int)(off + k)];
+                        // les trames client->serveur sont TOUJOURS masquees (RFC 6455)
+                        if (masked) b = (byte)(b ^ acc[maskOff + (int)(k % 4)]);
+                        payload[k] = b;
+                    }
+                    var h = MessageReceived;
+                    if (h != null)
+                    {
+                        try { h(Encoding.UTF8.GetString(payload)); } catch { }
+                    }
+                }
+
+                acc.RemoveRange(0, (int)(off + len));
+            }
         }
     }
 
