@@ -98,6 +98,50 @@ tbody tr.new{animation:flash .8s ease-out}
 .tip .msg{font-size:14px;line-height:1.45;margin-bottom:4px}
 .tip .meta{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em}
 .tip.top{border-color:var(--amber)}
+.mapsvg{width:100%;height:auto;display:block;background:var(--ink-2);
+  border:1px solid var(--line)}
+.mapsvg .seg{cursor:pointer;transition:stroke-width .12s}
+.mapsvg .seg:hover{stroke-width:17}
+.mapsvg .map-hot{filter:drop-shadow(0 0 5px currentColor)}
+.mapnum{font-family:var(--mono);font-size:11px;fill:var(--dim);font-weight:600}
+.mapnum.on{fill:var(--amber)}
+.leg{display:inline-flex;align-items:center;gap:5px;margin-left:11px}
+.leg i{width:11px;height:11px;display:inline-block}
+.det{border:1px solid var(--amber);background:var(--ink-2);padding:13px 15px;margin-top:10px}
+.det h4{font-size:14px;margin-bottom:9px;color:var(--amber)}
+.det .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:9px}
+.det .c{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.det .c b{display:block;font-size:15px;color:var(--bone);margin-top:2px;
+  font-variant-numeric:tabular-nums}
+.det .c b.bad{color:var(--oxide)} .det .c b.good{color:var(--green)}
+
+.hint{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.1em;
+  white-space:nowrap}
+.hint b{color:var(--amber);font-weight:600}
+.race{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));
+  border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.r-i{padding:11px 13px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.r-i .k{font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.r-i .v{font-family:var(--mono);font-size:20px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1}
+.r-i .v.warn{color:var(--oxide)}
+.r-i .v.ok{color:var(--amber)}
+.cfg{margin-top:14px;border:1px solid var(--line);background:var(--ink-2)}
+.cfg summary{padding:11px 15px;cursor:pointer;font-family:var(--mono);font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--dim);user-select:none}
+.cfg summary:hover{color:var(--bone)}
+.cfg-in{padding:6px 15px 16px;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.cfg-t{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:8px}
+.cfg-col label{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:13px;
+  cursor:pointer}
+.cfg-col input[type=checkbox]{accent-color:var(--amber);cursor:pointer}
+.cfg-col select,.cfg-col input[type=range]{width:100%;background:var(--ink-3);
+  color:var(--bone);border:1px solid var(--line);padding:5px;font-family:var(--mono);
+  font-size:12px}
+code{font-family:var(--mono);font-size:10px;background:var(--ink-3);padding:1px 4px}
+@media(max-width:640px){.cfg-in{grid-template-columns:1fr}}
 @media(max-width:640px){
   .g .v{font-size:21px}.g.big .v{font-size:26px}
   .pedals{flex-direction:column}
@@ -133,6 +177,52 @@ tbody tr.new{animation:flash .8s ease-out}
       <div class="bar b"><i id="brb"></i></div></div>
     <div class="ped"><div class="lbl"><span>Direction</span><b id="stv">0</b></div>
       <div class="steer"><i id="stb"></i></div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h2>Infos course</h2><div class="rule"></div>
+      <span class="hint" id="bindLabel">Touche <b id="hkBadge">C</b></span>
+      <button class="btn" id="sayNow" type="button">Annoncer</button>
+    </div>
+    <div class="race" id="raceBox">
+      <div class="r-i"><div class="k">Position</div><div class="v" id="rPos">—</div></div>
+      <div class="r-i"><div class="k">Tour</div><div class="v" id="rLap">—</div></div>
+      <div class="r-i"><div class="k">Restants</div><div class="v" id="rLeft">—</div></div>
+      <div class="r-i"><div class="k">Carburant</div><div class="v" id="rFuel">—</div></div>
+      <div class="r-i"><div class="k">Autonomie</div><div class="v" id="rRange">—</div></div>
+      <div class="r-i"><div class="k">Devant</div><div class="v" id="rFront">—</div></div>
+      <div class="r-i"><div class="k">Derrière</div><div class="v" id="rBehind">—</div></div>
+      <div class="r-i"><div class="k">Pneus</div><div class="v" id="rWear">—</div></div>
+    </div>
+
+    <details class="cfg">
+      <summary>Personnaliser l'annonce vocale</summary>
+      <div class="cfg-in">
+        <div class="cfg-col">
+          <div class="cfg-t">Ce qui est annoncé</div>
+          <div id="checkList"></div>
+        </div>
+        <div class="cfg-col">
+          <div class="cfg-t">Voix</div>
+          <select id="voiceSel"></select>
+          <div class="cfg-t" style="margin-top:14px">Vitesse</div>
+          <input type="range" id="voiceRate" min="0.7" max="1.6" step="0.05" value="1.05">
+          <div class="hint" id="rateVal">1.05×</div>
+          <div class="cfg-t" style="margin-top:14px">Raccourci</div>
+          <div class="hint" id="padStat">Touche <b id="hkName">C</b> — fonctionne même en jeu</div>
+          <div class="hint" style="margin-top:6px;opacity:.7">Change-la avec l'option
+            <code>--key F9</code> au lancement.</div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h2>Circuit</h2><div class="rule"></div>
+      <span class="hint" id="mapLegend"></span>
+    </div>
+    <div id="mapBox"><div class="note">La carte se trace après ton premier tour complet.</div></div>
+    <div id="turnDetail"></div>
   </div>
 
   <div class="sec">
@@ -200,20 +290,71 @@ let refTime = null;
 let turns = null;        // virages detectes sur la reference
 
 function toSamples(trace){
-  // trace = [[t, distance, vitesse, gaz, frein, direction], ...]
+  // trace = [[t, distance, vitesse, gaz, frein, direction, x, z], ...]
   if (!trace || !trace.length) return null;
-  return trace.map(r => ({ t:r[0], d:r[1], spd:r[2], th:r[3], br:r[4], st:r[5] }));
+  return trace.map(r => ({ t:r[0], d:r[1], spd:r[2], th:r[3], br:r[4], st:r[5],
+                           x:r[6], z:r[7] }));
 }
 
-function speak(text){
-  if (!$('voiceOn').checked) return;
+/* ---- carte ---- */
+let lastComparisons = null, lastTips = null;
+
+function drawMap(){
+  if (!refTrace || !turns || !turns.length){ return; }
+  const pts = refTrace.filter(p => p.x !== undefined && p.z !== undefined
+                                && isFinite(p.x) && isFinite(p.z));
+  if (pts.length < 10){
+    $('mapBox').innerHTML = '<div class="note">Coordonnées de position indisponibles — '
+      + 'la carte ne peut pas être tracée.</div>';
+    return;
+  }
+  $('mapBox').innerHTML = renderMap(pts, turns, lastComparisons, lastTips);
+  $('mapLegend').innerHTML =
+    '<span class="leg"><i style="background:var(--green)"></i>gagné</span>'
+  + '<span class="leg"><i style="background:var(--amber)"></i>bon</span>'
+  + '<span class="leg"><i style="background:#D98A4A"></i>léger</span>'
+  + '<span class="leg"><i style="background:var(--oxide)"></i>perte</span>';
+
+  document.querySelectorAll('.mapsvg .seg').forEach(el => {
+    el.addEventListener('click', () => showTurn(+el.dataset.turn));
+  });
+}
+
+function showTurn(n){
+  const c = (lastComparisons||[]).find(x => x.turn === n);
+  if (!c){ $('turnDetail').innerHTML = ''; return; }
+  const cell = (label, val, cls) =>
+    `<div class="c">${label}<b class="${cls||''}">${val}</b></div>`;
+  const sign = v => (v>0?'+':'') + v.toFixed(2);
+  let html = `<div class="det"><h4>Virage ${n} — ${esc(c.dir)}</h4><div class="grid">`;
+  html += cell('Temps', sign(c.lostS)+' s', c.lostS>0.05?'bad':(c.lostS<-0.02?'good':''));
+  if (c.brakeDeltaM != null)
+    html += cell('Point de freinage', sign(c.brakeDeltaM)+' m', c.brakeDeltaM<-6?'bad':'');
+  if (c.brakeForceDelta != null)
+    html += cell('Pression frein', sign(c.brakeForceDelta)+' pt', c.brakeForceDelta<-12?'bad':'');
+  if (c.minSpeedDelta != null)
+    html += cell('Vitesse mini', sign(c.minSpeedDelta)+' km/h', c.minSpeedDelta<-4?'bad':'');
+  if (c.coastDeltaS)
+    html += cell('Roue libre', sign(c.coastDeltaS)+' s', c.coastDeltaS>0.12?'bad':'');
+  if (c.throttleDeltaM != null)
+    html += cell('Reprise gaz', sign(c.throttleDeltaM)+' m', c.throttleDeltaM>8?'bad':'');
+  html += '</div></div>';
+  $('turnDetail').innerHTML = html;
+}
+
+function speak(text, priority){
   if (!('speechSynthesis' in window)) return;
+  // les annonces course passent meme si la voix coach est coupee
+  if (!priority && !$('voiceOn').checked) return;
   try {
+    if (priority) window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-FR';
-    u.rate = 1.05;
+    const r = parseFloat(($('voiceRate')||{}).value);
+    u.rate = isFinite(r) ? r : 1.05;
+    if (chosenVoice) u.voice = chosenVoice;
     window.speechSynthesis.speak(u);
-  } catch(e){ /* voix indisponible : on affiche quand meme */ }
+  } catch(e){ /* voix indisponible : l'affichage reste */ }
 }
 
 function runCoach(l){
@@ -225,20 +366,25 @@ function runCoach(l){
     if (l.valid && l.time > 0){
       refTrace = cur; refTime = l.time;
       turns = detectTurns(refTrace);
+      lastComparisons = null; lastTips = null;
       $('coachBox').innerHTML = '<div class="note">Tour de référence enregistré — '
         + turns.length + ' virages détectés. Le prochain tour sera analysé.</div>';
+      drawMap();
     }
     return;
   }
   if (!turns || !turns.length) return;
 
-  const tips = makeAdvice(compareLaps(refTrace, cur, turns));
+  const comps = compareLaps(refTrace, cur, turns);
+  const tips = makeAdvice(comps);
+  lastComparisons = comps; lastTips = tips;
+  drawMap();
 
   if (!tips.length){
     $('coachBox').innerHTML = '<div class="note">Tour propre — rien à corriger '
       + 'par rapport à ta référence.</div>';
     if (l.valid && l.time > 0 && l.time < refTime){
-      refTrace = cur; refTime = l.time; turns = detectTurns(refTrace);
+      refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
       speak('Nouveau meilleur tour.');
     }
     return;
@@ -258,7 +404,7 @@ function runCoach(l){
 
   // le tour devient la nouvelle reference s'il est meilleur
   if (l.valid && l.time > 0 && l.time < refTime){
-    refTrace = cur; refTime = l.time; turns = detectTurns(refTrace);
+    refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
   }
 }
 
@@ -290,7 +436,141 @@ function renderLaps(flash){
   </tr></thead><tbody>${rows}</tbody></table>`;
 }
 
+/* ================= INFOS COURSE ================= */
+let race = {};
+
+/* Chaque item : id, libelle, actif par defaut, et fonction de phrase.
+   La fonction retourne null si la donnee n'est pas disponible — on
+   n'annonce jamais une valeur absente. */
+const SAY_ITEMS = [
+  { id:'pos',   label:'Position',            def:true,
+    f:r => (r.pos > 0) ? ('Position ' + r.pos + (r.cars > 0 ? ' sur ' + r.cars : '')) : null },
+  { id:'lap',   label:'Tour en cours',       def:true,
+    f:r => (r.lap >= 0 && r.totalLaps > 0) ? ('Tour ' + r.lap + ' sur ' + r.totalLaps)
+         : (r.lap >= 0 ? ('Tour ' + r.lap) : null) },
+  { id:'left',  label:'Tours restants',      def:true,
+    f:r => (r.lapsRemain != null && r.lapsRemain >= 0)
+         ? (r.lapsRemain <= 1 ? 'Dernier tour' : (Math.round(r.lapsRemain) + ' tours restants')) : null },
+  { id:'fuel',  label:'Carburant (%)',       def:true,
+    f:r => (r.fuelPct != null && r.fuelPct >= 0) ? ('Carburant ' + Math.round(r.fuelPct) + ' pour cent') : null },
+  { id:'fuelL', label:'Carburant (litres)',  def:false,
+    f:r => (r.fuelLeft != null && r.fuelLeft >= 0) ? (r.fuelLeft.toFixed(1) + ' litres') : null },
+  { id:'range', label:'Autonomie en tours',  def:true,
+    f:r => (r.fuelLaps != null && r.fuelLaps >= 0)
+         ? ('Autonomie ' + r.fuelLaps.toFixed(1) + ' tours') : null },
+  { id:'front', label:'Écart devant',        def:true,
+    f:r => (r.dFront != null && r.dFront > 0)
+         ? ('Devant à ' + r.dFront.toFixed(1) + ' secondes') : null },
+  { id:'behind',label:'Écart derrière',      def:true,
+    f:r => (r.dBehind != null && r.dBehind > 0)
+         ? ('Derrière à ' + r.dBehind.toFixed(1) + ' secondes') : null },
+  { id:'best',  label:'Meilleur tour',       def:false,
+    f:r => (r.best > 0) ? ('Meilleur tour ' + fmt(r.best)) : null },
+  { id:'last',  label:'Dernier tour',        def:false,
+    f:r => (laps.length && laps[laps.length-1].time > 0)
+         ? ('Dernier tour ' + fmt(laps[laps.length-1].time)) : null },
+  { id:'wear',  label:'Usure pneus',         def:false,
+    f:r => (r.tireWear != null && r.tireWear >= 0)
+         ? ('Pneus ' + Math.round(r.tireWear) + ' pour cent') : null },
+  { id:'time',  label:'Temps de session',    def:false,
+    f:r => (r.sessRemain != null && r.sessRemain > 0)
+         ? (Math.floor(r.sessRemain/60) + ' minutes restantes') : null },
+  { id:'pen',   label:'Pénalités',           def:true,
+    f:r => (r.penalties > 0)
+         ? (r.penalties + (r.penalties > 1 ? ' pénalités' : ' pénalité')) : null },
+  { id:'flag',  label:'Drapeau',             def:true,
+    f:r => r.flag ? ('Drapeau ' + r.flag) : null },
+];
+
+function loadPrefs(){
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('apexSay') || '{}'); } catch(e){}
+  return saved;
+}
+function savePrefs(){
+  const o = {};
+  SAY_ITEMS.forEach(it => { const el = $('say_'+it.id); if (el) o[it.id] = el.checked; });
+  try { localStorage.setItem('apexSay', JSON.stringify(o)); } catch(e){}
+}
+
+function buildCheckList(){
+  const saved = loadPrefs();
+  $('checkList').innerHTML = SAY_ITEMS.map(it =>
+    `<label><input type="checkbox" id="say_${it.id}"${
+      (saved[it.id] !== undefined ? saved[it.id] : it.def) ? ' checked' : ''
+    }><span>${esc(it.label)}</span></label>`).join('');
+  SAY_ITEMS.forEach(it => {
+    const el = $('say_'+it.id);
+    if (el) el.addEventListener('change', savePrefs);
+  });
+}
+
+function buildAnnouncement(){
+  const parts = [];
+  for (const it of SAY_ITEMS){
+    const el = $('say_'+it.id);
+    if (!el || !el.checked) continue;
+    let s = null;
+    try { s = it.f(race); } catch(e){ s = null; }
+    if (s) parts.push(s);
+  }
+  return parts.length ? parts.join('. ') + '.' : "Aucune donnée disponible.";
+}
+
+function announce(){
+  const txt = buildAnnouncement();
+  speak(txt, true);
+}
+
+function onRace(d){
+  race = d;
+  const set = (id, val, cls) => {
+    const el = $(id); if (!el) return;
+    el.textContent = val;
+    el.className = 'v' + (cls ? ' '+cls : '');
+  };
+  set('rPos', d.pos > 0 ? (d.pos + (d.cars>0 ? '/'+d.cars : '')) : '—');
+  set('rLap', d.lap >= 0 ? (d.lap + (d.totalLaps>0 ? '/'+d.totalLaps : '')) : '—');
+  set('rLeft', (d.lapsRemain != null && d.lapsRemain >= 0) ? Math.round(d.lapsRemain) : '—',
+      (d.lapsRemain >= 0 && d.lapsRemain <= 1) ? 'ok' : '');
+  set('rFuel', (d.fuelPct != null && d.fuelPct >= 0) ? Math.round(d.fuelPct)+'%' : '—',
+      (d.fuelPct >= 0 && d.fuelPct < 15) ? 'warn' : '');
+  set('rRange', (d.fuelLaps != null && d.fuelLaps >= 0) ? d.fuelLaps.toFixed(1) : '—',
+      (d.fuelLaps >= 0 && d.lapsRemain > 0 && d.fuelLaps < d.lapsRemain) ? 'warn' : '');
+  set('rFront', (d.dFront != null && d.dFront > 0) ? '+'+d.dFront.toFixed(1) : '—');
+  set('rBehind', (d.dBehind != null && d.dBehind > 0) ? '-'+d.dBehind.toFixed(1) : '—');
+  set('rWear', (d.tireWear != null && d.tireWear >= 0) ? Math.round(d.tireWear)+'%' : '—',
+      (d.tireWear >= 0 && d.tireWear < 30) ? 'warn' : '');
+}
+
+/* ---- voix ---- */
+let voices = [], chosenVoice = null;
+
+function loadVoices(){
+  if (!('speechSynthesis' in window)) return;
+  voices = window.speechSynthesis.getVoices() || [];
+  // les voix francaises d'abord
+  const fr = voices.filter(v => /^fr/i.test(v.lang));
+  const list = fr.length ? fr : voices;
+  const sel = $('voiceSel');
+  if (!sel) return;
+  const prev = localStorage.getItem('apexVoice');
+  sel.innerHTML = list.map((v,i) =>
+    `<option value="${esc(v.name)}">${esc(v.name)}${/^fr/i.test(v.lang)?'':' ('+esc(v.lang)+')'}</option>`
+  ).join('') || '<option>voix par défaut</option>';
+  if (prev && list.some(v => v.name === prev)) sel.value = prev;
+  chosenVoice = list.find(v => v.name === sel.value) || list[0] || null;
+}
+
+/* ---- raccourci clavier local (si la page a le focus) ---- */
+window.addEventListener('keydown', e => {
+  if (e.target && /input|select|textarea/i.test(e.target.tagName)) return;
+  if (e.key && e.key.toLowerCase() === (window.__hotkey||'c').toLowerCase()) announce();
+});
+
+
 /* ================= MOTEUR DE COACHING ================= */
+
 
 /* Detecte les virages a partir du braquage.
    samples: [{d, spd, th, br, st, t}] tries par distance croissante. */
@@ -322,8 +602,60 @@ function detectTurns(samples, minGapM){
     else merged.push([z[0], z[1]]);
   }
 
-  const turns = [];
+  /* Une zone continue peut contenir plusieurs virages enchaines (circuit
+     sinueux, sans ligne droite entre eux). On la redecoupe sur :
+       - les changements de sens du braquage (gauche <-> droite)
+       - les creux locaux nets entre deux pics
+     Sans ca, tout un circuit tournant peut etre vu comme un seul virage. */
+  const split = [];
   for (const [a,b] of merged){
+    const cuts = [a];
+    for (let i=a+2;i<b-1;i++){
+      const prev = samples[i-1].st, cur = samples[i].st, next = samples[i+1].st;
+      // changement de sens franc
+      if (prev * next < 0 && Math.abs(cur) < thr*0.8){ cuts.push(i); continue; }
+      // creux local : minimum entoure de deux pics plus marques
+      const av = Math.abs(cur);
+      if (av < Math.abs(prev) && av <= Math.abs(next)){
+        let maxL = 0, maxR = 0;
+        for (let k=Math.max(a,i-45);k<i;k++) maxL = Math.max(maxL, Math.abs(samples[k].st));
+        for (let k=i+1;k<=Math.min(b,i+45);k++) maxR = Math.max(maxR, Math.abs(samples[k].st));
+        if (maxL > av*1.5 && maxR > av*1.5 && maxL > thr && maxR > thr
+            && samples[i].d - samples[cuts[cuts.length-1]].d > 90) cuts.push(i);
+      }
+    }
+    cuts.push(b);
+    for (let i=0;i<cuts.length-1;i++){
+      let s = cuts[i];
+      const e = cuts[i+1];
+      if (e <= s) continue;
+      /* Un "virage" de plusieurs centaines de metres n'en est pas un :
+         c'est une grande courbe ou une suite mal separee. On la redecoupe,
+         mais uniquement s'il existe un vrai creux de braquage — sinon on
+         couperait en deux un long virage legitime (type Pouhon). */
+      const MAXLEN = 420;
+      while (samples[e].d - samples[s].d > MAXLEN){
+        let cut = -1, bestDip = Infinity;
+        const lo = idxAtDist(samples, samples[s].d + 140, s);
+        const hi = idxAtDist(samples, Math.min(samples[e].d - 140,
+                                               samples[s].d + MAXLEN), lo);
+        let localPeak = 0;
+        for (let k=s;k<=e;k++) localPeak = Math.max(localPeak, Math.abs(samples[k].st));
+        for (let k=lo;k<=hi && k<e;k++){
+          const v = Math.abs(samples[k].st);
+          if (v < bestDip){ bestDip = v; cut = k; }
+        }
+        // pas de creux marque -> c'est un seul long virage, on le garde entier
+        if (cut <= s || cut >= e || bestDip > localPeak*0.55) break;
+        split.push([s, cut]);
+        s = cut;
+      }
+      split.push([s, e]);
+    }
+  }
+
+  const turns = [];
+  for (const [a,b] of split){
     if (samples[b].d - samples[a].d < 20) continue;
     let k = a, best = -1;
     for (let x=a;x<=b;x++){
@@ -336,6 +668,12 @@ function detectTurns(samples, minGapM){
     });
   }
   return turns;
+}
+
+function idxAtDist(samples, target, lo){
+  for (let i = lo||0; i < samples.length; i++)
+    if (samples[i].d >= target) return i;
+  return samples.length - 1;
 }
 
 function idxAt(samples, target, lo){
@@ -454,6 +792,125 @@ function phrase(tip){
   }
 }
 
+/* ================= CARTE DU CIRCUIT ================= */
+
+/* Projette les points sur un viewBox, en conservant les proportions. */
+function projectTrack(pts, w, h, pad){
+  pad = pad == null ? 26 : pad;
+  if (!pts || pts.length < 3) return null;
+  let mnx=Infinity, mxx=-Infinity, mnz=Infinity, mxz=-Infinity;
+  for (const p of pts){
+    if (p.x < mnx) mnx = p.x;
+    if (p.x > mxx) mxx = p.x;
+    if (p.z < mnz) mnz = p.z;
+    if (p.z > mxz) mxz = p.z;
+  }
+  const spanX = Math.max(1, mxx-mnx), spanZ = Math.max(1, mxz-mnz);
+  const s = Math.min((w-2*pad)/spanX, (h-2*pad)/spanZ);
+  // centrage
+  const ox = (w - spanX*s)/2 - mnx*s;
+  const oy = (h - spanZ*s)/2 - mnz*s;
+  return pts.map(p => ({
+    x: p.x*s + ox,
+    y: p.z*s + oy,      // Z du jeu -> Y de l'ecran
+    d: p.d
+  }));
+}
+
+/* Construit un chemin SVG a partir d'une liste de points projetes. */
+function pathFrom(proj, close){
+  if (!proj || !proj.length) return '';
+  let s = 'M' + proj[0].x.toFixed(1) + ',' + proj[0].y.toFixed(1);
+  for (let i=1;i<proj.length;i++)
+    s += 'L' + proj[i].x.toFixed(1) + ',' + proj[i].y.toFixed(1);
+  if (close) s += 'Z';
+  return s;
+}
+
+/* Extrait le sous-chemin correspondant a un intervalle de distance. */
+function segmentPath(proj, fromM, toM){
+  const seg = proj.filter(p => p.d >= fromM && p.d <= toM);
+  return seg.length >= 2 ? pathFrom(seg, false) : '';
+}
+
+/* Couleur selon le temps perdu (secondes). */
+function lossColor(lost){
+  if (lost == null || !isFinite(lost)) return 'var(--dim)';
+  if (lost <= -0.02) return 'var(--green)';    // gagne
+  if (lost < 0.05) return 'var(--amber)';      // neutre / bon
+  if (lost < 0.15) return '#D98A4A';           // leger
+  return 'var(--oxide)';                       // grosse perte
+}
+
+/* Rend la carte complete. tips = conseils du coach (pour le detail). */
+function renderMap(trackPts, turns, comparisons, tips){
+  const W = 720, H = 460;
+  const proj = projectTrack(trackPts, W, H);
+  if (!proj) return '<div class="note">Pas assez de données de position pour tracer le circuit.</div>';
+
+  const byTurn = {};
+  (comparisons||[]).forEach(c => byTurn[c.turn] = c);
+  const tipByTurn = {};
+  (tips||[]).forEach(t => tipByTurn[t.turn] = t);
+
+  let svg = '<svg viewBox="0 0 '+W+' '+H+'" class="mapsvg" '
+          + 'xmlns="http://www.w3.org/2000/svg" role="img" '
+          + 'aria-label="Carte du circuit avec les virages colorés selon la performance">';
+
+  // trace complet, en fond
+  svg += '<path d="'+pathFrom(proj,true)+'" fill="none" stroke="var(--ink-3)" '
+       + 'stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>';
+  svg += '<path d="'+pathFrom(proj,true)+'" fill="none" stroke="var(--line)" '
+       + 'stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>';
+
+  // portions de virage colorees
+  (turns||[]).forEach((t, i) => {
+    const n = i+1;
+    const c = byTurn[n];
+    const d = segmentPath(proj, t.startM, t.endM);
+    if (!d) return;
+    const col = c ? lossColor(c.lostS) : 'var(--dim)';
+    const hot = tipByTurn[n] ? ' map-hot' : '';
+    svg += '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="13" '
+         + 'stroke-linecap="round" class="seg'+hot+'" data-turn="'+n+'">'
+         + '<title>Virage '+n+(c ? ' — '+(c.lostS>0?'+':'')+c.lostS.toFixed(3)+' s' : '')+'</title>'
+         + '</path>';
+  });
+
+  // numeros de virage
+  (turns||[]).forEach((t, i) => {
+    const n = i+1;
+    const seg = proj.filter(p => p.d >= t.startM && p.d <= t.endM);
+    if (!seg.length) return;
+    const mid = seg[Math.floor(seg.length/2)];
+    // decale l'etiquette vers l'exterieur du trace
+    const cx = proj.reduce((a,p)=>a+p.x,0)/proj.length;
+    const cy = proj.reduce((a,p)=>a+p.y,0)/proj.length;
+    let vx = mid.x-cx, vy = mid.y-cy;
+    const L = Math.hypot(vx,vy)||1;
+    vx = vx/L*24; vy = vy/L*24;
+    const t2 = tipByTurn[n];
+    svg += '<circle cx="'+(mid.x+vx).toFixed(1)+'" cy="'+(mid.y+vy).toFixed(1)+'" r="11" '
+         + 'fill="var(--ink)" stroke="'+(t2?'var(--amber)':'var(--line)')+'" stroke-width="1.5"/>';
+    svg += '<text x="'+(mid.x+vx).toFixed(1)+'" y="'+(mid.y+vy+4).toFixed(1)+'" '
+         + 'text-anchor="middle" class="mapnum'+(t2?' on':'')+'">'+n+'</text>';
+  });
+
+  // ligne de depart
+  if (proj.length > 4){
+    const p0 = proj[0], p1 = proj[3];
+    const dx = p1.x-p0.x, dy = p1.y-p0.y;
+    const L = Math.hypot(dx,dy)||1;
+    const nx = -dy/L*11, ny = dx/L*11;
+    svg += '<line x1="'+(p0.x+nx).toFixed(1)+'" y1="'+(p0.y+ny).toFixed(1)+'" '
+         + 'x2="'+(p0.x-nx).toFixed(1)+'" y2="'+(p0.y-ny).toFixed(1)+'" '
+         + 'stroke="var(--bone)" stroke-width="3"/>';
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
 /* ---- WebSocket avec reconnexion automatique ---- */
 let ws = null, retry = 0;
 function connect(){
@@ -466,8 +923,15 @@ function connect(){
   ws.onerror = () => { try{ws.close();}catch(e){} };
   ws.onmessage = e => {
     let m; try { m = JSON.parse(e.data); } catch(err){ return; }
-    if (m.type === 'telemetry') onTelemetry(m);
+    if (m.type === 'telemetry'){ onTelemetry(m); onRace(m); }
     else if (m.type === 'lap') onLap(m);
+    else if (m.type === 'say') announce();
+    else if (m.type === 'keybind'){
+      window.__hotkey = m.key;
+      const a = $('hkBadge'), b = $('hkName');
+      if (a) a.textContent = m.key;
+      if (b) b.textContent = m.key;
+    }
     else if (m.type === 'state'){
       $('trk').textContent = m.msg;
       if (m.laps) { laps.length = 0; m.laps.forEach(x=>laps.push(x));
@@ -480,6 +944,21 @@ function scheduleRetry(){
   retry = Math.min(retry+1, 10);
   setTimeout(connect, 400 * retry);
 }
+/* ---- initialisation des controles ---- */
+buildCheckList();
+loadVoices();
+if ('speechSynthesis' in window)
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+
+$('voiceSel').addEventListener('change', e => {
+  chosenVoice = voices.find(v => v.name === e.target.value) || null;
+  try { localStorage.setItem('apexVoice', e.target.value); } catch(err){}
+  speak("Voix sélectionnée.", true);
+});
+$('voiceRate').addEventListener('input', e => {
+  $('rateVal').textContent = parseFloat(e.target.value).toFixed(2) + '×';
+});
+$('sayNow').addEventListener('click', announce);
 $('testVoice').addEventListener('click', () => {
   speak("Virage 3, tu freines 12 mètres trop tôt. Freine plus tard.");
 });
