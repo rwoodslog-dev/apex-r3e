@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APEX — Analyse télémétrie</title>
+<style>
+:root{
+  --ink:#12100E;
+  --ink-2:#1C1917;
+  --ink-3:#2A2622;
+  --bone:#F2EFE9;
+  --bone-dim:#A8A29A;
+  --amber:#E8A33D;
+  --oxide:#C4553B;
+  --line:rgba(242,239,233,.14);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:"Helvetica Neue",Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--bone);
+  font-family:var(--sans);font-size:15px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 100px}
+
+/* ---------- checkered motif ---------- */
+.flag{
+  height:14px;
+  background-image:
+    linear-gradient(45deg,var(--bone) 25%,transparent 25%,transparent 75%,var(--bone) 75%),
+    linear-gradient(45deg,var(--bone) 25%,transparent 25%,transparent 75%,var(--bone) 75%);
+  background-size:14px 14px;
+  background-position:0 0,7px 7px;
+  background-color:var(--ink);
+}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--line)}
+.head-in{max-width:1180px;margin:0 auto;padding:26px 20px 22px;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand h1{font-size:30px;font-weight:800;letter-spacing:-.03em}
+.brand span{font-family:var(--mono);font-size:10px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--bone-dim)}
+.head-meta{font-family:var(--mono);font-size:11px;color:var(--bone-dim);
+  letter-spacing:.08em;text-align:right}
+.head-meta b{color:var(--bone);font-weight:500}
+
+/* ---------- dropzone ---------- */
+.drop{
+  margin:26px 0;padding:34px 24px;text-align:center;
+  border:1px dashed var(--line);background:var(--ink-2);
+  cursor:pointer;transition:border-color .15s,background .15s;
+}
+.drop:hover,.drop.hot{border-color:var(--amber);background:var(--ink-3)}
+.drop h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.drop p{font-family:var(--mono);font-size:11px;color:var(--bone-dim);letter-spacing:.05em}
+.drop input{display:none}
+
+/* ---------- section heads ---------- */
+.sec{margin-top:44px}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.sec-head h2{font-family:var(--mono);font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--bone-dim);white-space:nowrap}
+.sec-head .rule{flex:1;height:1px;background:var(--line)}
+.sec-head .count{font-family:var(--mono);font-size:11px;color:var(--bone-dim)}
+
+/* ---------- stat strip ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.stat{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--bone-dim);margin-bottom:7px}
+.stat .v{font-family:var(--mono);font-size:25px;font-weight:600;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat .v.amber{color:var(--amber)}
+.stat .sub{font-family:var(--mono);font-size:10px;color:var(--bone-dim);margin-top:4px}
+
+/* ---------- track cards ---------- */
+.track{border:1px solid var(--line);margin-bottom:14px;background:var(--ink-2)}
+.track-bar{display:flex;align-items:center;gap:14px;padding:13px 16px;
+  cursor:pointer;user-select:none;transition:background .12s}
+.track-bar:hover{background:var(--ink-3)}
+.track-bar .chev{font-family:var(--mono);font-size:11px;color:var(--bone-dim);
+  transition:transform .18s;display:inline-block}
+.track.open .chev{transform:rotate(90deg)}
+.track-name{font-weight:600;font-size:15px;flex:1;min-width:0}
+.track-name em{font-style:normal;color:var(--bone-dim);font-weight:400;font-size:13px}
+.track-best{font-family:var(--mono);font-size:16px;font-weight:600;
+  color:var(--amber);font-variant-numeric:tabular-nums}
+.track-n{font-family:var(--mono);font-size:10px;color:var(--bone-dim);
+  letter-spacing:.1em;min-width:58px;text-align:right}
+.track-body{display:none;border-top:1px solid var(--line)}
+.track.open .track-body{display:block}
+
+/* ---------- lap table ---------- */
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--bone-dim);text-align:left;padding:10px 14px;font-weight:400;
+  border-bottom:1px solid var(--line)}
+th.r,td.r{text-align:right}
+td{padding:9px 14px;font-family:var(--mono);font-size:13px;
+  font-variant-numeric:tabular-nums;border-bottom:1px solid rgba(242,239,233,.06)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(242,239,233,.03)}
+.lapno{color:var(--bone-dim);font-size:11px}
+.t-best{color:var(--amber);font-weight:600}
+.t-inv{color:var(--bone-dim);text-decoration:line-through;opacity:.55}
+.gain{color:var(--amber)}
+.loss{color:var(--oxide)}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:2px 6px;
+  border:1px solid;text-transform:uppercase}
+.tag.pb{color:var(--amber);border-color:var(--amber)}
+.tag.inv{color:var(--oxide);border-color:var(--oxide)}
+
+
+/* ---------- empty ---------- */
+.empty{padding:52px 20px;text-align:center;border:1px solid var(--line);background:var(--ink-2)}
+.empty h3{font-size:16px;margin-bottom:8px;font-weight:600}
+.empty p{font-family:var(--mono);font-size:12px;color:var(--bone-dim);
+  max-width:440px;margin:0 auto;line-height:1.7}
+.hide{display:none}
+
+/* ---------- theoretical best callout ---------- */
+.theo{display:flex;align-items:center;gap:18px;padding:14px 16px;
+  border-top:1px solid var(--line);background:rgba(232,163,61,.05);flex-wrap:wrap}
+.theo .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--bone-dim)}
+.theo .val{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--amber);
+  font-variant-numeric:tabular-nums}
+.theo .note{font-family:var(--mono);font-size:11px;color:var(--bone-dim);margin-left:auto}
+.theo .mg{font-family:var(--mono);font-size:11px;color:var(--bone-dim)}
+.theo .mg b{color:var(--amber);font-size:14px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.theo .mg i{font-style:normal;opacity:.7}
+
+@media(max-width:640px){
+  .brand h1{font-size:23px}
+  .head-meta{text-align:left}
+  .stat .v{font-size:21px}
+  .track-best{font-size:14px}
+  td,th{padding-left:10px;padding-right:10px}
+  .track-n{display:none}
+  .col-opt{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div class="flag"></div>
+<header>
+  <div class="head-in">
+    <div class="brand">
+      <h1>APEX</h1>
+      <span>Analyse télémétrie</span>
+    </div>
+    <div class="head-meta">
+      <div>Source · <b id="srcName">aucune session</b></div>
+      <div id="srcSub">Dépose tes fichiers pour commencer</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="Charger des fichiers">
+    <h3>Dépose ton dossier <code>laps</code> ici</h3>
+    <p>ou clique pour choisir — CSV de tours et _session.jsonl</p>
+    <input type="file" id="file" multiple accept=".csv,.jsonl,.json">
+  </div>
+
+  <div id="empty" class="empty">
+    <h3>Aucune donnée chargée</h3>
+    <p>Lance <b>r3e_logger.py</b> pendant que tu roules, puis dépose ici le dossier
+       <b>laps</b> qu'il a créé. Tes tours restent sur ta machine — rien n'est envoyé.</p>
+  </div>
+
+  <div id="content" class="hide">
+
+    <div class="sec">
+      <div class="sec-head"><h2>Session</h2><div class="rule"></div></div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <h2>Circuits</h2><div class="rule"></div>
+        <div class="count" id="trackCount"></div>
+      </div>
+      <div id="tracks"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const S = { laps: [], byTrack: new Map() };
+
+/* ---------- utils ---------- */
+const fmt = s => {
+  if (s == null || !isFinite(s) || s <= 0) return '—';
+  const m = Math.floor(s / 60), r = s - m * 60;
+  return m > 0 ? `${m}:${r.toFixed(3).padStart(6,'0')}` : r.toFixed(3);
+};
+const delta = d => (d > 0 ? '+' : '') + d.toFixed(3);
+const esc = t => String(t).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- CSV parsing ---------- */
+function parseCsv(text){
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return null;
+  const head = lines[0].split(',').map(h => h.trim());
+  const idx = {};
+  head.forEach((h,i) => idx[h] = i);
+  const need = ['lap_distance','speed_kmh','throttle','brake'];
+  if (!need.every(n => n in idx)) return null;
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++){
+    const p = lines[i].split(',');
+    if (p.length < head.length) continue;
+    rows.push(p);
+  }
+  if (!rows.length) return null;
+
+  const num = (r,k) => { const v = parseFloat(r[idx[k]]); return isFinite(v) ? v : 0; };
+
+  // metrics derived from the trace itself
+  let coast = 0, brakeDist = null, maxBrake = 0, minSpeed = Infinity, topSpeed = 0;
+  let fullThrottle = 0, prevT = null;
+  for (const r of rows){
+    const t = num(r,'t'), th = num(r,'throttle'), br = num(r,'brake'), sp = num(r,'speed_kmh');
+    const dt = prevT == null ? 0 : Math.max(0, t - prevT);
+    prevT = t;
+    if (th < 0.05 && br < 0.05 && sp > 30) coast += dt;
+    if (th > 0.95) fullThrottle += dt;
+    if (br > maxBrake) maxBrake = br;
+    if (br > 0.05 && brakeDist == null) brakeDist = num(r,'lap_distance');
+    if (sp > topSpeed) topSpeed = sp;
+    if (sp < minSpeed && sp > 5) minSpeed = sp;
+  }
+  const dur = num(rows[rows.length-1],'t');
+  return {
+    samples: rows.length,
+    duration: dur,
+    coast, fullThrottle,
+    coastPct: dur > 0 ? coast / dur * 100 : 0,
+    fullThrottlePct: dur > 0 ? fullThrottle / dur * 100 : 0,
+    maxBrake: maxBrake * 100,
+    topSpeed,
+    minSpeed: isFinite(minSpeed) ? minSpeed : 0,
+    dist: num(rows[rows.length-1],'lap_distance')
+  };
+}
+
+/* filename: lap_002_2m18_500s_20260722_131302.csv  |  ..._INVALIDE_... */
+function parseName(name){
+  const base = name.replace(/\.csv$/i,'');
+  const invalid = /invalid/i.test(base);
+  const lapM = base.match(/lap_(\d+)/i);
+  let time = null;
+  const tm = base.match(/(\d+)m(\d+)_(\d+)s/);
+  if (tm) time = parseInt(tm[1],10)*60 + parseInt(tm[2],10) + parseInt(tm[3],10)/1000;
+  return { lap: lapM ? parseInt(lapM[1],10) : null, time, invalid };
+}
+
+function trackFromPath(f){
+  const p = f.webkitRelativePath || f.name;
+  const parts = p.split('/');
+  if (parts.length >= 2){
+    const dir = parts[parts.length-2];
+    if (dir && dir !== 'laps'){
+      const [t,l] = dir.split('__');
+      return { track: (t||dir).replace(/_/g,' '), layout: (l||'').replace(/_/g,' ') };
+    }
+  }
+  return { track: 'Circuit inconnu', layout: '' };
+}
+
+/* ---------- ingest ---------- */
+async function ingest(files){
+  const laps = [];
+  const meta = new Map();
+  const skipped = [];
+
+  for (const f of files){
+    if (/\.jsonl?$/i.test(f.name)){
+      const txt = await f.text();
+      for (const line of txt.split(/\r?\n/)){
+        if (!line.trim()) continue;
+        try {
+          const r = JSON.parse(line);
+          if (r.file) meta.set(r.file.split(/[\\/]/).pop(), r);
+        } catch(e){ /* ligne illisible : on continue */ }
+      }
+    }
+  }
+
+  for (const f of files){
+    if (!/\.csv$/i.test(f.name)) continue;
+    const n = parseName(f.name);
+    const m = meta.get(f.name);
+    let stats = null;
+    try { stats = parseCsv(await f.text()); } catch(e){ stats = null; }
+    const loc = trackFromPath(f);
+
+    // un fichier sans temps ET sans télémétrie exploitable n'est pas un tour
+    const knownTime = (m && m.lap_time_s) || n.time;
+    if (!knownTime && !stats) { skipped.push(f.name); continue; }
+
+    laps.push({
+      file: f.name,
+      lap: (m && m.lap_number != null) ? m.lap_number : n.lap,
+      time: (m && m.lap_time_s) ? m.lap_time_s : n.time,
+      valid: m ? m.valid !== false : !n.invalid,
+      track: (m && m.track) ? m.track : loc.track,
+      layout: (m && m.layout) ? m.layout : loc.layout,
+      length: m ? m.layout_length_m : (stats ? stats.dist : null),
+      session: m ? m.session : null,
+      stats
+    });
+  }
+
+  laps.sort((a,b) => (a.lap||0) - (b.lap||0));
+  S.laps = laps;
+
+  S.byTrack = new Map();
+  for (const l of laps){
+    const key = l.track + (l.layout ? ' · ' + l.layout : '');
+    if (!S.byTrack.has(key)) S.byTrack.set(key, []);
+    S.byTrack.get(key).push(l);
+  }
+  render(files.length, skipped);
+}
+
+/* ---------- render ---------- */
+function render(fileCount, skipped){
+  if (!S.laps.length){
+    document.getElementById('empty').innerHTML =
+      '<h3>Aucun tour reconnu</h3><p>Les fichiers déposés ne contiennent pas de CSV ' +
+      'au format attendu. Vérifie que tu déposes bien le dossier <b>laps</b> généré ' +
+      'par le logger.</p>';
+    return;
+  }
+  document.getElementById('empty').classList.add('hide');
+  document.getElementById('content').classList.remove('hide');
+
+  const valid = S.laps.filter(l => l.valid && l.time > 0);
+  const best  = valid.length ? Math.min(...valid.map(l => l.time)) : null;
+  const totalT = S.laps.reduce((a,l) => a + (l.stats ? l.stats.duration : 0), 0);
+  const avgCoast = valid.length
+    ? valid.reduce((a,l) => a + (l.stats ? l.stats.coastPct : 0), 0) / valid.length : 0;
+  const topV = Math.max(0, ...S.laps.map(l => l.stats ? l.stats.topSpeed : 0));
+
+  document.getElementById('srcName').textContent = `${fileCount} fichiers`;
+  document.getElementById('srcSub').textContent =
+    `${S.laps.length} tours · ${S.byTrack.size} circuit${S.byTrack.size>1?'s':''}` +
+    ((skipped && skipped.length) ? ` · ${skipped.length} fichier(s) ignoré(s)` : '');
+
+  document.getElementById('stats').innerHTML = [
+    ['Meilleur tour', fmt(best), 'toutes sessions', true],
+    ['Tours valides', `${valid.length}/${S.laps.length}`, 'hors stands'],
+    ['Temps en piste', `${Math.floor(totalT/60)}m`, 'cumulé'],
+    ['Vitesse max', topV ? topV.toFixed(0) : '—', 'km/h'],
+    ['Roue libre', avgCoast ? avgCoast.toFixed(1)+'%' : '—', 'ni gaz ni frein'],
+  ].map(([k,v,s,a]) =>
+    `<div class="stat"><div class="k">${k}</div>
+     <div class="v${a?' amber':''}">${v}</div><div class="sub">${s}</div></div>`
+  ).join('');
+
+  document.getElementById('trackCount').textContent =
+    `${S.byTrack.size} · ${S.laps.length} tours`;
+
+  const out = [];
+  for (const [name, laps] of S.byTrack){
+    const v = laps.filter(l => l.valid && l.time > 0);
+    const tb = v.length ? Math.min(...v.map(l => l.time)) : null;
+    const [tName, tLayout] = name.split(' · ');
+
+    // Écarts réels entre ton meilleur tour et ta meilleure valeur sur chaque
+    // métrique, tous tours valides confondus. Aucune extrapolation : on compare
+    // des chiffres mesurés entre eux.
+    const withStats = v.filter(l => l.stats);
+    const bestLap = v.find(l => l.time === tb);
+    let margins = [];
+    if (withStats.length > 1 && bestLap && bestLap.stats){
+      const bestCoast = Math.min(...withStats.map(l => l.stats.coastPct));
+      const bestGas   = Math.max(...withStats.map(l => l.stats.fullThrottlePct));
+      const bestTop   = Math.max(...withStats.map(l => l.stats.topSpeed));
+      if (bestLap.stats.coastPct - bestCoast > 0.1)
+        margins.push(['Roue libre',
+          (bestLap.stats.coastPct - bestCoast).toFixed(1) + ' pt',
+          'de moins sur ton tour le plus propre']);
+      if (bestGas - bestLap.stats.fullThrottlePct > 0.5)
+        margins.push(['Plein gaz',
+          (bestGas - bestLap.stats.fullThrottlePct).toFixed(1) + ' pt',
+          'de plus sur un autre tour']);
+      if (bestTop - bestLap.stats.topSpeed > 1)
+        margins.push(['Vitesse max',
+          (bestTop - bestLap.stats.topSpeed).toFixed(0) + ' km/h',
+          'atteints sur un autre tour']);
+    }
+
+    const rows = laps.map(l => {
+      const isBest = l.valid && l.time === tb;
+      const d = (tb && l.valid && l.time > 0) ? l.time - tb : null;
+      const st = l.stats;
+      return `<tr>
+        <td class="lapno">${l.lap != null ? String(l.lap).padStart(2,'0') : '—'}</td>
+        <td class="${isBest ? 't-best' : (l.valid ? '' : 't-inv')}">${fmt(l.time)}</td>
+        <td class="r ${d == null ? '' : (d <= 0 ? 'gain' : 'loss')}">${
+          d == null ? '—' : (isBest ? '—' : delta(d))}</td>
+        <td class="r col-opt">${st ? st.topSpeed.toFixed(0) : '—'}</td>
+        <td class="r col-opt">${st ? st.minSpeed.toFixed(0) : '—'}</td>
+        <td class="r col-opt">${st ? st.coastPct.toFixed(1)+'%' : '—'}</td>
+        <td class="r col-opt">${st ? st.fullThrottlePct.toFixed(0)+'%' : '—'}</td>
+        <td class="r">${isBest ? '<span class="tag pb">Best</span>' :
+          (l.valid ? '' : '<span class="tag inv">Stands</span>')}</td>
+      </tr>`;
+    }).join('');
+
+    out.push(`<div class="track">
+      <div class="track-bar" tabindex="0" role="button" aria-expanded="false">
+        <span class="chev">▶</span>
+        <span class="track-name">${esc(tName)}${tLayout ? ` <em>${esc(tLayout)}</em>` : ''}</span>
+        <span class="track-best">${fmt(tb)}</span>
+        <span class="track-n">${laps.length} tours</span>
+      </div>
+      <div class="track-body">
+        <table>
+          <thead><tr>
+            <th>Tour</th><th>Temps</th><th class="r">Écart</th>
+            <th class="r col-opt">V max</th><th class="r col-opt">V min</th>
+            <th class="r col-opt">Roue libre</th><th class="r col-opt">Plein gaz</th>
+            <th class="r"></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${margins.length ? `<div class="theo">
+          <span class="lbl">Marge mesurée</span>
+          ${margins.map(([k,vv,n]) =>
+            `<span class="mg"><b>${vv}</b> ${k.toLowerCase()} <i>${n}</i></span>`).join('')}
+        </div>` : ''}
+      </div>
+    </div>`);
+  }
+  document.getElementById('tracks').innerHTML = out.join('');
+
+  document.querySelectorAll('.track-bar').forEach(bar => {
+    const toggle = () => {
+      const t = bar.parentElement;
+      t.classList.toggle('open');
+      bar.setAttribute('aria-expanded', t.classList.contains('open'));
+    };
+    bar.addEventListener('click', toggle);
+    bar.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+  });
+  const first = document.querySelector('.track');
+  if (first){ first.classList.add('open');
+    first.querySelector('.track-bar').setAttribute('aria-expanded','true'); }
+}
+
+/* ---------- input wiring ---------- */
+const drop = document.getElementById('drop');
+const input = document.getElementById('file');
+
+drop.addEventListener('click', () => input.click());
+drop.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); input.click(); }
+});
+input.addEventListener('change', e => {
+  if (e.target.files.length) ingest([...e.target.files]);
+});
+['dragenter','dragover'].forEach(ev =>
+  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('hot'); }));
+['dragleave','drop'].forEach(ev =>
+  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('hot'); }));
+
+drop.addEventListener('drop', async e => {
+  e.preventDefault();
+  const files = [];
+  const items = e.dataTransfer.items;
+  if (items && items.length && items[0].webkitGetAsEntry){
+    const walk = (entry, path='') => new Promise(res => {
+      if (entry.isFile){
+        entry.file(f => { f._p = path + f.name; files.push(f); res(); }, () => res());
+      } else if (entry.isDirectory){
+        const rd = entry.createReader();
+        const all = [];
+        const readBatch = () => rd.readEntries(async ents => {
+          if (!ents.length){ await Promise.all(all); return res(); }
+          for (const en of ents) all.push(walk(en, path + entry.name + '/'));
+          readBatch();
+        }, () => res());
+        readBatch();
+      } else res();
+    });
+    const roots = [];
+    for (const it of items){
+      const en = it.webkitGetAsEntry && it.webkitGetAsEntry();
+      if (en) roots.push(walk(en));
+    }
+    await Promise.all(roots);
+    files.forEach(f => {
+      if (f._p && !f.webkitRelativePath)
+        Object.defineProperty(f, 'webkitRelativePath', { value: f._p });
+    });
+  }
+  const list = files.length ? files : [...e.dataTransfer.files];
+  if (list.length) ingest(list);
+});
+</script>
+</body>
+</html>
