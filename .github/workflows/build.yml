@@ -71,7 +71,8 @@ jobs:
 
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           & $csc /nologo /optimize /warn:4 /target:exe /out:dist\APEX.exe `
-            src\Program.cs src\Telemetry.cs src\WebServer.cs src\EmbeddedDashboard.cs
+            src\Program.cs src\Telemetry.cs src\WebServer.cs `
+            src\KeyHook.cs src\EmbeddedDashboard.cs
           if ($LASTEXITCODE -ne 0) { throw "La compilation a echoue" }
 
           $size = (Get-Item dist\APEX.exe).Length
