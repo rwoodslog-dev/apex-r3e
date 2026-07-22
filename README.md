@@ -35,6 +35,89 @@ temps en roue libre, pourcentage plein gaz.
 
 ---
 
+## Coaching vocal
+
+À partir du deuxième tour valide, APEX compare ton tour au meilleur et
+te donne **les 3 défauts les plus coûteux**, à voix haute.
+
+Exemple :
+
+> *« Virage 6, tu freines à 58% au lieu de 94%. Appuie plus fort. »*
+> *« Virage 3, tu freines 15 mètres trop tôt. Freine plus tard. »*
+
+**Comment ça marche** — les virages sont détectés automatiquement à partir
+du braquage (pas de configuration par circuit). Pour chacun, APEX mesure :
+point de freinage, pic de pression, vitesse minimale, temps en roue libre,
+et distance de réouverture des gaz. Il compare à ta référence et classe les
+écarts par gravité.
+
+**Ce que le coach ne fait pas** — il ne te dira jamais quel rapport passer.
+Le bon rapport dépend de la boîte, du couple et de la sortie de virage :
+ces données ne permettent pas de trancher honnêtement. Tous les conseils
+donnés reposent sur un **écart mesuré entre deux de tes tours**, jamais sur
+une supposition.
+
+**Ta référence évolue** : dès que tu bats ton temps, le nouveau tour devient
+la référence. Le coach reste silencieux quand tu roules propre.
+
+La voix se coupe avec l'interrupteur **Voix** du panneau Coach.
+
+---
+
+## Infos course à la demande
+
+Appuie sur **C** (même en jeu) et APEX t'annonce à voix haute l'état de ta course :
+
+> *« Position 4 sur 22. Tour 7 sur 25. 18 tours restants. Carburant 35 pour cent.
+> Autonomie 14.0 tours. Devant à 1.2 secondes. Drapeau jaune. »*
+
+Le raccourci fonctionne **même quand RaceRoom est au premier plan** (hook clavier
+global). Il ne consomme pas la touche : le jeu la reçoit aussi, donc choisis-en
+une non utilisée, ou une touche libre de ton volant remappée vers le clavier.
+
+```
+APEX.exe --key F9      change le raccourci
+```
+
+**Tu choisis ce qui est annoncé** dans le panneau *Personnaliser l'annonce vocale* :
+position, tour, tours restants, carburant (% ou litres), autonomie, écarts devant
+et derrière, meilleur tour, dernier tour, usure pneus, temps de session, pénalités,
+drapeaux. Les réglages sont mémorisés.
+
+**Choix de la voix** — toutes les voix installées sur ton système sont proposées
+(masculines et féminines selon ce que Windows fournit), avec réglage de la vitesse.
+
+Aucune annonce automatique : APEX ne parle que quand tu le demandes, sauf pour
+les conseils du coach en fin de tour.
+
+**Données absentes** — en essais libres il n'y a ni position ni tours restants.
+APEX n'annonce que ce qui existe réellement plutôt que de lire des champs vides.
+
+---
+
+## Carte du circuit
+
+Après ton premier tour, APEX trace le circuit **à partir de ta trajectoire réelle**
+(coordonnées X/Z de la télémétrie). Aucune carte préchargée : ça marche sur
+n'importe quel circuit, y compris les tracés modifiés ou les circuits ajoutés.
+
+Chaque virage détecté est coloré selon ta performance :
+
+| Couleur | Signification |
+|---|---|
+| Vert | tu gagnes du temps |
+| Ambre | conforme à ta référence |
+| Orange | légère perte |
+| Rouge | grosse perte |
+
+Les virages où le coach a un conseil sont entourés en ambre et légèrement
+lumineux. **Clique sur un virage** pour voir le détail chiffré : écart de temps,
+point de freinage, pression de frein, vitesse minimale, roue libre, reprise des gaz.
+
+La carte se met à jour à chaque tour, et se retrace quand tu bats ton record.
+
+---
+
 ## Options
 
 ```
@@ -43,6 +126,7 @@ APEX.exe --out D:\telemetrie   change le dossier de sortie
 APEX.exe --port 9000           change le port du dashboard
 APEX.exe --keep-invalid        garde les tours passés par les stands
 APEX.exe --no-browser          n'ouvre pas le navigateur
+APEX.exe --key F9              change le raccourci d'annonce (défaut C)
 ```
 
 ---
