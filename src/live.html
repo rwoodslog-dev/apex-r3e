@@ -267,6 +267,22 @@ tbody tr.new{animation:flash 1s ease-out}
   color:#0A0B0C;font-weight:700}
 
 /* carte circuit */
+.zrow{display:flex;gap:13px;padding:12px 0;border-bottom:1px solid var(--line-2)}
+.zrow:last-child{border-bottom:none}
+.zn{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--y);
+  min-width:24px;line-height:1.3}
+.zbody{flex:1;min-width:0}
+.zhead{display:flex;align-items:center;gap:10px;margin-bottom:7px;flex-wrap:wrap}
+.zm{font-family:var(--mono);font-size:13px;color:var(--ink);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.ztag{font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:2px 6px}
+.zval{margin-left:auto;font-family:var(--mono);font-size:14px;color:var(--red);
+  font-variant-numeric:tabular-nums;font-weight:600}
+.zbar{height:4px;background:#1E2024;border-radius:2px;overflow:hidden;margin-bottom:7px}
+.zbar i{display:block;height:100%;background:linear-gradient(90deg,var(--y),var(--red));
+  transition:width .4s cubic-bezier(.4,0,.2,1)}
+.ztxt{font-size:12.5px;color:var(--ink-2);line-height:1.5}
 .mapsvg{width:100%;height:auto;display:block;border-radius:8px;background:#0B0C0E}
 .mapsvg .seg{cursor:pointer;transition:stroke-width .14s}
 .mapsvg .seg:hover{stroke-width:16}
@@ -438,7 +454,18 @@ tbody tr.new{animation:flash 1s ease-out}
         </div>
 
         <div class="panel">
-          <div class="ph">Analyse du tour <span class="sp" id="mapLegend"></span></div>
+          <div class="ph">Analyse du tour
+            <span class="sp">
+              <button class="btn" id="modeSeg" style="background:#1B1E22;color:var(--ink)">Segments</button>
+              <button class="btn" id="modeTurn">Virages</button>
+              <select id="segSize" style="width:auto;padding:6px 9px;font-size:11px">
+                <option value="25">25 m</option>
+                <option value="50" selected>50 m</option>
+                <option value="100">100 m</option>
+              </select>
+            </span>
+          </div>
+          <div style="padding:0 17px 8px" id="mapLegend"></div>
           <div class="pb" id="mapBox"><div class="note">La carte se trace après ton premier tour complet.</div></div>
           <div class="sects">
             <div class="sect"><div class="k">Secteur 1</div><div class="v" id="s1">--:--.--</div></div>
@@ -473,6 +500,10 @@ tbody tr.new{animation:flash 1s ease-out}
       </section>
 
       <div id="turnDetail"></div>
+      <section class="panel" id="zonesPanel" style="margin-top:12px;display:none">
+        <div class="ph">Où gagner du temps <span class="sp" id="zonesSum"></span></div>
+        <div class="pb" id="zonesBox"></div>
+      </section>
 
       <!-- ---- tours ---- -->
       <section class="panel" style="margin-top:12px">
@@ -978,6 +1009,198 @@ function phrase(tip){
   }
 }
 
+/* ================= ANALYSE PAR SEGMENTS ================= */
+
+/* Temps cumule interpole a une distance donnee.
+   Les deux tours n'ont pas les memes echantillons : il faut interpoler,
+   sinon on compare des points qui ne sont pas au meme endroit. */
+function timeAtDistance(samples, targetM){
+  const n = samples.length;
+  if (!n) return null;
+  if (targetM <= samples[0].d) return samples[0].t;
+  if (targetM >= samples[n-1].d) return samples[n-1].t;
+
+  // recherche dichotomique : les distances sont croissantes
+  let lo = 0, hi = n - 1;
+  while (hi - lo > 1){
+    const mid = (lo + hi) >> 1;
+    if (samples[mid].d <= targetM) lo = mid; else hi = mid;
+  }
+  const a = samples[lo], b = samples[hi];
+  const span = b.d - a.d;
+  if (span <= 0) return a.t;
+  const f = (targetM - a.d) / span;
+  return a.t + (b.t - a.t) * f;
+}
+
+/* Valeur moyenne d'un champ sur un intervalle de distance. */
+function avgOver(samples, fromM, toM, key){
+  let sum = 0, n = 0;
+  for (let i = 0; i < samples.length; i++){
+    const d = samples[i].d;
+    if (d < fromM) continue;
+    if (d > toM) break;
+    sum += samples[i][key]; n++;
+  }
+  return n ? sum / n : null;
+}
+
+/* Valeur extreme d'un champ sur un intervalle. */
+function extremeOver(samples, fromM, toM, key, mode){
+  let best = null;
+  for (let i = 0; i < samples.length; i++){
+    const d = samples[i].d;
+    if (d < fromM) continue;
+    if (d > toM) break;
+    const v = samples[i][key];
+    if (best === null) best = v;
+    else if (mode === 'max' ? v > best : v < best) best = v;
+  }
+  return best;
+}
+
+/**
+ * Decoupe le tour en segments et calcule le delta de chacun.
+ * @param refS  echantillons du tour de reference
+ * @param curS  echantillons du tour a comparer
+ * @param segM  longueur d'un segment en metres (defaut 50)
+ * @returns liste de segments avec delta, vitesses, et cause probable
+ */
+function segmentDeltas(refS, curS, segM){
+  segM = segM || 50;
+  if (!refS || !curS || refS.length < 5 || curS.length < 5) return [];
+
+  const lapLen = Math.min(refS[refS.length-1].d, curS[curS.length-1].d);
+  if (!(lapLen > 0)) return [];
+
+  const out = [];
+  let prevDelta = 0;
+
+  for (let from = 0; from < lapLen; from += segM){
+    const to = Math.min(from + segM, lapLen);
+    if (to - from < segM * 0.4) break;   // dernier tronçon trop court
+
+    const tRefEnd = timeAtDistance(refS, to);
+    const tCurEnd = timeAtDistance(curS, to);
+    if (tRefEnd == null || tCurEnd == null) continue;
+
+    // delta cumule a la fin du segment, puis delta propre au segment
+    const cumDelta = tCurEnd - tRefEnd;
+    const segDelta = cumDelta - prevDelta;
+    prevDelta = cumDelta;
+
+    const vRef = avgOver(refS, from, to, 'spd');
+    const vCur = avgOver(curS, from, to, 'spd');
+
+    const s = {
+      from: from,
+      to: to,
+      mid: (from + to) / 2,
+      delta: segDelta,        // + = tu perds ici, - = tu gagnes
+      cumDelta: cumDelta,
+      vRef: vRef,
+      vCur: vCur,
+      dV: (vRef != null && vCur != null) ? vCur - vRef : null,
+    };
+
+    // cause probable, uniquement si l'ecart est significatif
+    if (segDelta > 0.012){
+      const bRef = avgOver(refS, from, to, 'br');
+      const bCur = avgOver(curS, from, to, 'br');
+      const tRef = avgOver(refS, from, to, 'th');
+      const tCur = avgOver(curS, from, to, 'th');
+
+      if (bCur != null && bRef != null && bCur > bRef + 0.08)
+        s.cause = 'frein';        // tu freines plus / plus fort ici
+      else if (tCur != null && tRef != null && tCur < tRef - 0.12)
+        s.cause = 'gaz';          // tu es moins sur les gaz
+      else if (s.dV != null && s.dV < -2)
+        s.cause = 'vitesse';      // simplement plus lent
+    }
+    out.push(s);
+  }
+  return out;
+}
+
+/* Regroupe les segments perdants adjacents en zones exploitables.
+   Un conseil sur 3 segments consecutifs vaut mieux que 3 conseils. */
+function lossZones(segs, minLoss){
+  minLoss = minLoss == null ? 0.02 : minLoss;
+  const zones = [];
+  let cur = null;
+  for (const s of segs){
+    if (s.delta > minLoss){
+      if (cur && s.from - cur.to <= 1){
+        cur.to = s.to;
+        cur.total += s.delta;
+        cur.segs.push(s);
+      } else {
+        if (cur) zones.push(cur);
+        cur = { from:s.from, to:s.to, total:s.delta, segs:[s] };
+      }
+    } else if (cur){
+      zones.push(cur); cur = null;
+    }
+  }
+  if (cur) zones.push(cur);
+
+  // cause dominante et perte de vitesse max de chaque zone
+  for (const z of zones){
+    const counts = {};
+    let worstV = 0;
+    for (const s of z.segs){
+      if (s.cause) counts[s.cause] = (counts[s.cause]||0) + s.delta;
+      if (s.dV != null && s.dV < worstV) worstV = s.dV;
+    }
+    let bestCause = null, bestVal = 0;
+    for (const k in counts) if (counts[k] > bestVal){ bestVal = counts[k]; bestCause = k; }
+    z.cause = bestCause;
+    z.dV = worstV;
+  }
+  zones.sort((a,b) => b.total - a.total);
+  return zones;
+}
+
+/* Echelle de couleur continue : vert (gain) -> neutre -> rouge (perte).
+   Le seuil s'adapte a l'ampleur des ecarts du tour pour rester lisible. */
+function deltaColor(delta, scale){
+  scale = scale || 0.05;
+  if (delta == null || !isFinite(delta)) return '#1B1D21';
+  const v = Math.max(-1, Math.min(1, delta / scale));
+  if (v > 0){
+    // perte : jaune -> rouge
+    const t = v;
+    const r = Math.round(255 + (224-255)*t);
+    const g = Math.round(198 + (80-198)*t);
+    const b = Math.round(42 + (60-42)*t);
+    return 'rgb('+r+','+g+','+b+')';
+  } else {
+    // gain : jaune -> vert
+    const t = -v;
+    const r = Math.round(255 + (95-255)*t);
+    const g = Math.round(198 + (191-198)*t);
+    const b = Math.round(42 + (106-42)*t);
+    return 'rgb('+r+','+g+','+b+')';
+  }
+}
+
+/* Phrase de conseil pour une zone. */
+function zonePhrase(z){
+  const m = Math.round(z.from) + ' à ' + Math.round(z.to) + ' mètres';
+  const perte = z.total.toFixed(2) + ' s';
+  switch (z.cause){
+    case 'frein':
+      return 'Entre ' + m + ' tu perds ' + perte + ' : tu freines plus que nécessaire.';
+    case 'gaz':
+      return 'Entre ' + m + ' tu perds ' + perte + ' : remets les gaz plus tôt.';
+    case 'vitesse':
+      return 'Entre ' + m + ' tu perds ' + perte
+           + (z.dV < -1 ? ' : ' + Math.round(-z.dV) + ' km/h de moins.' : '.');
+    default:
+      return 'Entre ' + m + ' tu perds ' + perte + '.';
+  }
+}
+
 /* ================= CARTE DU CIRCUIT ================= */
 
 /* Projette les points sur un viewBox, en conservant les proportions. */
@@ -1013,10 +1236,32 @@ function pathFrom(proj, close){
   return s;
 }
 
-/* Extrait le sous-chemin correspondant a un intervalle de distance. */
+/* Extrait le sous-chemin correspondant a un intervalle de distance.
+   Si l'intervalle contient moins de 2 points echantillonnes (trace peu dense
+   ou segment court), on interpole aux bornes pour ne jamais laisser de trou. */
 function segmentPath(proj, fromM, toM){
   const seg = proj.filter(p => p.d >= fromM && p.d <= toM);
-  return seg.length >= 2 ? pathFrom(seg, false) : '';
+  if (seg.length >= 2) return pathFrom(seg, false);
+
+  // interpolation lineaire aux deux bornes
+  const at = target => {
+    if (!proj.length) return null;
+    if (target <= proj[0].d) return proj[0];
+    if (target >= proj[proj.length-1].d) return proj[proj.length-1];
+    let lo = 0, hi = proj.length - 1;
+    while (hi - lo > 1){
+      const mid = (lo + hi) >> 1;
+      if (proj[mid].d <= target) lo = mid; else hi = mid;
+    }
+    const a = proj[lo], b = proj[hi];
+    const span = b.d - a.d;
+    const f = span > 0 ? (target - a.d) / span : 0;
+    return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f, d: target };
+  };
+  const p1 = at(fromM), p2 = at(toM);
+  if (!p1 || !p2) return '';
+  const pts = [p1].concat(seg).concat([p2]);
+  return pathFrom(pts, false);
 }
 
 /* Couleur selon le temps perdu (secondes). */
@@ -1097,9 +1342,79 @@ function renderMap(trackPts, turns, comparisons, tips){
   return svg;
 }
 
+/* Rend la carte coloree par SEGMENTS de distance fixe.
+   Resolution bien plus fine que le decoupage par virage : chaque tronçon
+   prend une couleur continue selon le temps gagne ou perdu. */
+function renderMapSegments(trackPts, segs, zones){
+  const W = 720, H = 460;
+  const proj = projectTrack(trackPts, W, H);
+  if (!proj) return '<div class="note">Pas assez de données de position pour tracer le circuit.</div>';
+
+  // echelle adaptative : on se cale sur les ecarts reellement observes
+  let scale = 0.03;
+  if (segs && segs.length){
+    const abs = segs.map(s => Math.abs(s.delta)).sort((a,b) => a-b);
+    const p90 = abs[Math.floor(abs.length*0.9)] || 0.03;
+    scale = Math.max(0.015, p90);
+  }
+
+  let svg = '<svg viewBox="0 0 '+W+' '+H+'" class="mapsvg" '
+          + 'xmlns="http://www.w3.org/2000/svg" role="img" '
+          + 'aria-label="Carte du circuit colorée par segment selon le temps gagné ou perdu">';
+
+  // trace de fond
+  svg += '<path d="'+pathFrom(proj,true)+'" fill="none" stroke="#16181B" '
+       + 'stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>';
+
+  // un chemin par segment
+  (segs||[]).forEach((s,i) => {
+    // on prolonge legerement pour eviter les trous entre segments
+    const d = segmentPath(proj, s.from, s.to + 2);
+    if (!d) return;
+    const col = deltaColor(s.delta, scale);
+    svg += '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="12" '
+         + 'stroke-linecap="round" class="seg" data-seg="'+i+'">'
+         + '<title>'+Math.round(s.from)+'–'+Math.round(s.to)+' m : '
+         + (s.delta>0?'+':'') + s.delta.toFixed(3) + ' s</title></path>';
+  });
+
+  // marqueurs sur les pires zones
+  (zones||[]).slice(0,3).forEach((z,i) => {
+    const seg = proj.filter(p => p.d >= z.from && p.d <= z.to);
+    if (!seg.length) return;
+    const mid = seg[Math.floor(seg.length/2)];
+    const cx = proj.reduce((a,p)=>a+p.x,0)/proj.length;
+    const cy = proj.reduce((a,p)=>a+p.y,0)/proj.length;
+    let vx = mid.x-cx, vy = mid.y-cy;
+    const L = Math.hypot(vx,vy)||1;
+    vx = vx/L*26; vy = vy/L*26;
+    svg += '<line x1="'+mid.x.toFixed(1)+'" y1="'+mid.y.toFixed(1)+'" '
+         + 'x2="'+(mid.x+vx*0.6).toFixed(1)+'" y2="'+(mid.y+vy*0.6).toFixed(1)+'" '
+         + 'stroke="#E0503C" stroke-width="1.2" opacity=".7"/>';
+    svg += '<circle cx="'+(mid.x+vx).toFixed(1)+'" cy="'+(mid.y+vy).toFixed(1)+'" r="11" '
+         + 'fill="#0B0C0E" stroke="#E0503C" stroke-width="1.6"/>';
+    svg += '<text x="'+(mid.x+vx).toFixed(1)+'" y="'+(mid.y+vy+4).toFixed(1)+'" '
+         + 'text-anchor="middle" class="mapnum on" fill="#E0503C">'+(i+1)+'</text>';
+  });
+
+  // ligne de depart
+  if (proj.length > 4){
+    const p0 = proj[0], p1 = proj[3];
+    const dx = p1.x-p0.x, dy = p1.y-p0.y;
+    const L = Math.hypot(dx,dy)||1;
+    const nx = -dy/L*12, ny = dx/L*12;
+    svg += '<line x1="'+(p0.x+nx).toFixed(1)+'" y1="'+(p0.y+ny).toFixed(1)+'" '
+         + 'x2="'+(p0.x-nx).toFixed(1)+'" y2="'+(p0.y-ny).toFixed(1)+'" '
+         + 'stroke="#F4F5F6" stroke-width="3"/>';
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
 /* ============ coaching ============ */
 let refTrace = null, refTime = null, turns = null;
-let lastComparisons = null, lastTips = null;
+let lastComparisons = null, lastTips = null, lastCur = null;
 
 function toSamples(trace){
   if (!trace || !trace.length) return null;
@@ -1149,8 +1464,11 @@ function drawSplitBar(){
   });
 }
 
+let mapMode = 'seg';        // 'seg' (segments) ou 'turn' (virages)
+let lastSegs = null, lastZones = null;
+
 function drawMap(){
-  if (!refTrace || !turns || !turns.length) return;
+  if (!refTrace) return;
   const pts = refTrace.filter(p => p.x !== undefined && p.z !== undefined
                                 && isFinite(p.x) && isFinite(p.z));
   if (pts.length < 10){
@@ -1158,16 +1476,64 @@ function drawMap(){
       + 'la carte ne peut pas être tracée.</div>';
     return;
   }
-  $('mapBox').innerHTML = renderMap(pts, turns, lastComparisons, lastTips);
+
+  if (mapMode === 'seg' && lastSegs && lastSegs.length){
+    $('mapBox').innerHTML = renderMapSegments(pts, lastSegs, lastZones);
+    $('mapLegend').innerHTML =
+      '<span class="leg"><i style="background:rgb(95,191,106)"></i>tu gagnes</span>'
+    + '<span class="leg"><i style="background:rgb(255,198,42)"></i>égal</span>'
+    + '<span class="leg"><i style="background:rgb(240,142,51)"></i>tu perds un peu</span>'
+    + '<span class="leg"><i style="background:rgb(224,80,60)"></i>tu perds beaucoup</span>';
+  } else if (turns && turns.length){
+    $('mapBox').innerHTML = renderMap(pts, turns, lastComparisons, lastTips);
+    $('mapLegend').innerHTML =
+      '<span class="leg"><i style="background:var(--grn)"></i>gagné</span>'
+    + '<span class="leg"><i style="background:var(--y)"></i>bon</span>'
+    + '<span class="leg"><i style="background:#D98A4A"></i>léger</span>'
+    + '<span class="leg"><i style="background:var(--red)"></i>perte</span>';
+    document.querySelectorAll('.mapsvg .seg').forEach(el => {
+      if (el.dataset.turn)
+        el.addEventListener('click', () => showTurn(+el.dataset.turn));
+    });
+  } else {
+    $('mapBox').innerHTML = '<div class="note">La carte se trace après ton premier '
+      + 'tour complet.</div>';
+    return;
+  }
   drawSplitBar();
-  $('mapLegend').innerHTML =
-    '<span class="leg"><i style="background:var(--grn)"></i>gagné</span>'
-  + '<span class="leg"><i style="background:var(--y)"></i>bon</span>'
-  + '<span class="leg"><i style="background:#D98A4A"></i>léger</span>'
-  + '<span class="leg"><i style="background:var(--red)"></i>perte</span>';
-  document.querySelectorAll('.mapsvg .seg').forEach(el => {
-    el.addEventListener('click', () => showTurn(+el.dataset.turn));
-  });
+}
+
+/* Liste des endroits ou tu peux gagner du temps, tries par gain potentiel. */
+function drawZones(){
+  const box = $('zonesBox'), panel = $('zonesPanel');
+  if (!box || !panel) return;
+  if (!lastZones || !lastZones.length){
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = '';
+  const top = lastZones.slice(0, 6);
+  const totalGain = lastZones.reduce((a,z) => a + z.total, 0);
+  $('zonesSum').textContent = 'potentiel : ' + totalGain.toFixed(2) + ' s';
+
+  box.innerHTML = top.map((z,i) => {
+    const pct = Math.min(100, z.total / top[0].total * 100);
+    const label = z.cause === 'frein' ? 'Freinage'
+                : z.cause === 'gaz'   ? 'Remise des gaz'
+                : z.cause === 'vitesse' ? 'Vitesse de passage' : 'Écart';
+    return `<div class="zrow">
+        <div class="zn">${i+1}</div>
+        <div class="zbody">
+          <div class="zhead">
+            <span class="zm">${Math.round(z.from)} – ${Math.round(z.to)} m</span>
+            <span class="ztag">${esc(label)}</span>
+            <span class="zval">−${z.total.toFixed(2)} s</span>
+          </div>
+          <div class="zbar"><i style="width:${pct.toFixed(0)}%"></i></div>
+          <div class="ztxt">${esc(zonePhrase(z))}</div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 function showTurn(n){
@@ -1210,7 +1576,15 @@ function runCoach(l){
   const comps = compareLaps(refTrace, cur, turns);
   const tips = makeAdvice(comps);
   lastComparisons = comps; lastTips = tips;
+
+  // analyse fine par segments de distance
+  const segM = parseInt(($('segSize')||{}).value, 10) || 50;
+  lastSegs = segmentDeltas(refTrace, cur, segM);
+  lastZones = lossZones(lastSegs);
+  lastCur = cur;
+
   drawMap();
+  drawZones();
 
   if (!tips.length){
     $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour propre — '
@@ -1342,6 +1716,26 @@ $('goCfg').addEventListener('click', () => {
 window.addEventListener('keydown', e => {
   if (e.target && /input|select|textarea/i.test(e.target.tagName)) return;
   if (e.key && e.key.toLowerCase() === (window.__hotkey||'c').toLowerCase()) announce();
+});
+
+$('modeSeg').addEventListener('click', () => {
+  mapMode = 'seg';
+  $('modeSeg').style.background = '#1B1E22'; $('modeSeg').style.color = 'var(--ink)';
+  $('modeTurn').style.background = ''; $('modeTurn').style.color = '';
+  drawMap();
+});
+$('modeTurn').addEventListener('click', () => {
+  mapMode = 'turn';
+  $('modeTurn').style.background = '#1B1E22'; $('modeTurn').style.color = 'var(--ink)';
+  $('modeSeg').style.background = ''; $('modeSeg').style.color = '';
+  drawMap();
+});
+$('segSize').addEventListener('change', () => {
+  if (!refTrace || !lastCur) return;
+  const segM = parseInt($('segSize').value, 10) || 50;
+  lastSegs = segmentDeltas(refTrace, lastCur, segM);
+  lastZones = lossZones(lastSegs);
+  drawMap(); drawZones();
 });
 
 connect();
