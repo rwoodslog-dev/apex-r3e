@@ -1,0 +1,124 @@
+name: Build APEX
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v5
+
+      - name: Regenerer le dashboard embarque
+        shell: pwsh
+        run: |
+          $html = Get-Content -Raw -Encoding UTF8 src/live.html
+          $bytes = [System.Text.Encoding]::UTF8.GetBytes($html)
+          $b64 = [Convert]::ToBase64String($bytes)
+
+          $sb = [System.Text.StringBuilder]::new()
+          [void]$sb.AppendLine('// GENERE AUTOMATIQUEMENT par le workflow - ne pas editer.')
+          [void]$sb.AppendLine('using System;')
+          [void]$sb.AppendLine('using System.Text;')
+          [void]$sb.AppendLine('')
+          [void]$sb.AppendLine('static class EmbeddedDashboard')
+          [void]$sb.AppendLine('{')
+          [void]$sb.AppendLine('    static string _cache;')
+          [void]$sb.AppendLine('    public static string Html')
+          [void]$sb.AppendLine('    {')
+          [void]$sb.AppendLine('        get')
+          [void]$sb.AppendLine('        {')
+          [void]$sb.AppendLine('            if (_cache == null)')
+          [void]$sb.AppendLine('                _cache = Encoding.UTF8.GetString(Convert.FromBase64String(B64));')
+          [void]$sb.AppendLine('            return _cache;')
+          [void]$sb.AppendLine('        }')
+          [void]$sb.AppendLine('    }')
+          [void]$sb.AppendLine('')
+          [void]$sb.AppendLine('    const string B64 =')
+
+          $chunks = @()
+          for ($i = 0; $i -lt $b64.Length; $i += 120) {
+            $len = [Math]::Min(120, $b64.Length - $i)
+            $chunks += $b64.Substring($i, $len)
+          }
+          for ($i = 0; $i -lt $chunks.Count; $i++) {
+            $end = if ($i -eq $chunks.Count - 1) { ';' } else { ' +' }
+            [void]$sb.AppendLine('        "' + $chunks[$i] + '"' + $end)
+          }
+          [void]$sb.AppendLine('}')
+
+          Set-Content -Path src/EmbeddedDashboard.cs -Value $sb.ToString() -Encoding UTF8
+          Write-Host "Dashboard embarque : $($html.Length) caracteres, $($chunks.Count) blocs"
+
+      - name: Compiler APEX.exe
+        shell: pwsh
+        run: |
+          $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          if (-not (Test-Path $csc)) {
+            $csc = "$env:WINDIR\Microsoft.NET\Framework\v4.0.30319\csc.exe"
+          }
+          if (-not (Test-Path $csc)) { throw "csc.exe introuvable" }
+
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          & $csc /nologo /optimize /warn:4 /target:exe /out:dist\APEX.exe `
+            src\Program.cs src\Telemetry.cs src\WebServer.cs src\EmbeddedDashboard.cs
+          if ($LASTEXITCODE -ne 0) { throw "La compilation a echoue" }
+
+          $size = (Get-Item dist\APEX.exe).Length
+          Write-Host "APEX.exe compile : $([Math]::Round($size/1KB,1)) KB"
+
+      - name: Verifier que l'exe demarre
+        shell: pwsh
+        run: |
+          # --help doit sortir immediatement sans toucher la shared memory
+          $p = Start-Process -FilePath dist\APEX.exe -ArgumentList '--help' `
+                 -NoNewWindow -PassThru -Wait -RedirectStandardOutput out.txt
+          if ($p.ExitCode -ne 0) { throw "APEX.exe --help a renvoye $($p.ExitCode)" }
+          $out = Get-Content out.txt -Raw
+          if ($out -notmatch '--port') { throw "Sortie de --help inattendue" }
+          Write-Host "Demarrage verifie."
+
+      - name: Preparer le paquet
+        shell: pwsh
+        run: |
+          Copy-Item docs\DEMARRAGE.md dist\LISEZMOI.md -ErrorAction SilentlyContinue
+          Copy-Item src\dashboard.html dist\dashboard-hors-ligne.html -ErrorAction SilentlyContinue
+          Compress-Archive -Path dist\* -DestinationPath APEX-windows.zip -Force
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - name: Publier l'artefact de build
+        uses: actions/upload-artifact@v4
+        with:
+          name: APEX-windows
+          path: dist/
+          retention-days: 30
+
+      - name: Publier la Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/APEX.exe
+            APEX-windows.zip
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            1. Telecharge **APEX.exe**
+            2. Double-clique dessus
+            3. Lance RaceRoom et va en piste
+
+            Le dashboard s'ouvre tout seul sur http://localhost:8422
+
+            Aucune installation requise (Windows 10/11).
+            Si SmartScreen bloque : clic droit > Proprietes > Debloquer.
