@@ -58,6 +58,36 @@ static class Telemetry
     public const int OFF_PosX = 56;             // double x,y,z
     public const int OFF_LocalGX = 296;         // double x,y,z
 
+    // ---- donnees de course (offsets verifies depuis r3e.h v3.5) ----------
+    public const int OFF_Position = 988;
+    public const int OFF_PositionClass = 992;
+    public const int OFF_NumberOfLaps = 812;      // -1 si course au temps
+    public const int OFF_RaceSessionLaps = 752;   // int[3]
+    public const int OFF_FuelCapacity = 1460;
+    public const int OFF_FuelPerLap = 1464;
+    public const int OFF_FuelUseActive = 808;
+    public const int OFF_DeltaFront = 1124;
+    public const int OFF_DeltaBehind = 1128;
+    public const int OFF_DeltaLeader = 1116;
+    public const int OFF_SessionTimeRemaining = 820;
+    public const int OFF_SessionPhase = 796;
+    public const int OFF_NumCars = 2008;
+    public const int OFF_NumPenalties = 1024;
+    public const int OFF_TireWear = 1680;         // float[4]
+    public const int OFF_TireWearActive = 804;
+    public const int OFF_PitWindowStatus = 836;
+    public const int OFF_PitWindowStart = 840;
+    public const int OFF_PitWindowEnd = 844;
+    public const int OFF_NumPitstops = 920;
+    public const int OFF_EngineTemp = 1480;
+    // drapeaux (la struct flags commence a 932)
+    public const int OFF_FlagYellow = 932;
+    public const int OFF_FlagBlue = 964;
+    public const int OFF_FlagBlack = 968;
+    public const int OFF_FlagCheckered = 976;
+    public const int OFF_FlagWhite = 980;
+    public const int OFF_FlagBlackWhite = 984;
+
     public const int SHARED_SIZE = 44000;
     public const int EXPECT_MAJOR = 3;
     public const int EXPECT_MINOR = 5;
