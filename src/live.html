@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>APEX LIVE — RaceRoom</title>
+<style>
+:root{
+  --ink:#12100E;--ink-2:#1C1917;--ink-3:#2A2622;
+  --bone:#F2EFE9;--dim:#A8A29A;
+  --amber:#E8A33D;--oxide:#C4553B;--green:#7FA650;
+  --line:rgba(242,239,233,.14);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--bone);
+  font-family:"Helvetica Neue",Inter,system-ui,sans-serif;font-size:15px}
+.flag{height:12px;
+  background-image:linear-gradient(45deg,var(--bone) 25%,transparent 25%,transparent 75%,var(--bone) 75%),
+    linear-gradient(45deg,var(--bone) 25%,transparent 25%,transparent 75%,var(--bone) 75%);
+  background-size:12px 12px;background-position:0 0,6px 6px;background-color:var(--ink)}
+header{border-bottom:1px solid var(--line);padding:16px 22px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+h1{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.tagline{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim)}
+.conn{margin-left:auto;font-family:var(--mono);font-size:11px;
+  display:flex;align-items:center;gap:8px;letter-spacing:.08em}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--oxide)}
+.dot.on{background:var(--green)}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 22px 80px}
+
+/* live gauges */
+.live{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  border-top:1px solid var(--line);border-left:1px solid var(--line);margin-bottom:22px}
+.g{padding:13px 15px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.g .k{font-family:var(--mono);font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.g .v{font-family:var(--mono);font-size:26px;font-weight:600;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.g .u{font-family:var(--mono);font-size:10px;color:var(--dim);margin-left:3px}
+.g.big .v{font-size:34px}
+.amber{color:var(--amber)} .oxide{color:var(--oxide)} .green{color:var(--green)}
+
+/* pedal bars */
+.pedals{display:flex;gap:10px;margin-bottom:22px}
+.ped{flex:1;border:1px solid var(--line);background:var(--ink-2);padding:11px 13px}
+.ped .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between;
+  margin-bottom:8px}
+.ped .lbl b{color:var(--bone);font-weight:500;font-variant-numeric:tabular-nums}
+.bar{height:9px;background:var(--ink-3);overflow:hidden}
+.bar i{display:block;height:100%;width:0%;transition:width .05s linear}
+.bar.t i{background:var(--green)} .bar.b i{background:var(--oxide)}
+.steer{height:9px;background:var(--ink-3);position:relative}
+.steer i{position:absolute;top:0;height:100%;background:var(--amber);width:2px;left:50%}
+
+/* track + laps */
+.sec{margin-top:26px}
+.sec-h{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.sec-h h2{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.sec-h .rule{flex:1;height:1px;background:var(--line)}
+table{width:100%;border-collapse:collapse;border:1px solid var(--line)}
+th{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);text-align:left;padding:9px 13px;font-weight:400;
+  border-bottom:1px solid var(--line);background:var(--ink-2)}
+th.r,td.r{text-align:right}
+td{padding:8px 13px;font-family:var(--mono);font-size:13px;
+  font-variant-numeric:tabular-nums;border-bottom:1px solid rgba(242,239,233,.06)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.new{animation:flash .8s ease-out}
+@keyframes flash{from{background:rgba(232,163,61,.22)}to{background:transparent}}
+.pb{color:var(--amber);font-weight:600}
+.inv{color:var(--dim);text-decoration:line-through;opacity:.55}
+.gain{color:var(--green)} .loss{color:var(--oxide)}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:2px 6px;
+  border:1px solid;text-transform:uppercase}
+.tag.p{color:var(--amber);border-color:var(--amber)}
+.tag.i{color:var(--oxide);border-color:var(--oxide)}
+.note{font-family:var(--mono);font-size:11px;color:var(--dim);
+  padding:20px;text-align:center;border:1px solid var(--line);background:var(--ink-2)}
+.trk{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.06em}
+.trk b{color:var(--bone);font-weight:500}
+@media(max-width:640px){
+  .g .v{font-size:21px}.g.big .v{font-size:26px}
+  .pedals{flex-direction:column}
+  td,th{padding-left:9px;padding-right:9px}
+  .opt{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="flag"></div>
+<header>
+  <h1>APEX</h1><span class="tagline">Live · RaceRoom</span>
+  <div class="conn"><span class="dot" id="dot"></span><span id="cstat">connexion…</span></div>
+</header>
+
+<div class="wrap">
+  <div class="trk" id="trk">En attente de RaceRoom — lance le jeu et va en piste.</div>
+
+  <div class="live" style="margin-top:14px">
+    <div class="g big"><div class="k">Vitesse</div><div class="v" id="spd">—<span class="u">km/h</span></div></div>
+    <div class="g"><div class="k">Rapport</div><div class="v" id="gear">—</div></div>
+    <div class="g"><div class="k">Régime</div><div class="v" id="rpm">—<span class="u">tr/min</span></div></div>
+    <div class="g big"><div class="k">Tour en cours</div><div class="v" id="cur">—</div></div>
+    <div class="g big"><div class="k">Meilleur</div><div class="v amber" id="best">—</div></div>
+    <div class="g"><div class="k">Delta</div><div class="v" id="delta">—</div></div>
+  </div>
+
+  <div class="pedals">
+    <div class="ped"><div class="lbl"><span>Accélérateur</span><b id="thv">0%</b></div>
+      <div class="bar t"><i id="thb"></i></div></div>
+    <div class="ped"><div class="lbl"><span>Frein</span><b id="brv">0%</b></div>
+      <div class="bar b"><i id="brb"></i></div></div>
+    <div class="ped"><div class="lbl"><span>Direction</span><b id="stv">0</b></div>
+      <div class="steer"><i id="stb"></i></div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h"><h2>Tours de la session</h2><div class="rule"></div></div>
+    <div id="lapsBox"><div class="note">Aucun tour terminé. Roule un tour complet pour le voir apparaître.</div></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const laps = [];
+let best = null;
+
+const fmt = s => {
+  if (s == null || !isFinite(s) || s <= 0) return '—';
+  const m = Math.floor(s/60), r = s - m*60;
+  return m > 0 ? m + ':' + r.toFixed(3).padStart(6,'0') : r.toFixed(3);
+};
+
+function setConn(on, msg){
+  $('dot').classList.toggle('on', on);
+  $('cstat').textContent = msg;
+}
+
+function onTelemetry(d){
+  $('spd').innerHTML = Math.round(d.speed) + '<span class="u">km/h</span>';
+  $('gear').textContent = d.gear <= 0 ? (d.gear === 0 ? 'N' : 'R') : d.gear;
+  $('rpm').innerHTML = Math.round(d.rpm) + '<span class="u">tr/min</span>';
+  $('cur').textContent = fmt(d.cur);
+  $('best').textContent = fmt(d.best);
+
+  const th = Math.round(d.throttle*100), br = Math.round(d.brake*100);
+  $('thv').textContent = th + '%'; $('thb').style.width = th + '%';
+  $('brv').textContent = br + '%'; $('brb').style.width = br + '%';
+  $('stv').textContent = d.steer.toFixed(2);
+  $('stb').style.left = (50 + d.steer*50) + '%';
+
+  const dl = $('delta');
+  if (d.delta == null || !isFinite(d.delta)){ dl.textContent = '—'; dl.className = 'v'; }
+  else {
+    dl.textContent = (d.delta > 0 ? '+' : '') + d.delta.toFixed(3);
+    dl.className = 'v ' + (d.delta <= 0 ? 'green' : 'oxide');
+  }
+
+  if (d.track) $('trk').innerHTML = 'Circuit · <b>' + esc(d.track) +
+    (d.layout ? ' — ' + esc(d.layout) : '') + '</b>';
+}
+
+const esc = t => String(t).replace(/[&<>"']/g,c=>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function onLap(l){
+  laps.push(l);
+  if (l.valid && l.time > 0 && (best == null || l.time < best)) best = l.time;
+  renderLaps(true);
+}
+
+function renderLaps(flash){
+  if (!laps.length) return;
+  const rows = laps.slice().reverse().map((l,i) => {
+    const isPb = l.valid && l.time === best;
+    const d = (best && l.valid && l.time > 0 && !isPb) ? l.time - best : null;
+    return `<tr class="${flash && i===0 ? 'new' : ''}">
+      <td>${String(l.lap).padStart(2,'0')}</td>
+      <td class="${isPb ? 'pb' : (l.valid ? '' : 'inv')}">${fmt(l.time)}</td>
+      <td class="r ${d==null?'':'loss'}">${d==null?'—':'+'+d.toFixed(3)}</td>
+      <td class="r opt">${l.topSpeed ? Math.round(l.topSpeed) : '—'}</td>
+      <td class="r opt">${l.coastPct != null ? l.coastPct.toFixed(1)+'%' : '—'}</td>
+      <td class="r">${isPb ? '<span class="tag p">Best</span>' :
+        (l.valid ? '' : '<span class="tag i">Stands</span>')}</td>
+    </tr>`;
+  }).join('');
+  $('lapsBox').innerHTML = `<table><thead><tr>
+    <th>Tour</th><th>Temps</th><th class="r">Écart</th>
+    <th class="r opt">V max</th><th class="r opt">Roue libre</th><th class="r"></th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---- WebSocket avec reconnexion automatique ---- */
+let ws = null, retry = 0;
+function connect(){
+  const url = 'ws://' + location.host + '/ws';
+  try { ws = new WebSocket(url); }
+  catch(e){ scheduleRetry(); return; }
+
+  ws.onopen = () => { retry = 0; setConn(true,'connecté'); };
+  ws.onclose = () => { setConn(false,'reconnexion…'); scheduleRetry(); };
+  ws.onerror = () => { try{ws.close();}catch(e){} };
+  ws.onmessage = e => {
+    let m; try { m = JSON.parse(e.data); } catch(err){ return; }
+    if (m.type === 'telemetry') onTelemetry(m);
+    else if (m.type === 'lap') onLap(m);
+    else if (m.type === 'state'){
+      $('trk').textContent = m.msg;
+      if (m.laps) { laps.length = 0; m.laps.forEach(x=>laps.push(x));
+        best = Math.min(...laps.filter(l=>l.valid&&l.time>0).map(l=>l.time));
+        if(!isFinite(best)) best=null; renderLaps(false); }
+    }
+  };
+}
+function scheduleRetry(){
+  retry = Math.min(retry+1, 10);
+  setTimeout(connect, 400 * retry);
+}
+connect();
+</script>
+</body>
+</html>
