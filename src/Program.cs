@@ -285,11 +285,32 @@ static class Program
                         Lap = laps, Time = lapTime, Valid = ok,
                         TopSpeed = topSpeed, CoastPct = coastPct });
 
+                    // trace compacte du tour, pour l'analyse des virages cote navigateur.
+                    // On sous-echantillonne a ~10 Hz : suffisant pour detecter les
+                    // virages et les points de freinage, et ca garde le message leger.
+                    var tr = new StringBuilder(8192);
+                    tr.Append(",\"trace\":[");
+                    int step = Math.Max(1, (int)Math.Round(hz / 10.0));
+                    bool first = true;
+                    for (int i = 0; i < rows.Count; i += step)
+                    {
+                        var f = rows[i].Split(',');
+                        if (f.Length < 9) continue;
+                        if (!first) tr.Append(',');
+                        first = false;
+                        // [t, distance, vitesse, gaz, frein, direction]
+                        tr.Append('[').Append(f[0]).Append(',').Append(f[2]).Append(',')
+                          .Append(f[4]).Append(',').Append(f[5]).Append(',')
+                          .Append(f[6]).Append(',').Append(f[8]).Append(']');
+                    }
+                    tr.Append(']');
+
                     server.Broadcast("{\"type\":\"lap\",\"lap\":" + laps
                         + ",\"time\":" + J(lapTime, 3)
                         + ",\"valid\":" + (ok ? "true" : "false")
                         + ",\"topSpeed\":" + J(topSpeed, 1)
-                        + ",\"coastPct\":" + J(coastPct, 2) + "}");
+                        + ",\"coastPct\":" + J(coastPct, 2)
+                        + tr + "}");
                 }
                 else
                 {
