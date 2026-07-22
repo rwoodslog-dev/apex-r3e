@@ -6,237 +6,506 @@
 <title>APEX LIVE — RaceRoom</title>
 <style>
 :root{
-  --ink:#12100E;--ink-2:#1C1917;--ink-3:#2A2622;
-  --bone:#F2EFE9;--dim:#A8A29A;
-  --amber:#E8A33D;--oxide:#C4553B;--green:#7FA650;
-  --line:rgba(242,239,233,.14);
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --bg:#08090B;
+  --panel:#0E0F11;
+  --card:#151618;
+  --card-2:#111214;
+  --line:#212327;
+  --line-2:#1A1C1F;
+  --ink:#F4F5F6;
+  --ink-2:#9AA0A6;
+  --ink-3:#5F656B;
+  --y:#FFC62A;
+  --y-soft:#FFDA6B;
+  --y-dim:#8F6D19;
+  --red:#E0503C;
+  --grn:#5FBF6A;
+  --cy:#4FA3D1;
+  --mono:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  --ui:"Inter","Helvetica Neue",system-ui,-apple-system,sans-serif;
+  --r:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ink);color:var(--bone);
-  font-family:"Helvetica Neue",Inter,system-ui,sans-serif;font-size:15px}
-.flag{height:12px;
-  background-image:linear-gradient(45deg,var(--bone) 25%,transparent 25%,transparent 75%,var(--bone) 75%),
-    linear-gradient(45deg,var(--bone) 25%,transparent 25%,transparent 75%,var(--bone) 75%);
-  background-size:12px 12px;background-position:0 0,6px 6px;background-color:var(--ink)}
-header{border-bottom:1px solid var(--line);padding:16px 22px;
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-h1{font-size:22px;font-weight:800;letter-spacing:-.03em}
-.tagline{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--dim)}
-.conn{margin-left:auto;font-family:var(--mono);font-size:11px;
-  display:flex;align-items:center;gap:8px;letter-spacing:.08em}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--oxide)}
-.dot.on{background:var(--green)}
-.wrap{max-width:1180px;margin:0 auto;padding:22px 22px 80px}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:14px;
+  line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-/* live gauges */
-.live{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-  border-top:1px solid var(--line);border-left:1px solid var(--line);margin-bottom:22px}
-.g{padding:13px 15px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-.g .k{font-family:var(--mono);font-size:9px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--dim);margin-bottom:6px}
-.g .v{font-family:var(--mono);font-size:26px;font-weight:600;
-  font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
-.g .u{font-family:var(--mono);font-size:10px;color:var(--dim);margin-left:3px}
-.g.big .v{font-size:34px}
-.amber{color:var(--amber)} .oxide{color:var(--oxide)} .green{color:var(--green)}
+/* ============ trame de fond discrete ============ */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1100px 520px at 68% -8%, rgba(255,198,42,.055), transparent 62%),
+    radial-gradient(760px 420px at 100% 0%, rgba(255,255,255,.035), transparent 60%);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.16;
+  background-image:
+    linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:52px 52px;
+  mask-image:radial-gradient(circle at 50% 0%,#000 0%,transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 0%,#000 0%,transparent 78%);}
 
-/* pedal bars */
-.pedals{display:flex;gap:10px;margin-bottom:22px}
-.ped{flex:1;border:1px solid var(--line);background:var(--ink-2);padding:11px 13px}
-.ped .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between;
-  margin-bottom:8px}
-.ped .lbl b{color:var(--bone);font-weight:500;font-variant-numeric:tabular-nums}
-.bar{height:9px;background:var(--ink-3);overflow:hidden}
-.bar i{display:block;height:100%;width:0%;transition:width .05s linear}
-.bar.t i{background:var(--green)} .bar.b i{background:var(--oxide)}
-.steer{height:9px;background:var(--ink-3);position:relative}
-.steer i{position:absolute;top:0;height:100%;background:var(--amber);width:2px;left:50%}
+/* ============ structure ============ */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:212px 1fr;min-height:100vh}
 
-/* track + laps */
-.sec{margin-top:26px}
-.sec-h{display:flex;align-items:center;gap:13px;margin-bottom:14px}
-.sec-h h2{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--dim);white-space:nowrap}
-.sec-h .rule{flex:1;height:1px;background:var(--line)}
-table{width:100%;border-collapse:collapse;border:1px solid var(--line)}
-th{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--dim);text-align:left;padding:9px 13px;font-weight:400;
-  border-bottom:1px solid var(--line);background:var(--ink-2)}
+/* ---- sidebar ---- */
+.side{background:var(--panel);border-right:1px solid var(--line-2);
+  display:flex;flex-direction:column;padding:0 0 22px;position:sticky;top:0;height:100vh}
+.logo{display:flex;align-items:center;gap:11px;padding:20px 20px 22px}
+.logo .mk{font-size:23px;font-weight:900;letter-spacing:-.045em;font-style:italic}
+.logo .mk i{font-style:normal;color:var(--y)}
+.logo .sub{font-family:var(--mono);font-size:8px;letter-spacing:.34em;color:var(--ink-3);
+  padding-top:5px}
+.nav{display:flex;flex-direction:column;gap:1px;padding:8px 0}
+.nav a{display:flex;align-items:center;gap:13px;padding:11px 20px;color:var(--ink-2);
+  text-decoration:none;font-size:12.5px;font-weight:500;letter-spacing:.06em;
+  text-transform:uppercase;border-left:2px solid transparent;transition:.16s;cursor:pointer}
+.nav a:hover{color:var(--ink);background:rgba(255,255,255,.022)}
+.nav a.on{color:var(--y);border-left-color:var(--y);background:rgba(255,198,42,.055)}
+.nav svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.side .foot{margin-top:auto;padding:0 20px}
+
+/* ---- header ---- */
+.top{display:flex;align-items:center;gap:16px;padding:14px 26px;
+  border-bottom:1px solid var(--line-2);background:rgba(6,7,8,.72);
+  backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+.top .ctx{font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;color:var(--ink-3);
+  text-transform:uppercase}
+.top .ctx b{color:var(--ink-2);font-weight:500}
+.top .right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.conn{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--red);
+  box-shadow:0 0 0 3px rgba(224,80,60,.14)}
+.dot.on{background:var(--grn);box-shadow:0 0 0 3px rgba(95,191,106,.16);
+  animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.iconbtn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;
+  border:1px solid transparent;color:var(--ink-3);cursor:pointer;background:none;
+  transition:.16s}
+.iconbtn:hover{color:var(--ink);border-color:var(--line);background:rgba(255,255,255,.03)}
+.iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+
+.main{padding:0 26px 60px;max-width:1560px}
+
+/* ---- hero ---- */
+.hero{position:relative;margin:24px 0 20px;border-radius:14px;overflow:hidden;
+  border:1px solid var(--line-2);background:
+    linear-gradient(100deg,#0C0D0F 0%,#0A0B0D 44%,#101215 100%);
+  min-height:214px;display:flex;align-items:center}
+.hero .checkers{position:absolute;top:-14px;right:26%;width:46%;height:104px;opacity:.5;
+  background-image:
+    linear-gradient(45deg,#fff 25%,transparent 25%,transparent 75%,#fff 75%),
+    linear-gradient(45deg,#fff 25%,transparent 25%,transparent 75%,#fff 75%);
+  background-size:26px 26px;background-position:0 0,13px 13px;
+  transform:skewY(-7deg);
+  mask-image:linear-gradient(105deg,transparent 4%,#000 34%,transparent 82%);
+  -webkit-mask-image:linear-gradient(105deg,transparent 4%,#000 34%,transparent 82%)}
+.hero .streaks{position:absolute;inset:0;pointer-events:none;opacity:.85}
+.hero .inner{position:relative;padding:30px 34px;max-width:600px;z-index:2}
+.hero h2{font-size:29px;font-weight:800;letter-spacing:-.02em;line-height:1.14;
+  font-style:italic;text-transform:uppercase}
+.hero h2 em{font-style:italic;color:var(--y);text-shadow:0 0 26px rgba(255,198,42,.35)}
+.hero p{color:var(--ink-2);margin:11px 0 20px;font-size:14px;letter-spacing:.02em}
+.cta{display:inline-flex;align-items:center;gap:0;border:none;cursor:pointer;
+  border-radius:7px;overflow:hidden;font-family:var(--ui);
+  box-shadow:0 6px 26px rgba(255,198,42,.2);transition:transform .16s,box-shadow .16s}
+.cta:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(255,198,42,.3)}
+.cta .lbl{background:linear-gradient(180deg,#FFCB44,#E9A61F);color:#151004;
+  padding:12px 20px;font-weight:800;font-size:12.5px;letter-spacing:.11em;
+  text-transform:uppercase}
+.cta .chk{width:52px;align-self:stretch;display:grid;place-items:center;
+  background-color:#1A1408;background-image:
+    linear-gradient(45deg,#fff 25%,transparent 25%,transparent 75%,#fff 75%),
+    linear-gradient(45deg,#fff 25%,transparent 25%,transparent 75%,#fff 75%);
+  background-size:11px 11px;background-position:0 0,5.5px 5.5px}
+.hero .trackart{position:absolute;right:22px;top:50%;transform:translateY(-50%);
+  width:290px;height:180px;z-index:2;opacity:.96}
+.hero .trackart path{fill:none;stroke:var(--y);stroke-width:2.4;stroke-linecap:round;
+  stroke-linejoin:round;filter:drop-shadow(0 0 7px rgba(255,198,42,.75))}
+
+/* ---- grilles ---- */
+.grid{display:grid;gap:12px;margin-bottom:12px}
+.g6{grid-template-columns:repeat(6,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g-main{grid-template-columns:270px 1fr 380px}
+
+/* ---- cartes ---- */
+.card{background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+  border:1px solid var(--line-2);border-radius:var(--r);padding:14px 16px;
+  box-shadow:0 1px 0 rgba(255,255,255,.024) inset,0 8px 22px rgba(0,0,0,.34);
+  position:relative;overflow:hidden;transition:border-color .18s,transform .18s}
+.card:hover{border-color:#2B2E33;transform:translateY(-1px)}
+.card .ct{font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;
+  display:flex;align-items:center;gap:7px}
+.card .ct svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.7}
+.val{font-family:var(--mono);font-size:31px;font-weight:600;letter-spacing:-.035em;
+  line-height:1;font-variant-numeric:tabular-nums}
+.val .u{font-size:11px;color:var(--ink-3);margin-left:5px;letter-spacing:0;font-weight:400}
+.val.y{color:var(--y)} .val.r{color:var(--red)} .val.g{color:var(--grn)}
+.spark{height:32px;margin-top:10px;display:block;width:100%}
+.spark path{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.microbar{height:4px;background:#1E2024;border-radius:2px;margin-top:13px;overflow:hidden}
+.microbar i{display:block;height:100%;width:0%;background:var(--y);
+  transition:width .3s cubic-bezier(.4,0,.2,1)}
+
+/* ---- pedales ---- */
+.pedal{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,var(--card),var(--card-2));
+  border:1px solid var(--line-2);border-radius:var(--r);padding:13px 17px}
+.pedal .nm{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:8px;
+  white-space:nowrap;min-width:128px}
+.pedal .nm svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.7}
+.pedal .track{flex:1;height:7px;background:#1E2024;border-radius:4px;overflow:hidden}
+.pedal .track i{display:block;height:100%;width:0%;border-radius:4px;transition:width .06s linear}
+.pedal.t .track i{background:linear-gradient(90deg,#4A8F52,var(--grn))}
+.pedal.b .track i{background:linear-gradient(90deg,#8E3327,var(--red))}
+.pedal .pc{font-family:var(--mono);font-size:12.5px;color:var(--ink);min-width:52px;
+  text-align:right;font-variant-numeric:tabular-nums}
+.steerwrap{flex:1;height:7px;background:#1E2024;border-radius:4px;position:relative}
+.steerwrap::before{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;
+  background:var(--line)}
+.steerwrap i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--y-dim),var(--y));
+  border-radius:4px;transition:.06s linear}
+
+/* ---- panneaux ---- */
+.panel{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);
+  overflow:hidden}
+.panel .ph{padding:13px 17px;border-bottom:1px solid var(--line-2);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-2);display:flex;align-items:center;gap:9px}
+.panel .ph .sp{margin-left:auto;display:flex;gap:8px;align-items:center}
+.panel .pb{padding:15px 17px}
+
+/* infos course */
+.rows{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:11px;padding:8px 0;
+  border-bottom:1px solid var(--line-2)}
+.row:last-child{border-bottom:none}
+.row svg{width:14px;height:14px;stroke:var(--ink-3);fill:none;stroke-width:1.6;flex:none}
+.row .lb{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-2)}
+.row .vl{margin-left:auto;font-family:var(--mono);font-size:14px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.row .vl.warn{color:var(--red)} .row .vl.ok{color:var(--y)}
+
+/* secteurs */
+.sects{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-2);
+  border-top:1px solid var(--line-2)}
+.sect{background:var(--panel);padding:11px 13px}
+.sect .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+.sect .v{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
+.sect.big .v{font-size:20px;letter-spacing:-.02em}
+
+/* coach vocal */
+.wave{height:74px;width:100%;display:block;margin-bottom:14px}
+.wave rect{fill:var(--y);opacity:.85}
+select,input[type=range]{width:100%;background:#131417;color:var(--ink);
+  border:1px solid var(--line);border-radius:7px;padding:9px 11px;font-family:var(--ui);
+  font-size:12.5px;outline:none}
+select:focus,input:focus-visible,button:focus-visible,a:focus-visible{
+  outline:2px solid var(--y);outline-offset:2px}
+input[type=range]{padding:0;height:5px;-webkit-appearance:none;background:#1E2024;
+  border:none;border-radius:3px;margin:9px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
+  border-radius:50%;background:var(--y);cursor:pointer;border:2px solid #0C0D0F}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;
+  background:var(--y);cursor:pointer;border:2px solid #0C0D0F}
+.krow{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:5px}
+.kbd{background:#1B1D21;border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:5px;padding:2px 7px;color:var(--y);font-weight:600;font-size:10px}
+.btn{background:#16181B;border:1px solid var(--line);color:var(--ink-2);border-radius:7px;
+  padding:8px 13px;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+  text-transform:uppercase;cursor:pointer;transition:.16s;white-space:nowrap}
+.btn:hover{color:var(--ink);border-color:#33363C;background:#1B1E22}
+.btn.y{background:linear-gradient(180deg,#FFCB44,#E9A61F);color:#151004;border:none;
+  font-weight:800}
+.btn.y:hover{filter:brightness(1.07)}
+
+/* coach : conseils */
+.tip{display:flex;gap:12px;padding:12px 14px;border:1px solid var(--line-2);
+  border-left:2px solid var(--y);border-radius:8px;background:var(--card-2);
+  margin-bottom:8px;animation:slidein .34s cubic-bezier(.2,.8,.3,1)}
+@keyframes slidein{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.tip .n{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--y);
+  min-width:30px;line-height:1.25}
+.tip .msg{font-size:13.5px;line-height:1.45}
+.tip .meta{font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+
+/* tableau tours */
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);text-align:left;padding:10px 14px;font-weight:400;
+  border-bottom:1px solid var(--line-2)}
 th.r,td.r{text-align:right}
-td{padding:8px 13px;font-family:var(--mono);font-size:13px;
-  font-variant-numeric:tabular-nums;border-bottom:1px solid rgba(242,239,233,.06)}
+td{padding:9px 14px;font-family:var(--mono);font-size:12.5px;
+  font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line-2)}
 tbody tr:last-child td{border-bottom:none}
-tbody tr.new{animation:flash .8s ease-out}
-@keyframes flash{from{background:rgba(232,163,61,.22)}to{background:transparent}}
-.pb{color:var(--amber);font-weight:600}
-.inv{color:var(--dim);text-decoration:line-through;opacity:.55}
-.gain{color:var(--green)} .loss{color:var(--oxide)}
-.tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:2px 6px;
-  border:1px solid;text-transform:uppercase}
-.tag.p{color:var(--amber);border-color:var(--amber)}
-.tag.i{color:var(--oxide);border-color:var(--oxide)}
-.note{font-family:var(--mono);font-size:11px;color:var(--dim);
-  padding:20px;text-align:center;border:1px solid var(--line);background:var(--ink-2)}
-.trk{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.06em}
-.trk b{color:var(--bone);font-weight:500}
-.sw{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);cursor:pointer;
-  white-space:nowrap}
-.sw input{accent-color:var(--amber);cursor:pointer}
-.btn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  background:transparent;color:var(--dim);border:1px solid var(--line);
-  padding:4px 9px;cursor:pointer}
-.btn:hover{color:var(--bone);border-color:var(--amber)}
-.tip{display:flex;gap:13px;align-items:flex-start;padding:13px 15px;
-  border:1px solid var(--line);background:var(--ink-2);margin-bottom:8px}
-.tip .n{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--amber);
-  font-variant-numeric:tabular-nums;line-height:1.15;min-width:34px}
-.tip .body{flex:1;min-width:0}
-.tip .msg{font-size:14px;line-height:1.45;margin-bottom:4px}
-.tip .meta{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em}
-.tip.top{border-color:var(--amber)}
-.mapsvg{width:100%;height:auto;display:block;background:var(--ink-2);
-  border:1px solid var(--line)}
-.mapsvg .seg{cursor:pointer;transition:stroke-width .12s}
-.mapsvg .seg:hover{stroke-width:17}
-.mapsvg .map-hot{filter:drop-shadow(0 0 5px currentColor)}
-.mapnum{font-family:var(--mono);font-size:11px;fill:var(--dim);font-weight:600}
-.mapnum.on{fill:var(--amber)}
-.leg{display:inline-flex;align-items:center;gap:5px;margin-left:11px}
-.leg i{width:11px;height:11px;display:inline-block}
-.det{border:1px solid var(--amber);background:var(--ink-2);padding:13px 15px;margin-top:10px}
-.det h4{font-size:14px;margin-bottom:9px;color:var(--amber)}
-.det .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:9px}
-.det .c{font-family:var(--mono);font-size:11px;color:var(--dim)}
-.det .c b{display:block;font-size:15px;color:var(--bone);margin-top:2px;
-  font-variant-numeric:tabular-nums}
-.det .c b.bad{color:var(--oxide)} .det .c b.good{color:var(--green)}
+tbody tr:hover{background:rgba(255,255,255,.022)}
+tbody tr.new{animation:flash 1s ease-out}
+@keyframes flash{from{background:rgba(255,198,42,.16)}to{background:transparent}}
+.pb{color:var(--y);font-weight:600}
+.inv{color:var(--ink-3);text-decoration:line-through;opacity:.5}
+.gain{color:var(--grn)} .loss{color:var(--red)}
+.tag{font-family:var(--mono);font-size:8px;letter-spacing:.13em;padding:2px 6px;
+  border:1px solid;border-radius:4px;text-transform:uppercase}
+.tag.p{color:var(--y);border-color:var(--y-dim)}
+.tag.i{color:var(--red);border-color:#5C2A22}
 
-.hint{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.1em;
-  white-space:nowrap}
-.hint b{color:var(--amber);font-weight:600}
-.race{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));
-  border-top:1px solid var(--line);border-left:1px solid var(--line)}
-.r-i{padding:11px 13px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-.r-i .k{font-family:var(--mono);font-size:9px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--dim);margin-bottom:5px}
-.r-i .v{font-family:var(--mono);font-size:20px;font-weight:600;
-  font-variant-numeric:tabular-nums;line-height:1}
-.r-i .v.warn{color:var(--oxide)}
-.r-i .v.ok{color:var(--amber)}
-.cfg{margin-top:14px;border:1px solid var(--line);background:var(--ink-2)}
-.cfg summary{padding:11px 15px;cursor:pointer;font-family:var(--mono);font-size:10px;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--dim);user-select:none}
-.cfg summary:hover{color:var(--bone)}
-.cfg-in{padding:6px 15px 16px;display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.cfg-t{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--dim);margin-bottom:8px}
-.cfg-col label{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:13px;
-  cursor:pointer}
-.cfg-col input[type=checkbox]{accent-color:var(--amber);cursor:pointer}
-.cfg-col select,.cfg-col input[type=range]{width:100%;background:var(--ink-3);
-  color:var(--bone);border:1px solid var(--line);padding:5px;font-family:var(--mono);
-  font-size:12px}
-code{font-family:var(--mono);font-size:10px;background:var(--ink-3);padding:1px 4px}
-@media(max-width:640px){.cfg-in{grid-template-columns:1fr}}
-@media(max-width:640px){
-  .g .v{font-size:21px}.g.big .v{font-size:26px}
-  .pedals{flex-direction:column}
-  td,th{padding-left:9px;padding-right:9px}
-  .opt{display:none}
+/* bande secteurs */
+.sb-in{display:flex;gap:2px;height:22px}
+.sb-cell{position:relative;background:#1B1D21;cursor:pointer;transform:skewX(-15deg);
+  transition:filter .14s;min-width:9px;border-radius:2px}
+.sb-cell:hover{filter:brightness(1.45)}
+.sb-cell.on{outline:1px solid var(--ink);outline-offset:1px}
+.sb-cell span{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;transform:skewX(15deg);font-family:var(--mono);font-size:9px;
+  color:#0A0B0C;font-weight:700}
+
+/* carte circuit */
+.mapsvg{width:100%;height:auto;display:block;border-radius:8px;background:#0B0C0E}
+.mapsvg .seg{cursor:pointer;transition:stroke-width .14s}
+.mapsvg .seg:hover{stroke-width:16}
+.mapsvg .map-hot{filter:drop-shadow(0 0 6px currentColor)}
+.mapnum{font-family:var(--mono);font-size:10px;fill:var(--ink-3);font-weight:700}
+.mapnum.on{fill:var(--y)}
+.leg{display:inline-flex;align-items:center;gap:5px;margin-left:10px;
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3)}
+.leg i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.det{border:1px solid var(--line-2);border-left:2px solid var(--cy);border-radius:8px;
+  background:var(--card-2);padding:14px 16px;margin-top:10px}
+.det h4{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--cy);margin-bottom:11px}
+.det .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}
+.det .c{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.det .c b{display:block;font-size:15px;color:var(--ink);margin-top:3px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.det .c b.bad{color:var(--red)} .det .c b.good{color:var(--grn)}
+
+/* reglages */
+.cfg-in{display:grid;grid-template-columns:1.15fr 1fr;gap:24px}
+.cfg-t{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:9px}
+.chk{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;cursor:pointer}
+.chk input{accent-color:var(--y);cursor:pointer;width:14px;height:14px}
+.note{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);padding:26px 18px;
+  text-align:center;line-height:1.75;letter-spacing:.04em}
+
+/* citation */
+.quote{display:flex;gap:14px;align-items:flex-start;padding:17px 20px;
+  background:linear-gradient(100deg,var(--card),var(--card-2));
+  border:1px solid var(--line-2);border-radius:var(--r);position:relative;overflow:hidden}
+.quote .q{font-size:34px;color:var(--y);line-height:.85;font-family:Georgia,serif;
+  opacity:.55}
+.quote p{font-size:13.5px;line-height:1.65;color:var(--ink-2)}
+.quote p b{color:var(--ink);font-weight:600}
+.quote .stamp{position:absolute;right:-6px;top:50%;transform:translateY(-50%);
+  width:132px;height:132px;opacity:.5}
+
+@media(max-width:1200px){
+  .g-main{grid-template-columns:1fr}
+  .g6{grid-template-columns:repeat(3,1fr)}
+  .hero .trackart{display:none}
+}
+@media(max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;align-items:center;
+    overflow-x:auto;padding:0}
+  .side .logo{padding:14px 16px} .side .foot{display:none}
+  .nav{flex-direction:row;padding:0}
+  .nav a{border-left:none;border-bottom:2px solid transparent;padding:13px 14px;
+    white-space:nowrap}
+  .nav a.on{border-left:none;border-bottom-color:var(--y)}
+  .nav a span{display:none}
+  .g6{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .cfg-in{grid-template-columns:1fr}
+  .main{padding:0 14px 50px}
+  .hero h2{font-size:22px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="flag"></div>
-<header>
-  <h1>APEX</h1><span class="tagline">Live · RaceRoom</span>
-  <div class="conn"><span class="dot" id="dot"></span><span id="cstat">connexion…</span></div>
-</header>
+<div class="app">
 
-<div class="wrap">
-  <div class="trk" id="trk">En attente de RaceRoom — lance le jeu et va en piste.</div>
-
-  <div class="live" style="margin-top:14px">
-    <div class="g big"><div class="k">Vitesse</div><div class="v" id="spd">—<span class="u">km/h</span></div></div>
-    <div class="g"><div class="k">Rapport</div><div class="v" id="gear">—</div></div>
-    <div class="g"><div class="k">Régime</div><div class="v" id="rpm">—<span class="u">tr/min</span></div></div>
-    <div class="g big"><div class="k">Tour en cours</div><div class="v" id="cur">—</div></div>
-    <div class="g big"><div class="k">Meilleur</div><div class="v amber" id="best">—</div></div>
-    <div class="g"><div class="k">Delta</div><div class="v" id="delta">—</div></div>
-  </div>
-
-  <div class="pedals">
-    <div class="ped"><div class="lbl"><span>Accélérateur</span><b id="thv">0%</b></div>
-      <div class="bar t"><i id="thb"></i></div></div>
-    <div class="ped"><div class="lbl"><span>Frein</span><b id="brv">0%</b></div>
-      <div class="bar b"><i id="brb"></i></div></div>
-    <div class="ped"><div class="lbl"><span>Direction</span><b id="stv">0</b></div>
-      <div class="steer"><i id="stb"></i></div></div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-h"><h2>Infos course</h2><div class="rule"></div>
-      <span class="hint" id="bindLabel">Touche <b id="hkBadge">C</b></span>
-      <button class="btn" id="sayNow" type="button">Annoncer</button>
-    </div>
-    <div class="race" id="raceBox">
-      <div class="r-i"><div class="k">Position</div><div class="v" id="rPos">—</div></div>
-      <div class="r-i"><div class="k">Tour</div><div class="v" id="rLap">—</div></div>
-      <div class="r-i"><div class="k">Restants</div><div class="v" id="rLeft">—</div></div>
-      <div class="r-i"><div class="k">Carburant</div><div class="v" id="rFuel">—</div></div>
-      <div class="r-i"><div class="k">Autonomie</div><div class="v" id="rRange">—</div></div>
-      <div class="r-i"><div class="k">Devant</div><div class="v" id="rFront">—</div></div>
-      <div class="r-i"><div class="k">Derrière</div><div class="v" id="rBehind">—</div></div>
-      <div class="r-i"><div class="k">Pneus</div><div class="v" id="rWear">—</div></div>
-    </div>
-
-    <details class="cfg">
-      <summary>Personnaliser l'annonce vocale</summary>
-      <div class="cfg-in">
-        <div class="cfg-col">
-          <div class="cfg-t">Ce qui est annoncé</div>
-          <div id="checkList"></div>
-        </div>
-        <div class="cfg-col">
-          <div class="cfg-t">Voix</div>
-          <select id="voiceSel"></select>
-          <div class="cfg-t" style="margin-top:14px">Vitesse</div>
-          <input type="range" id="voiceRate" min="0.7" max="1.6" step="0.05" value="1.05">
-          <div class="hint" id="rateVal">1.05×</div>
-          <div class="cfg-t" style="margin-top:14px">Raccourci</div>
-          <div class="hint" id="padStat">Touche <b id="hkName">C</b> — fonctionne même en jeu</div>
-          <div class="hint" style="margin-top:6px;opacity:.7">Change-la avec l'option
-            <code>--key F9</code> au lancement.</div>
-        </div>
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="logo">
+      <div>
+        <div class="mk">AP<i>E</i>X</div>
+        <div class="sub">LIVE</div>
       </div>
-    </details>
-  </div>
-
-  <div class="sec">
-    <div class="sec-h"><h2>Circuit</h2><div class="rule"></div>
-      <span class="hint" id="mapLegend"></span>
     </div>
-    <div id="mapBox"><div class="note">La carte se trace après ton premier tour complet.</div></div>
-    <div id="turnDetail"></div>
-  </div>
+    <nav class="nav" id="nav">
+      <a class="on" data-v="dash"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg><span>Dashboard</span></a>
+      <a data-v="coach"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7v4l-1.5 3h17L19 13V9a7 7 0 00-7-7z"/><path d="M9 20a3 3 0 006 0"/></svg><span>Coach</span></a>
+      <a data-v="analyse"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg><span>Analyse</span></a>
+      <a data-v="map"><svg viewBox="0 0 24 24"><circle cx="7" cy="17" r="3"/><circle cx="17" cy="7" r="3"/><path d="M10 17h5a3 3 0 000-6H9a3 3 0 010-6h5"/></svg><span>Circuits</span></a>
+      <a data-v="laps"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Sessions</span></a>
+      <a data-v="cfg"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1A1.7 1.7 0 008 19.4a1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H2a2 2 0 110-4h.1A1.7 1.7 0 004.6 8a1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V2a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H22a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg><span>Réglages</span></a>
+    </nav>
+  </aside>
 
-  <div class="sec">
-    <div class="sec-h"><h2>Coach</h2><div class="rule"></div>
-      <label class="sw"><input type="checkbox" id="voiceOn" checked><span>Voix</span></label>
-      <button class="btn" id="testVoice" type="button">Test</button>
-    </div>
-    <div id="coachBox"><div class="note">Le coach a besoin de deux tours valides :
-      un de référence, puis un à comparer.</div></div>
-  </div>
+  <!-- ============ CONTENU ============ -->
+  <div>
+    <header class="top">
+      <div class="ctx">RaceRoom · <b id="trk">en attente</b></div>
+      <div class="right">
+        <div class="conn"><span class="dot" id="dot"></span><span id="cstat">connexion…</span></div>
+        <button class="iconbtn" id="goCfg" title="Réglages"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9 2 2 0 11-2.8 2.8 1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5 2 2 0 11-4 0 1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.9.3 2 2 0 11-2.8-2.8 1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1 2 2 0 110-4 1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9 2 2 0 112.8-2.8 1.7 1.7 0 001.9.3 1.7 1.7 0 001-1.5 2 2 0 114 0 1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3 2 2 0 112.8 2.8 1.7 1.7 0 00-.3 1.9 1.7 1.7 0 001.5 1 2 2 0 110 4 1.7 1.7 0 00-1.5 1z"/></svg></button>
+      </div>
+    </header>
 
-  <div class="sec">
-    <div class="sec-h"><h2>Tours de la session</h2><div class="rule"></div></div>
-    <div id="lapsBox"><div class="note">Aucun tour terminé. Roule un tour complet pour le voir apparaître.</div></div>
+    <main class="main">
+
+      <!-- ---- hero ---- -->
+      <section class="hero">
+        <div class="checkers"></div>
+        <svg class="streaks" viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="st1" x1="0" x2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+              <stop offset=".5" stop-color="#fff" stop-opacity=".5"/>
+              <stop offset="1" stop-color="#FFC62A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M330 200 Q560 150 700 62 T1000 8" stroke="url(#st1)" stroke-width="1.6" fill="none"/>
+          <path d="M300 214 Q580 168 730 78 T1000 26" stroke="url(#st1)" stroke-width="1" fill="none" opacity=".65"/>
+          <path d="M360 190 Q600 140 760 46 T1000 -4" stroke="url(#st1)" stroke-width=".8" fill="none" opacity=".45"/>
+        </svg>
+        <div class="inner">
+          <h2>Prêt à prendre la <em>pôle position</em> ?</h2>
+          <p>Analyse. Progresse. Domine.</p>
+          <button class="cta" id="ctaBtn">
+            <span class="lbl">Démarrer une session</span>
+            <span class="chk"></span>
+          </button>
+        </div>
+        <svg class="trackart" viewBox="0 0 300 190" aria-hidden="true">
+          <path d="M52 128 C22 108 30 66 62 58 C96 50 108 78 138 72 C166 66 160 30 192 26
+                   C226 22 254 44 258 74 C262 104 238 118 214 122 C186 127 172 112 148 118
+                   C124 124 128 150 104 158 C78 166 62 150 52 128 Z"/>
+        </svg>
+      </section>
+
+      <!-- ---- cartes principales ---- -->
+      <section class="grid g6" id="cards"></section>
+
+      <!-- ---- pedales ---- -->
+      <section class="grid g3">
+        <div class="pedal t">
+          <div class="nm"><svg viewBox="0 0 24 24"><path d="M7 21V9a5 5 0 0110 0v12"/></svg>Accélérateur</div>
+          <div class="track"><i id="thb"></i></div><div class="pc" id="thv">0%</div>
+        </div>
+        <div class="pedal b">
+          <div class="nm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Frein</div>
+          <div class="track"><i id="brb"></i></div><div class="pc" id="brv">0%</div>
+        </div>
+        <div class="pedal">
+          <div class="nm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9m0 0l-7 5m7-5l7 5"/></svg>Direction</div>
+          <div class="steerwrap"><i id="stb"></i></div><div class="pc" id="stv">0.00</div>
+        </div>
+      </section>
+
+      <!-- ---- bande secteurs ---- -->
+      <section class="panel" style="margin-bottom:12px">
+        <div class="ph">Secteurs <span class="sp" id="sbLabel" style="font-size:9px;color:var(--ink-3)">en attente du premier tour</span></div>
+        <div class="pb"><div class="sb-in" id="splitBar"></div></div>
+      </section>
+
+      <!-- ---- rangee principale ---- -->
+      <section class="grid g-main">
+
+        <div class="panel">
+          <div class="ph">Infos course</div>
+          <div class="pb"><div class="rows">
+            <div class="row"><svg viewBox="0 0 24 24"><path d="M6 21V7l8-4v18M6 11h8M18 21V9l-4-2"/></svg><span class="lb">Position</span><span class="vl" id="rPos">—</span></div>
+            <div class="row"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="lb">Tour</span><span class="vl" id="rLap">—</span></div>
+            <div class="row"><svg viewBox="0 0 24 24"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16"/></svg><span class="lb">Restants</span><span class="vl" id="rLeft">—</span></div>
+            <div class="row"><svg viewBox="0 0 24 24"><path d="M4 20V6a2 2 0 012-2h6a2 2 0 012 2v14M3 20h13M14 9h3a2 2 0 012 2v6a1.5 1.5 0 003 0v-7l-3-3"/></svg><span class="lb">Carburant</span><span class="vl" id="rFuel">—</span></div>
+            <div class="row"><svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 12l4-3"/></svg><span class="lb">Autonomie</span><span class="vl" id="rRange">—</span></div>
+            <div class="row"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span class="lb">Devant</span><span class="vl" id="rFront">—</span></div>
+            <div class="row"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg><span class="lb">Derrière</span><span class="vl" id="rBehind">—</span></div>
+            <div class="row"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg><span class="lb">Pneus</span><span class="vl" id="rWear">—</span></div>
+          </div></div>
+        </div>
+
+        <div class="panel">
+          <div class="ph">Analyse du tour <span class="sp" id="mapLegend"></span></div>
+          <div class="pb" id="mapBox"><div class="note">La carte se trace après ton premier tour complet.</div></div>
+          <div class="sects">
+            <div class="sect"><div class="k">Secteur 1</div><div class="v" id="s1">--:--.--</div></div>
+            <div class="sect"><div class="k">Secteur 2</div><div class="v" id="s2">--:--.--</div></div>
+            <div class="sect"><div class="k">Secteur 3</div><div class="v" id="s3">--:--.--</div></div>
+            <div class="sect big"><div class="k">Temps au tour</div><div class="v" id="sLap">--:--.--</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="ph">Coach vocal
+            <span class="sp">
+              <label class="chk" style="padding:0"><input type="checkbox" id="voiceOn" checked></label>
+              <button class="btn" id="testVoice">Test</button>
+            </span>
+          </div>
+          <div class="pb">
+            <svg class="wave" id="wave" viewBox="0 0 300 74" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <select id="voiceSel" aria-label="Voix"></select>
+            <div style="display:flex;align-items:center;gap:11px;margin-top:11px">
+              <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--ink-3);fill:none;stroke-width:1.6;flex:none"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>
+              <input type="range" id="voiceRate" min="0.7" max="1.6" step="0.05" value="1.05">
+              <span class="pc" id="rateVal" style="font-family:var(--mono);font-size:11px;color:var(--ink-3)">1.05×</span>
+            </div>
+            <div class="krow" style="margin-top:13px">
+              <span class="kbd" id="hkBadge">C</span> Annonce course
+              <button class="btn" id="sayNow" style="margin-left:auto">Annoncer</button>
+            </div>
+            <div id="coachBox" style="margin-top:14px"><div class="note" style="padding:16px 0">Le coach a besoin de deux tours valides : un de référence, puis un à comparer.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <div id="turnDetail"></div>
+
+      <!-- ---- tours ---- -->
+      <section class="panel" style="margin-top:12px">
+        <div class="ph">Tours de la session</div>
+        <div id="lapsBox"><div class="note">Aucun tour terminé. Roule un tour complet pour le voir apparaître.</div></div>
+      </section>
+
+      <!-- ---- reglages ---- -->
+      <section class="panel" style="margin-top:12px" id="cfgPanel">
+        <div class="ph">Personnaliser l'annonce vocale</div>
+        <div class="pb cfg-in">
+          <div>
+            <div class="cfg-t">Ce qui est annoncé</div>
+            <div id="checkList"></div>
+          </div>
+          <div>
+            <div class="cfg-t">Touche d'annonce</div>
+            <select id="keySel" aria-label="Touche d'annonce"></select>
+            <div class="krow" style="margin-top:10px;text-transform:none;letter-spacing:.02em;line-height:1.6">
+              Fonctionne même quand RaceRoom est au premier plan.
+              Le jeu reçoit aussi la touche : choisis-en une qu'il n'utilise pas.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---- citation ---- -->
+      <section class="quote" style="margin-top:12px">
+        <div class="q">&ldquo;</div>
+        <p>La vitesse, c'est bien.<br><b>La régularité, c'est mieux.</b><br>La précision, c'est la victoire.</p>
+      </section>
+
+    </main>
   </div>
 </div>
 
@@ -251,197 +520,97 @@ const fmt = s => {
   const m = Math.floor(s/60), r = s - m*60;
   return m > 0 ? m + ':' + r.toFixed(3).padStart(6,'0') : r.toFixed(3);
 };
+const esc = t => String(t).replace(/[&<>"']/g,c=>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function setConn(on, msg){
-  $('dot').classList.toggle('on', on);
-  $('cstat').textContent = msg;
+/* ============ cartes du dashboard ============ */
+const CARDS = [
+  { id:'spd',  t:'Vitesse',      u:'km/h',   spark:true },
+  { id:'gear', t:'Rapport',      bar:true },
+  { id:'rpm',  t:'Régime',       u:'tr/min', spark:true },
+  { id:'cur',  t:'Tour en cours',bar:true },
+  { id:'best', t:'Meilleur tour',cls:'y', bar:true },
+  { id:'delta',t:'Delta',        bar:true },
+];
+$('cards').innerHTML = CARDS.map(c =>
+  `<div class="card">
+     <div class="ct">${esc(c.t)}</div>
+     <div class="val ${c.cls||''}" id="${c.id}">—${c.u?'<span class="u">'+esc(c.u)+'</span>':''}</div>
+     ${c.spark ? `<svg class="spark" id="sp_${c.id}" viewBox="0 0 100 32" preserveAspectRatio="none"></svg>`
+               : `<div class="microbar"><i id="mb_${c.id}"></i></div>`}
+   </div>`).join('');
+
+/* historique pour les mini-graphes */
+const hist = { spd:[], rpm:[] };
+function pushHist(k, v){
+  const a = hist[k]; if (!a) return;
+  a.push(v); if (a.length > 60) a.shift();
+  const el = $('sp_'+k); if (!el || a.length < 2) return;
+  const mn = Math.min(...a), mx = Math.max(...a), rg = (mx-mn)||1;
+  const pts = a.map((v,i) => [i/(a.length-1)*100, 30 - (v-mn)/rg*26]);
+  const d = pts.map((p,i) => (i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  el.innerHTML = `<path d="${d}" stroke="${k==='spd'?'var(--y)':'var(--cy)'}" opacity=".85"/>`;
 }
 
+/* ============ forme d'onde du coach ============ */
+const WBARS = 68;
+let waveAmp = 0;
+function initWave(){
+  const w = $('wave'); if (!w) return;
+  let s = '';
+  for (let i=0;i<WBARS;i++){
+    const x = i*(300/WBARS);
+    s += `<rect x="${x.toFixed(2)}" y="35" width="${(300/WBARS-1.6).toFixed(2)}" height="4" rx="1"/>`;
+  }
+  w.innerHTML = s;
+}
+function animWave(){
+  const w = $('wave');
+  if (w){
+    const r = w.querySelectorAll('rect');
+    for (let i=0;i<r.length;i++){
+      const base = Math.sin(i*0.42 + Date.now()/190) * 0.5 + 0.5;
+      const env = Math.sin(i/r.length*Math.PI);
+      const h = Math.max(3, base*env*62*waveAmp + 3);
+      r[i].setAttribute('y', (37 - h/2).toFixed(1));
+      r[i].setAttribute('height', h.toFixed(1));
+      r[i].setAttribute('opacity', (0.35 + waveAmp*0.55).toFixed(2));
+    }
+  }
+  waveAmp *= 0.94;
+  requestAnimationFrame(animWave);
+}
+
+/* ============ telemetrie ============ */
 function onTelemetry(d){
   $('spd').innerHTML = Math.round(d.speed) + '<span class="u">km/h</span>';
   $('gear').textContent = d.gear <= 0 ? (d.gear === 0 ? 'N' : 'R') : d.gear;
   $('rpm').innerHTML = Math.round(d.rpm) + '<span class="u">tr/min</span>';
   $('cur').textContent = fmt(d.cur);
   $('best').textContent = fmt(d.best);
+  pushHist('spd', d.speed); pushHist('rpm', d.rpm);
 
   const th = Math.round(d.throttle*100), br = Math.round(d.brake*100);
   $('thv').textContent = th + '%'; $('thb').style.width = th + '%';
   $('brv').textContent = br + '%'; $('brb').style.width = br + '%';
   $('stv').textContent = d.steer.toFixed(2);
-  $('stb').style.left = (50 + d.steer*50) + '%';
+  const st = $('stb'), p = d.steer;
+  if (p >= 0){ st.style.left = '50%'; st.style.right = 'auto'; st.style.width = (p*50)+'%'; }
+  else { st.style.right = '50%'; st.style.left = 'auto'; st.style.width = (-p*50)+'%'; }
 
   const dl = $('delta');
-  if (d.delta == null || !isFinite(d.delta)){ dl.textContent = '—'; dl.className = 'v'; }
+  if (d.delta == null || !isFinite(d.delta)){ dl.textContent = '—'; dl.className = 'val'; }
   else {
     dl.textContent = (d.delta > 0 ? '+' : '') + d.delta.toFixed(3);
-    dl.className = 'v ' + (d.delta <= 0 ? 'green' : 'oxide');
+    dl.className = 'val ' + (d.delta <= 0 ? 'g' : 'r');
   }
-
-  if (d.track) $('trk').innerHTML = 'Circuit · <b>' + esc(d.track) +
-    (d.layout ? ' — ' + esc(d.layout) : '') + '</b>';
+  const mg = $('mb_gear'); if (mg) mg.style.width = Math.min(100, Math.max(0, d.gear/6*100)) + '%';
+  if (d.track) $('trk').textContent = d.track + (d.layout ? ' — ' + d.layout : '');
+  $('sLap').textContent = fmt(d.cur);
 }
 
-const esc = t => String(t).replace(/[&<>"']/g,c=>
-  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-/* ---- coaching ---- */
-let refTrace = null;     // trace du meilleur tour valide
-let refTime = null;
-let turns = null;        // virages detectes sur la reference
-
-function toSamples(trace){
-  // trace = [[t, distance, vitesse, gaz, frein, direction, x, z], ...]
-  if (!trace || !trace.length) return null;
-  return trace.map(r => ({ t:r[0], d:r[1], spd:r[2], th:r[3], br:r[4], st:r[5],
-                           x:r[6], z:r[7] }));
-}
-
-/* ---- carte ---- */
-let lastComparisons = null, lastTips = null;
-
-function drawMap(){
-  if (!refTrace || !turns || !turns.length){ return; }
-  const pts = refTrace.filter(p => p.x !== undefined && p.z !== undefined
-                                && isFinite(p.x) && isFinite(p.z));
-  if (pts.length < 10){
-    $('mapBox').innerHTML = '<div class="note">Coordonnées de position indisponibles — '
-      + 'la carte ne peut pas être tracée.</div>';
-    return;
-  }
-  $('mapBox').innerHTML = renderMap(pts, turns, lastComparisons, lastTips);
-  $('mapLegend').innerHTML =
-    '<span class="leg"><i style="background:var(--green)"></i>gagné</span>'
-  + '<span class="leg"><i style="background:var(--amber)"></i>bon</span>'
-  + '<span class="leg"><i style="background:#D98A4A"></i>léger</span>'
-  + '<span class="leg"><i style="background:var(--oxide)"></i>perte</span>';
-
-  document.querySelectorAll('.mapsvg .seg').forEach(el => {
-    el.addEventListener('click', () => showTurn(+el.dataset.turn));
-  });
-}
-
-function showTurn(n){
-  const c = (lastComparisons||[]).find(x => x.turn === n);
-  if (!c){ $('turnDetail').innerHTML = ''; return; }
-  const cell = (label, val, cls) =>
-    `<div class="c">${label}<b class="${cls||''}">${val}</b></div>`;
-  const sign = v => (v>0?'+':'') + v.toFixed(2);
-  let html = `<div class="det"><h4>Virage ${n} — ${esc(c.dir)}</h4><div class="grid">`;
-  html += cell('Temps', sign(c.lostS)+' s', c.lostS>0.05?'bad':(c.lostS<-0.02?'good':''));
-  if (c.brakeDeltaM != null)
-    html += cell('Point de freinage', sign(c.brakeDeltaM)+' m', c.brakeDeltaM<-6?'bad':'');
-  if (c.brakeForceDelta != null)
-    html += cell('Pression frein', sign(c.brakeForceDelta)+' pt', c.brakeForceDelta<-12?'bad':'');
-  if (c.minSpeedDelta != null)
-    html += cell('Vitesse mini', sign(c.minSpeedDelta)+' km/h', c.minSpeedDelta<-4?'bad':'');
-  if (c.coastDeltaS)
-    html += cell('Roue libre', sign(c.coastDeltaS)+' s', c.coastDeltaS>0.12?'bad':'');
-  if (c.throttleDeltaM != null)
-    html += cell('Reprise gaz', sign(c.throttleDeltaM)+' m', c.throttleDeltaM>8?'bad':'');
-  html += '</div></div>';
-  $('turnDetail').innerHTML = html;
-}
-
-function speak(text, priority){
-  if (!('speechSynthesis' in window)) return;
-  // les annonces course passent meme si la voix coach est coupee
-  if (!priority && !$('voiceOn').checked) return;
-  try {
-    if (priority) window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'fr-FR';
-    const r = parseFloat(($('voiceRate')||{}).value);
-    u.rate = isFinite(r) ? r : 1.05;
-    if (chosenVoice) u.voice = chosenVoice;
-    window.speechSynthesis.speak(u);
-  } catch(e){ /* voix indisponible : l'affichage reste */ }
-}
-
-function runCoach(l){
-  const cur = toSamples(l.trace);
-  if (!cur) return;
-
-  // premier tour valide -> devient la reference
-  if (!refTrace){
-    if (l.valid && l.time > 0){
-      refTrace = cur; refTime = l.time;
-      turns = detectTurns(refTrace);
-      lastComparisons = null; lastTips = null;
-      $('coachBox').innerHTML = '<div class="note">Tour de référence enregistré — '
-        + turns.length + ' virages détectés. Le prochain tour sera analysé.</div>';
-      drawMap();
-    }
-    return;
-  }
-  if (!turns || !turns.length) return;
-
-  const comps = compareLaps(refTrace, cur, turns);
-  const tips = makeAdvice(comps);
-  lastComparisons = comps; lastTips = tips;
-  drawMap();
-
-  if (!tips.length){
-    $('coachBox').innerHTML = '<div class="note">Tour propre — rien à corriger '
-      + 'par rapport à ta référence.</div>';
-    if (l.valid && l.time > 0 && l.time < refTime){
-      refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
-      speak('Nouveau meilleur tour.');
-    }
-    return;
-  }
-
-  $('coachBox').innerHTML = tips.map((t,i) =>
-    `<div class="tip${i===0?' top':''}">
-       <div class="n">T${t.turn}</div>
-       <div class="body">
-         <div class="msg">${esc(phrase(t))}</div>
-         <div class="meta">${t.lostS > 0.01 ? '−'+t.lostS.toFixed(3)+' s · ' : ''}virage à ${esc(t.dir)}</div>
-       </div>
-     </div>`).join('');
-
-  // voix : on enonce les conseils l'un apres l'autre
-  tips.forEach(t => speak(phrase(t)));
-
-  // le tour devient la nouvelle reference s'il est meilleur
-  if (l.valid && l.time > 0 && l.time < refTime){
-    refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
-  }
-}
-
-function onLap(l){
-  laps.push(l);
-  if (l.valid && l.time > 0 && (best == null || l.time < best)) best = l.time;
-  renderLaps(true);
-  try { runCoach(l); } catch(e){ console.error('coach:', e); }
-}
-
-function renderLaps(flash){
-  if (!laps.length) return;
-  const rows = laps.slice().reverse().map((l,i) => {
-    const isPb = l.valid && l.time === best;
-    const d = (best && l.valid && l.time > 0 && !isPb) ? l.time - best : null;
-    return `<tr class="${flash && i===0 ? 'new' : ''}">
-      <td>${String(l.lap).padStart(2,'0')}</td>
-      <td class="${isPb ? 'pb' : (l.valid ? '' : 'inv')}">${fmt(l.time)}</td>
-      <td class="r ${d==null?'':'loss'}">${d==null?'—':'+'+d.toFixed(3)}</td>
-      <td class="r opt">${l.topSpeed ? Math.round(l.topSpeed) : '—'}</td>
-      <td class="r opt">${l.coastPct != null ? l.coastPct.toFixed(1)+'%' : '—'}</td>
-      <td class="r">${isPb ? '<span class="tag p">Best</span>' :
-        (l.valid ? '' : '<span class="tag i">Stands</span>')}</td>
-    </tr>`;
-  }).join('');
-  $('lapsBox').innerHTML = `<table><thead><tr>
-    <th>Tour</th><th>Temps</th><th class="r">Écart</th>
-    <th class="r opt">V max</th><th class="r opt">Roue libre</th><th class="r"></th>
-  </tr></thead><tbody>${rows}</tbody></table>`;
-}
-
-/* ================= INFOS COURSE ================= */
+/* ============ infos course ============ */
 let race = {};
-
-/* Chaque item : id, libelle, actif par defaut, et fonction de phrase.
-   La fonction retourne null si la donnee n'est pas disponible — on
-   n'annonce jamais une valeur absente. */
 const SAY_ITEMS = [
   { id:'pos',   label:'Position',            def:true,
     f:r => (r.pos > 0) ? ('Position ' + r.pos + (r.cars > 0 ? ' sur ' + r.cars : '')) : null },
@@ -456,28 +625,23 @@ const SAY_ITEMS = [
   { id:'fuelL', label:'Carburant (litres)',  def:false,
     f:r => (r.fuelLeft != null && r.fuelLeft >= 0) ? (r.fuelLeft.toFixed(1) + ' litres') : null },
   { id:'range', label:'Autonomie en tours',  def:true,
-    f:r => (r.fuelLaps != null && r.fuelLaps >= 0)
-         ? ('Autonomie ' + r.fuelLaps.toFixed(1) + ' tours') : null },
+    f:r => (r.fuelLaps != null && r.fuelLaps >= 0) ? ('Autonomie ' + r.fuelLaps.toFixed(1) + ' tours') : null },
   { id:'front', label:'Écart devant',        def:true,
-    f:r => (r.dFront != null && r.dFront > 0)
-         ? ('Devant à ' + r.dFront.toFixed(1) + ' secondes') : null },
+    f:r => (r.dFront != null && r.dFront > 0) ? ('Devant à ' + r.dFront.toFixed(1) + ' secondes') : null },
   { id:'behind',label:'Écart derrière',      def:true,
-    f:r => (r.dBehind != null && r.dBehind > 0)
-         ? ('Derrière à ' + r.dBehind.toFixed(1) + ' secondes') : null },
+    f:r => (r.dBehind != null && r.dBehind > 0) ? ('Derrière à ' + r.dBehind.toFixed(1) + ' secondes') : null },
   { id:'best',  label:'Meilleur tour',       def:false,
     f:r => (r.best > 0) ? ('Meilleur tour ' + fmt(r.best)) : null },
   { id:'last',  label:'Dernier tour',        def:false,
     f:r => (laps.length && laps[laps.length-1].time > 0)
          ? ('Dernier tour ' + fmt(laps[laps.length-1].time)) : null },
   { id:'wear',  label:'Usure pneus',         def:false,
-    f:r => (r.tireWear != null && r.tireWear >= 0)
-         ? ('Pneus ' + Math.round(r.tireWear) + ' pour cent') : null },
+    f:r => (r.tireWear != null && r.tireWear >= 0) ? ('Pneus ' + Math.round(r.tireWear) + ' pour cent') : null },
   { id:'time',  label:'Temps de session',    def:false,
     f:r => (r.sessRemain != null && r.sessRemain > 0)
          ? (Math.floor(r.sessRemain/60) + ' minutes restantes') : null },
   { id:'pen',   label:'Pénalités',           def:true,
-    f:r => (r.penalties > 0)
-         ? (r.penalties + (r.penalties > 1 ? ' pénalités' : ' pénalité')) : null },
+    f:r => (r.penalties > 0) ? (r.penalties + (r.penalties > 1 ? ' pénalités' : ' pénalité')) : null },
   { id:'flag',  label:'Drapeau',             def:true,
     f:r => r.flag ? ('Drapeau ' + r.flag) : null },
 ];
@@ -492,19 +656,16 @@ function savePrefs(){
   SAY_ITEMS.forEach(it => { const el = $('say_'+it.id); if (el) o[it.id] = el.checked; });
   try { localStorage.setItem('apexSay', JSON.stringify(o)); } catch(e){}
 }
-
 function buildCheckList(){
   const saved = loadPrefs();
   $('checkList').innerHTML = SAY_ITEMS.map(it =>
-    `<label><input type="checkbox" id="say_${it.id}"${
+    `<label class="chk"><input type="checkbox" id="say_${it.id}"${
       (saved[it.id] !== undefined ? saved[it.id] : it.def) ? ' checked' : ''
     }><span>${esc(it.label)}</span></label>`).join('');
   SAY_ITEMS.forEach(it => {
-    const el = $('say_'+it.id);
-    if (el) el.addEventListener('change', savePrefs);
+    const el = $('say_'+it.id); if (el) el.addEventListener('change', savePrefs);
   });
 }
-
 function buildAnnouncement(){
   const parts = [];
   for (const it of SAY_ITEMS){
@@ -516,21 +677,17 @@ function buildAnnouncement(){
   }
   return parts.length ? parts.join('. ') + '.' : "Aucune donnée disponible.";
 }
-
-function announce(){
-  const txt = buildAnnouncement();
-  speak(txt, true);
-}
+function announce(){ speak(buildAnnouncement(), true); }
 
 function onRace(d){
   race = d;
   const set = (id, val, cls) => {
     const el = $(id); if (!el) return;
     el.textContent = val;
-    el.className = 'v' + (cls ? ' '+cls : '');
+    el.className = 'vl' + (cls ? ' '+cls : '');
   };
-  set('rPos', d.pos > 0 ? (d.pos + (d.cars>0 ? '/'+d.cars : '')) : '—');
-  set('rLap', d.lap >= 0 ? (d.lap + (d.totalLaps>0 ? '/'+d.totalLaps : '')) : '—');
+  set('rPos', d.pos > 0 ? (d.pos + (d.cars>0 ? ' / '+d.cars : '')) : '—');
+  set('rLap', d.lap >= 0 ? (d.lap + (d.totalLaps>0 ? ' / '+d.totalLaps : '')) : '—');
   set('rLeft', (d.lapsRemain != null && d.lapsRemain >= 0) ? Math.round(d.lapsRemain) : '—',
       (d.lapsRemain >= 0 && d.lapsRemain <= 1) ? 'ok' : '');
   set('rFuel', (d.fuelPct != null && d.fuelPct >= 0) ? Math.round(d.fuelPct)+'%' : '—',
@@ -543,34 +700,63 @@ function onRace(d){
       (d.tireWear >= 0 && d.tireWear < 30) ? 'warn' : '');
 }
 
-/* ---- voix ---- */
+/* ============ voix ============ */
 let voices = [], chosenVoice = null;
-
 function loadVoices(){
   if (!('speechSynthesis' in window)) return;
   voices = window.speechSynthesis.getVoices() || [];
-  // les voix francaises d'abord
   const fr = voices.filter(v => /^fr/i.test(v.lang));
   const list = fr.length ? fr : voices;
-  const sel = $('voiceSel');
-  if (!sel) return;
-  const prev = localStorage.getItem('apexVoice');
-  sel.innerHTML = list.map((v,i) =>
+  const sel = $('voiceSel'); if (!sel) return;
+  let prev = null;
+  try { prev = localStorage.getItem('apexVoice'); } catch(e){}
+  sel.innerHTML = list.map(v =>
     `<option value="${esc(v.name)}">${esc(v.name)}${/^fr/i.test(v.lang)?'':' ('+esc(v.lang)+')'}</option>`
   ).join('') || '<option>voix par défaut</option>';
   if (prev && list.some(v => v.name === prev)) sel.value = prev;
   chosenVoice = list.find(v => v.name === sel.value) || list[0] || null;
 }
+function speak(text, priority){
+  if (!('speechSynthesis' in window)) return;
+  if (!priority && !$('voiceOn').checked) return;
+  waveAmp = 1;
+  try {
+    if (priority) window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'fr-FR';
+    const r = parseFloat(($('voiceRate')||{}).value);
+    u.rate = isFinite(r) ? r : 1.05;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = () => { waveAmp = 0; };
+    window.speechSynthesis.speak(u);
+  } catch(e){}
+}
 
-/* ---- raccourci clavier local (si la page a le focus) ---- */
-window.addEventListener('keydown', e => {
-  if (e.target && /input|select|textarea/i.test(e.target.tagName)) return;
-  if (e.key && e.key.toLowerCase() === (window.__hotkey||'c').toLowerCase()) announce();
-});
-
+/* ============ selecteur de touche ============ */
+const KEY_GROUPS = [
+  ['Lettres',   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')],
+  ['Chiffres',  '0123456789'.split('')],
+  ['Fonction',  Array.from({length:12}, (_,i) => 'F'+(i+1))],
+  ['Pavé num.', Array.from({length:10}, (_,i) => 'Num'+i)],
+  ['Autres',    ['Espace','Entree','Tab','Inser','Suppr']],
+];
+function buildKeySelect(current){
+  const sel = $('keySel'); if (!sel) return;
+  sel.innerHTML = KEY_GROUPS.map(g =>
+    '<optgroup label="'+esc(g[0])+'">' +
+    g[1].map(k => '<option value="'+esc(k)+'">'+esc(k)+'</option>').join('') +
+    '</optgroup>').join('');
+  if (current) sel.value = current;
+  sel.addEventListener('change', () => {
+    const k = sel.value;
+    window.__hotkey = k;
+    const b = $('hkBadge'); if (b) b.textContent = k;
+    try { if (ws && ws.readyState === 1) ws.send(JSON.stringify({type:'setkey', key:k})); } catch(e){}
+    try { localStorage.setItem('apexKey', k); } catch(e){}
+  });
+}
 
 /* ================= MOTEUR DE COACHING ================= */
-
 
 /* Detecte les virages a partir du braquage.
    samples: [{d, spd, th, br, st, t}] tries par distance croissante. */
@@ -911,13 +1097,195 @@ function renderMap(trackPts, turns, comparisons, tips){
   return svg;
 }
 
-/* ---- WebSocket avec reconnexion automatique ---- */
-let ws = null, retry = 0;
-function connect(){
-  const url = 'ws://' + location.host + '/ws';
-  try { ws = new WebSocket(url); }
-  catch(e){ scheduleRetry(); return; }
+/* ============ coaching ============ */
+let refTrace = null, refTime = null, turns = null;
+let lastComparisons = null, lastTips = null;
 
+function toSamples(trace){
+  if (!trace || !trace.length) return null;
+  return trace.map(r => ({ t:r[0], d:r[1], spd:r[2], th:r[3], br:r[4], st:r[5],
+                           x:r[6], z:r[7] }));
+}
+
+function drawSplitBar(){
+  const bar = $('splitBar'); if (!bar) return;
+  if (!turns || !turns.length){ bar.innerHTML = ''; return; }
+  const lapEnd = turns[turns.length-1].endM || 1;
+  const bounds = turns.map((t,i) => {
+    const from = i === 0 ? 0 : (turns[i-1].endM + t.startM) / 2;
+    const to   = i === turns.length-1 ? lapEnd : (t.endM + turns[i+1].startM) / 2;
+    return to - from;
+  });
+  const total = bounds.reduce((a,b) => a+b, 0) || 1;
+  const byTurn = {};
+  (lastComparisons||[]).forEach(c => byTurn[c.turn] = c);
+
+  bar.innerHTML = turns.map((t,i) => {
+    const n = i+1, c = byTurn[n];
+    const w = Math.max(2, bounds[i] / total * 100);
+    const col = c ? lossColor(c.lostS) : '#1B1D21';
+    const title = 'Virage ' + n + (c ? ' — ' + (c.lostS>0?'+':'') + c.lostS.toFixed(3) + ' s' : '');
+    return '<div class="sb-cell" role="button" tabindex="0" data-turn="'+n+'" '
+         + 'style="flex:'+w.toFixed(2)+' 1 0;background:'+col+'" title="'+esc(title)+'">'
+         + '<span>'+n+'</span></div>';
+  }).join('');
+
+  $('sbLabel').textContent = (lastComparisons && lastComparisons.length)
+    ? turns.length + ' virages · colorés selon ton écart'
+    : turns.length + ' virages détectés';
+
+  bar.querySelectorAll('.sb-cell').forEach(el => {
+    const go = () => {
+      bar.querySelectorAll('.sb-cell').forEach(x => x.classList.remove('on'));
+      el.classList.add('on');
+      showTurn(+el.dataset.turn);
+      const d = $('turnDetail');
+      if (d && d.scrollIntoView){ try{ d.scrollIntoView({behavior:'smooth',block:'nearest'}); }catch(e){} }
+    };
+    el.addEventListener('click', go);
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); }
+    });
+  });
+}
+
+function drawMap(){
+  if (!refTrace || !turns || !turns.length) return;
+  const pts = refTrace.filter(p => p.x !== undefined && p.z !== undefined
+                                && isFinite(p.x) && isFinite(p.z));
+  if (pts.length < 10){
+    $('mapBox').innerHTML = '<div class="note">Coordonnées de position indisponibles — '
+      + 'la carte ne peut pas être tracée.</div>';
+    return;
+  }
+  $('mapBox').innerHTML = renderMap(pts, turns, lastComparisons, lastTips);
+  drawSplitBar();
+  $('mapLegend').innerHTML =
+    '<span class="leg"><i style="background:var(--grn)"></i>gagné</span>'
+  + '<span class="leg"><i style="background:var(--y)"></i>bon</span>'
+  + '<span class="leg"><i style="background:#D98A4A"></i>léger</span>'
+  + '<span class="leg"><i style="background:var(--red)"></i>perte</span>';
+  document.querySelectorAll('.mapsvg .seg').forEach(el => {
+    el.addEventListener('click', () => showTurn(+el.dataset.turn));
+  });
+}
+
+function showTurn(n){
+  const c = (lastComparisons||[]).find(x => x.turn === n);
+  if (!c){ $('turnDetail').innerHTML = ''; return; }
+  const cell = (label, val, cls) => `<div class="c">${label}<b class="${cls||''}">${val}</b></div>`;
+  const sign = v => (v>0?'+':'') + v.toFixed(2);
+  let html = `<div class="det"><h4>Virage ${n} — ${esc(c.dir)}</h4><div class="grid2">`;
+  html += cell('Temps', sign(c.lostS)+' s', c.lostS>0.05?'bad':(c.lostS<-0.02?'good':''));
+  if (c.brakeDeltaM != null)
+    html += cell('Point de freinage', sign(c.brakeDeltaM)+' m', c.brakeDeltaM<-6?'bad':'');
+  if (c.brakeForceDelta != null)
+    html += cell('Pression frein', sign(c.brakeForceDelta)+' pt', c.brakeForceDelta<-12?'bad':'');
+  if (c.minSpeedDelta != null)
+    html += cell('Vitesse mini', sign(c.minSpeedDelta)+' km/h', c.minSpeedDelta<-4?'bad':'');
+  if (c.coastDeltaS)
+    html += cell('Roue libre', sign(c.coastDeltaS)+' s', c.coastDeltaS>0.12?'bad':'');
+  if (c.throttleDeltaM != null)
+    html += cell('Reprise gaz', sign(c.throttleDeltaM)+' m', c.throttleDeltaM>8?'bad':'');
+  html += '</div></div>';
+  $('turnDetail').innerHTML = html;
+}
+
+function runCoach(l){
+  const cur = toSamples(l.trace);
+  if (!cur) return;
+  if (!refTrace){
+    if (l.valid && l.time > 0){
+      refTrace = cur; refTime = l.time;
+      turns = detectTurns(refTrace);
+      lastComparisons = null; lastTips = null;
+      $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour de référence enregistré — '
+        + turns.length + ' virages détectés. Le prochain tour sera analysé.</div>';
+      drawMap(); drawSplitBar();
+    }
+    return;
+  }
+  if (!turns || !turns.length) return;
+
+  const comps = compareLaps(refTrace, cur, turns);
+  const tips = makeAdvice(comps);
+  lastComparisons = comps; lastTips = tips;
+  drawMap();
+
+  if (!tips.length){
+    $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour propre — '
+      + 'rien à corriger par rapport à ta référence.</div>';
+    if (l.valid && l.time > 0 && l.time < refTime){
+      refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
+      speak('Nouveau meilleur tour.');
+    }
+    return;
+  }
+
+  $('coachBox').innerHTML = tips.map((t,i) =>
+    `<div class="tip">
+       <div class="n">T${t.turn}</div>
+       <div>
+         <div class="msg">${esc(phrase(t))}</div>
+         <div class="meta">${t.lostS > 0.01 ? '−'+t.lostS.toFixed(3)+' s · ' : ''}virage à ${esc(t.dir)}</div>
+       </div>
+     </div>`).join('');
+  tips.forEach(t => speak(phrase(t)));
+
+  if (l.valid && l.time > 0 && l.time < refTime){
+    refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
+  }
+}
+
+function onLap(l){
+  laps.push(l);
+  if (l.valid && l.time > 0 && (best == null || l.time < best)) best = l.time;
+  renderLaps(true);
+  try { runCoach(l); } catch(e){ console.error('coach:', e); }
+}
+
+function renderLaps(flash){
+  if (!laps.length) return;
+  const rows = laps.slice().reverse().map((l,i) => {
+    const isPb = l.valid && l.time === best;
+    const d = (best && l.valid && l.time > 0 && !isPb) ? l.time - best : null;
+    return `<tr class="${flash && i===0 ? 'new' : ''}">
+      <td>${String(l.lap).padStart(2,'0')}</td>
+      <td class="${isPb ? 'pb' : (l.valid ? '' : 'inv')}">${fmt(l.time)}</td>
+      <td class="r ${d==null?'':'loss'}">${d==null?'—':'+'+d.toFixed(3)}</td>
+      <td class="r">${l.topSpeed ? Math.round(l.topSpeed) : '—'}</td>
+      <td class="r">${l.coastPct != null ? l.coastPct.toFixed(1)+'%' : '—'}</td>
+      <td class="r">${isPb ? '<span class="tag p">Best</span>' :
+        (l.valid ? '' : '<span class="tag i">Stands</span>')}</td>
+    </tr>`;
+  }).join('');
+  $('lapsBox').innerHTML = `<table><thead><tr>
+    <th>Tour</th><th>Temps</th><th class="r">Écart</th>
+    <th class="r">V max</th><th class="r">Roue libre</th><th class="r"></th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ============ navigation ============ */
+document.querySelectorAll('#nav a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('#nav a').forEach(x => x.classList.remove('on'));
+    a.classList.add('on');
+    const map = { coach:'coachBox', map:'mapBox', laps:'lapsBox', cfg:'cfgPanel',
+                  analyse:'mapBox', dash:'cards' };
+    const el = $(map[a.dataset.v]);
+    if (el && el.scrollIntoView){ try{ el.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+  });
+});
+
+/* ============ WebSocket ============ */
+let ws = null, retry = 0;
+function setConn(on, msg){
+  $('dot').classList.toggle('on', on);
+  $('cstat').textContent = msg;
+}
+function connect(){
+  try { ws = new WebSocket('ws://' + location.host + '/ws'); }
+  catch(e){ scheduleRetry(); return; }
   ws.onopen = () => { retry = 0; setConn(true,'connecté'); };
   ws.onclose = () => { setConn(false,'reconnexion…'); scheduleRetry(); };
   ws.onerror = () => { try{ws.close();}catch(e){} };
@@ -928,27 +1296,28 @@ function connect(){
     else if (m.type === 'say') announce();
     else if (m.type === 'keybind'){
       window.__hotkey = m.key;
-      const a = $('hkBadge'), b = $('hkName');
-      if (a) a.textContent = m.key;
-      if (b) b.textContent = m.key;
+      const b = $('hkBadge'); if (b) b.textContent = m.key;
+      const sel = $('keySel'); if (sel && sel.value !== m.key) sel.value = m.key;
     }
-    else if (m.type === 'state'){
-      $('trk').textContent = m.msg;
-      if (m.laps) { laps.length = 0; m.laps.forEach(x=>laps.push(x));
-        best = Math.min(...laps.filter(l=>l.valid&&l.time>0).map(l=>l.time));
-        if(!isFinite(best)) best=null; renderLaps(false); }
-    }
+    else if (m.type === 'state'){ $('trk').textContent = m.msg; }
   };
 }
 function scheduleRetry(){
   retry = Math.min(retry+1, 10);
   setTimeout(connect, 400 * retry);
 }
-/* ---- initialisation des controles ---- */
+
+/* ============ init ============ */
 buildCheckList();
 loadVoices();
-if ('speechSynthesis' in window)
-  window.speechSynthesis.onvoiceschanged = loadVoices;
+if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = loadVoices;
+let savedKey = 'C';
+try { savedKey = localStorage.getItem('apexKey') || 'C'; } catch(e){}
+window.__hotkey = savedKey;
+buildKeySelect(savedKey);
+$('hkBadge').textContent = savedKey;
+initWave();
+requestAnimationFrame(animWave);
 
 $('voiceSel').addEventListener('change', e => {
   chosenVoice = voices.find(v => v.name === e.target.value) || null;
@@ -961,6 +1330,18 @@ $('voiceRate').addEventListener('input', e => {
 $('sayNow').addEventListener('click', announce);
 $('testVoice').addEventListener('click', () => {
   speak("Virage 3, tu freines 12 mètres trop tôt. Freine plus tard.");
+});
+$('ctaBtn').addEventListener('click', () => {
+  const el = $('cards');
+  if (el && el.scrollIntoView){ try{ el.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
+});
+$('goCfg').addEventListener('click', () => {
+  const el = $('cfgPanel');
+  if (el && el.scrollIntoView){ try{ el.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+});
+window.addEventListener('keydown', e => {
+  if (e.target && /input|select|textarea/i.test(e.target.tagName)) return;
+  if (e.key && e.key.toLowerCase() === (window.__hotkey||'c').toLowerCase()) announce();
 });
 
 connect();
