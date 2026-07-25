@@ -146,6 +146,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .val.y{color:var(--y)} .val.r{color:var(--red)} .val.g{color:var(--grn)}
 .spark{height:32px;margin-top:10px;display:block;width:100%}
 .spark path{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dbar{height:5px;background:#1E2024;border-radius:3px;margin-top:13px;position:relative;overflow:hidden}
+.dbar .dmid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--ink-3);z-index:2}
+.dbar i{position:absolute;top:0;height:100%;width:0%;transition:width .15s linear}
 .microbar{height:4px;background:#1E2024;border-radius:2px;margin-top:13px;overflow:hidden}
 .microbar i{display:block;height:100%;width:0%;background:var(--y);
   transition:width .3s cubic-bezier(.4,0,.2,1)}
@@ -283,6 +286,25 @@ tbody tr.new{animation:flash 1s ease-out}
 .zbar i{display:block;height:100%;background:linear-gradient(90deg,var(--y),var(--red));
   transition:width .4s cubic-bezier(.4,0,.2,1)}
 .ztxt{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.rev{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-2)}
+.rev:last-child{border-bottom:none}
+.rvn{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--y);min-width:26px}
+.rvb{flex:1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.rvg{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink)}
+.rvd{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.rvs{margin-left:auto;font-family:var(--mono);font-size:14px;color:var(--y);
+  font-variant-numeric:tabular-nums}
+.hrow{padding:11px 13px;border:1px solid var(--line-2);border-radius:8px;
+  background:var(--card-2);margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.hrow:hover{border-color:#33363C}
+.hrow.on{border-left:2px solid var(--y)}
+.hn{font-size:14px;font-weight:600;color:var(--ink)}
+.hn .hl{font-family:var(--mono);font-size:10px;color:var(--ink-3);text-transform:uppercase;
+  letter-spacing:.1em;margin-left:6px}
+.hmeta{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:4px;
+  letter-spacing:.04em}
+.hcar{margin-top:8px;width:100%;background:#131417;border:1px solid var(--line);
+  border-radius:6px;padding:6px 9px;color:var(--ink);font-family:var(--ui);font-size:12px}
 .ctable{width:100%;border-collapse:collapse;border:1px solid var(--line-2)}
 .ctable th{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--ink-3);text-align:left;padding:10px 13px;
@@ -410,6 +432,9 @@ tbody tr.new{animation:flash 1s ease-out}
       <div class="ctx">RaceRoom · <b id="trk">en attente</b></div>
       <div class="right">
         <div class="conn"><span class="dot" id="dot"></span><span id="cstat">connexion…</span></div>
+        <a class="iconbtn" href="/mobile" target="_blank" title="Vue mobile (tableau de bord)" style="text-decoration:none">
+          <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        </a>
         <button class="iconbtn" id="goCfg" title="Réglages"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9 2 2 0 11-2.8 2.8 1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5 2 2 0 11-4 0 1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.9.3 2 2 0 11-2.8-2.8 1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1 2 2 0 110-4 1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9 2 2 0 112.8-2.8 1.7 1.7 0 001.9.3 1.7 1.7 0 001-1.5 2 2 0 114 0 1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3 2 2 0 112.8 2.8 1.7 1.7 0 00-.3 1.9 1.7 1.7 0 001.5 1 2 2 0 110 4 1.7 1.7 0 00-1.5 1z"/></svg></button>
       </div>
     </header>
@@ -535,6 +560,22 @@ tbody tr.new{animation:flash 1s ease-out}
       </section>
 
       <div id="turnDetail"></div>
+
+      <!-- ---- Anti-Oubli : fiche de revision ---- -->
+      <section class="panel" id="revPanel" style="margin-top:12px;display:none">
+        <div class="ph">Anti-Oubli — repères du circuit
+          <span class="sp hint" id="revSub"></span>
+        </div>
+        <div class="pb" id="revBox"></div>
+      </section>
+
+      <!-- ---- historique circuits/voitures ---- -->
+      <section class="panel" id="histPanel" style="margin-top:12px;display:none">
+        <div class="ph">Circuits &amp; voitures
+          <span class="sp"><button class="btn" id="saveFicheBtn">Enregistrer cette session</button></span>
+        </div>
+        <div class="pb" id="histBox"></div>
+      </section>
 
       <!-- ---- tour optimal ---- -->
       <section class="panel" id="optPanel" style="margin-top:12px;display:none">
@@ -668,13 +709,14 @@ const CARDS = [
   { id:'rpm',  t:'Régime',       u:'tr/min', spark:true },
   { id:'cur',  t:'Tour en cours',bar:true },
   { id:'best', t:'Meilleur tour',cls:'y', bar:true },
-  { id:'delta',t:'Delta',        bar:true },
+  { id:'delta',t:'Delta',        deltabar:true },
 ];
 $('cards').innerHTML = CARDS.map(c =>
   `<div class="card">
      <div class="ct">${esc(c.t)}</div>
      <div class="val ${c.cls||''}" id="${c.id}">—${c.u?'<span class="u">'+esc(c.u)+'</span>':''}</div>
      ${c.spark ? `<svg class="spark" id="sp_${c.id}" viewBox="0 0 100 32" preserveAspectRatio="none"></svg>`
+               : c.deltabar ? `<div class="dbar"><span class="dmid"></span><i id="db_${c.id}"></i></div>`
                : `<div class="microbar"><i id="mb_${c.id}"></i></div>`}
    </div>`).join('');
 
@@ -737,13 +779,28 @@ function onTelemetry(d){
   else { st.style.right = '50%'; st.style.left = 'auto'; st.style.width = (-p*50)+'%'; }
 
   const dl = $('delta');
-  if (d.delta == null || !isFinite(d.delta)){ dl.textContent = '—'; dl.className = 'val'; }
-  else {
+  const db = $('db_delta');
+  if (d.delta == null || !isFinite(d.delta)){
+    dl.textContent = '—'; dl.className = 'val';
+    if (db){ db.style.width = '0%'; }
+  } else {
     dl.textContent = (d.delta > 0 ? '+' : '') + d.delta.toFixed(3);
     dl.className = 'val ' + (d.delta <= 0 ? 'g' : 'r');
+    if (db){
+      const mag = Math.min(1, Math.abs(d.delta));
+      db.style.width = (mag * 50) + '%';
+      if (d.delta <= 0){ db.style.left = 'auto'; db.style.right = '50%'; db.style.background = 'var(--grn)'; }
+      else { db.style.right = 'auto'; db.style.left = '50%'; db.style.background = 'var(--red)'; }
+    }
   }
   const mg = $('mb_gear'); if (mg) mg.style.width = Math.min(100, Math.max(0, d.gear/6*100)) + '%';
-  if (d.track) $('trk').textContent = d.track + (d.layout ? ' — ' + d.layout : '');
+  if (d.track){
+    $('trk').textContent = d.track + (d.layout ? ' — ' + d.layout : '');
+    if (d.track !== currentTrack || (d.layout||'') !== (currentLayout||'')){
+      currentTrack = d.track; currentLayout = d.layout || '';
+      drawRevision();
+    }
+  }
   $('sLap').textContent = fmt(d.cur);
 }
 
@@ -1987,6 +2044,9 @@ function runCoach(l){
   drawOptimal();
   drawChart();
   drawTable();
+  drawRevision();
+  saveFiche();   // memorise les reperes du meilleur tour sur le PC
+  drawRevision(); // redessine maintenant que la fiche est en memoire
 
   if (!tips.length){
     $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour propre — '
@@ -2056,6 +2116,107 @@ document.querySelectorAll('#nav a').forEach(a => {
 
 
 
+
+
+/* ============ fiches de session (Anti-Oubli) ============ */
+const fiches = {};   // key -> fiche
+let currentTrack = null, currentLayout = null;
+
+function ficheKey(track, layout){
+  return (track || 'circuit') + (layout ? '__' + layout : '');
+}
+
+/* Construit la fiche depuis le meilleur tour et son tableau. */
+function buildFiche(){
+  let bestSamples = null, bestNum = null, bestTime = Infinity;
+  for (const l of lapTraces){
+    if (l.time > 0 && l.time < bestTime){ bestTime = l.time; bestSamples = l.samples; bestNum = l.lap; }
+  }
+  if (!bestSamples || !turns || !turns.length) return null;
+  const table = coachingTable(bestSamples, turns);
+  if (!table.length) return null;
+
+  return {
+    key: ficheKey(currentTrack, currentLayout),
+    track: currentTrack || 'Circuit',
+    layout: currentLayout || '',
+    car: (fiches[ficheKey(currentTrack,currentLayout)] || {}).car || '',
+    bestTime: bestTime,
+    date: new Date().toISOString().slice(0, 10),
+    turns: table.map(r => ({
+      turn: r.turn, gear: r.gear, brakeDist: r.brakeDist,
+      entrySpeed: r.entrySpeed, minSpeed: r.minSpeed, exitSpeed: r.exitSpeed, dir: r.dir
+    })),
+  };
+}
+
+/* Sauvegarde la fiche courante sur le PC (via l'exe). */
+function saveFiche(){
+  const f = buildFiche();
+  if (!f) return;
+  fiches[f.key] = f;
+  try {
+    if (ws && ws.readyState === 1)
+      ws.send(JSON.stringify({ type:'savefiche', key:f.key, data: JSON.stringify(f) }));
+  } catch(e){}
+  drawHistory();
+}
+
+/* Fiche de revision : ce qu'il faut se rappeler avant de rouler. */
+function drawRevision(){
+  const panel = $('revPanel');
+  if (!panel) return;
+  const key = ficheKey(currentTrack, currentLayout);
+  const f = fiches[key];
+  if (!f || !f.turns || !f.turns.length){ panel.style.display = 'none'; return; }
+  panel.style.display = '';
+  $('revSub').textContent = f.track + (f.layout ? ' · ' + f.layout : '')
+    + (f.car ? ' · ' + f.car : '') + ' · réf ' + fmt(f.bestTime);
+
+  $('revBox').innerHTML = f.turns.map(t => `<div class="rev">
+      <div class="rvn">${t.turn}</div>
+      <div class="rvb">
+        <span class="rvg">${t.gear != null ? t.gear+'e' : '—'}</span>
+        <span class="rvd">${t.brakeDist != null ? 'freine '+t.brakeDist+' m avant' : ''}</span>
+        <span class="rvs">${t.minSpeed} km/h</span>
+      </div>
+    </div>`).join('');
+}
+
+/* Historique : liste des circuits/voitures deja pratiques. */
+function drawHistory(){
+  const panel = $('histPanel');
+  if (!panel) return;
+  const keys = Object.keys(fiches);
+  if (!keys.length){ panel.style.display = 'none'; return; }
+  panel.style.display = '';
+  $('histBox').innerHTML = keys.map(k => {
+    const f = fiches[k];
+    const active = (k === ficheKey(currentTrack, currentLayout));
+    return `<div class="hrow${active ? ' on' : ''}" data-key="${esc(k)}">
+      <div class="hn">${esc(f.track)}${f.layout ? ' <span class="hl">'+esc(f.layout)+'</span>' : ''}</div>
+      <div class="hmeta">${f.car ? esc(f.car)+' · ' : ''}${f.turns ? f.turns.length+' virages · ' : ''}réf ${fmt(f.bestTime)}</div>
+      <input class="hcar" data-key="${esc(k)}" placeholder="nom de la voiture" value="${esc(f.car||'')}">
+    </div>`;
+  }).join('');
+
+  $('histBox').querySelectorAll('.hcar').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const f = fiches[inp.dataset.key];
+      if (f){ f.car = inp.value.trim();
+        try { if (ws && ws.readyState===1) ws.send(JSON.stringify({type:'savefiche',key:f.key,data:JSON.stringify(f)})); } catch(e){}
+        drawRevision();
+      }
+    });
+    inp.addEventListener('click', e => e.stopPropagation());
+  });
+  $('histBox').querySelectorAll('.hrow').forEach(row => {
+    row.addEventListener('click', () => {
+      const f = fiches[row.dataset.key];
+      if (f){ currentTrack = f.track; currentLayout = f.layout; drawRevision(); drawHistory(); }
+    });
+  });
+}
 
 /* ============ tableau de coaching ============ */
 function drawTable(){
@@ -2247,7 +2408,8 @@ function setConn(on, msg){
 function connect(){
   try { ws = new WebSocket('ws://' + location.host + '/ws'); }
   catch(e){ scheduleRetry(); return; }
-  ws.onopen = () => { retry = 0; setConn(true,'connecté'); setTimeout(hudSend, 300); };
+  ws.onopen = () => { retry = 0; setConn(true,'connecté'); setTimeout(hudSend, 300);
+    try { ws.send(JSON.stringify({ type:'listfiches' })); } catch(e){} };
   ws.onclose = () => { setConn(false,'reconnexion…'); scheduleRetry(); };
   ws.onerror = () => { try{ws.close();}catch(e){} };
   ws.onmessage = e => {
@@ -2259,6 +2421,10 @@ function connect(){
       window.__hotkey = m.key;
       const b = $('hkBadge'); if (b) b.textContent = m.key;
       const sel = $('keySel'); if (sel && sel.value !== m.key) sel.value = m.key;
+    }
+    else if (m.type === 'fiches'){
+      (m.list || []).forEach(f => { if (f && f.key) fiches[f.key] = f; });
+      drawRevision(); drawHistory();
     }
     else if (m.type === 'hudstate'){
       const e = $('hudStat');
@@ -2331,6 +2497,9 @@ $('segSize').addEventListener('change', () => {
   lastZones = lossZones(lastSegs);
   drawMap(); drawZones();
 });
+
+const sfb = $('saveFicheBtn');
+if (sfb) sfb.addEventListener('click', saveFiche);
 
 connect();
 </script>
