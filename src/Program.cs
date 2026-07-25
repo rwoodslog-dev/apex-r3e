@@ -45,16 +45,28 @@ static class Program
         i += needle.Length;
         // saute espaces et deux-points
         while (i < json.Length && (json[i] == ' ' || json[i] == ':' || json[i] == '\t')) i++;
-        if (i >= json.Length || json[i] != '"') return null;
-        i++;                       // on est maintenant sur le 1er caractere de la valeur
+        if (i >= json.Length) return null;
+
         var sb = new StringBuilder();
-        while (i < json.Length && json[i] != '"')
+        if (json[i] == '"')
         {
-            if (json[i] == '\\' && i + 1 < json.Length) i++;   // gere l'echappement
+            i++;
+            while (i < json.Length && json[i] != '"')
+            {
+                if (json[i] == '\\' && i + 1 < json.Length) i++;   // echappement
+                sb.Append(json[i]);
+                i++;
+            }
+            return sb.ToString();
+        }
+        // valeur non quotee : nombre, true/false, null
+        while (i < json.Length && json[i] != ',' && json[i] != '}' && json[i] != ']')
+        {
             sb.Append(json[i]);
             i++;
         }
-        return sb.ToString();
+        string raw = sb.ToString().Trim();
+        return raw.Length > 0 ? raw : null;
     }
 
     static string JsonStr(string s)
@@ -81,6 +93,8 @@ static class Program
         int port = DEFAULT_PORT;
         bool keepInvalid = false, noBrowser = false;
         string hotkey = "C";
+        bool hud = true;
+        int hudX = -1, hudY = -1;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -92,6 +106,9 @@ static class Program
             else if (args[i] == "--keep-invalid") keepInvalid = true;
             else if (args[i] == "--no-browser") noBrowser = true;
             else if (args[i] == "--key" && i + 1 < args.Length) hotkey = args[++i];
+            else if (args[i] == "--no-hud") hud = false;
+            else if (args[i] == "--hud-pos" && i + 2 < args.Length)
+            { int.TryParse(args[++i], out hudX); int.TryParse(args[++i], out hudY); }
             else if (args[i] == "--help" || args[i] == "-h")
             {
                 Console.WriteLine("APEX — options :");
@@ -101,6 +118,8 @@ static class Program
                 Console.WriteLine("  --keep-invalid     garde les tours passes par les stands");
                 Console.WriteLine("  --no-browser       n'ouvre pas le navigateur");
                 Console.WriteLine("  --key TOUCHE       raccourci d'annonce (defaut: C)");
+                Console.WriteLine("  --no-hud           desactive le HUD superpose au jeu");
+                Console.WriteLine("  --hud-pos X Y      position du HUD a l'ecran");
                 return;
             }
         }
@@ -189,6 +208,81 @@ static class Program
         }
         Console.WriteLine();
 
+        // ---- HUD superpose -----------------------------------------------
+        HudOverlay overlay = null;
+        if (hud)
+        {
+            try
+            {
+                overlay = new HudOverlay();
+                overlay.PosX = hudX; overlay.PosY = hudY;
+                overlay.Height = overlay.NeededHeight();
+                if (overlay.Start())
+                {
+                    Console.WriteLine("  HUD actif : coin haut droit de l'ecran.");
+                    Console.WriteLine("      Le jeu doit tourner en FENETRE SANS BORDURE,");
+                    Console.WriteLine("      sinon aucun overlay ne peut s'afficher (limite Windows).");
+                    overlay.Render();
+                }
+                else
+                {
+                    Console.WriteLine("  [!] HUD indisponible.");
+                    overlay.Dispose(); overlay = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("  [!] HUD indisponible : " + ex.Message);
+                overlay = null;
+            }
+            Console.WriteLine();
+        }
+
+        // le navigateur pilote les reglages du HUD
+        {
+            var ov = overlay;
+            server.MessageReceived += delegate(string msg)
+            {
+                if (msg == null || ov == null) return;
+                if (msg.IndexOf("hudcfg", StringComparison.Ordinal) < 0) return;
+                string w = JsonField(msg, "widgets");
+                if (w != null)
+                {
+                    ov.ShowDelta  = w.IndexOf("delta",  StringComparison.Ordinal) >= 0;
+                    ov.ShowTimes  = w.IndexOf("times",  StringComparison.Ordinal) >= 0;
+                    ov.ShowInputs = w.IndexOf("inputs", StringComparison.Ordinal) >= 0;
+                    ov.ShowRace   = w.IndexOf("race",   StringComparison.Ordinal) >= 0;
+                    ov.ShowCoach  = w.IndexOf("coach",  StringComparison.Ordinal) >= 0;
+                    ov.Height = ov.NeededHeight();
+                    ov.Move(ov.PosX, ov.PosY);
+                }
+                string corner = JsonField(msg, "corner");
+                if (corner != null) ov.SetCorner(corner);
+                string op = JsonField(msg, "opacity");
+                if (op != null)
+                {
+                    double o;
+                    if (double.TryParse(op, NumberStyles.Any, INV, out o))
+                        ov.Opacity = Math.Max(0.2, Math.Min(1.0, o));
+                }
+                ov.Render();
+                Console.WriteLine("  HUD reconfigure.");
+            };
+
+            server.MessageReceived += delegate(string msg)
+            {
+                if (msg == null || ov == null) return;
+                if (msg.IndexOf("hudtip", StringComparison.Ordinal) < 0) return;
+                string l1 = JsonField(msg, "l1");
+                string l2 = JsonField(msg, "l2");
+                int secs = 8;
+                string sv = JsonField(msg, "secs");
+                if (sv != null) int.TryParse(sv, out secs);
+                ov.SetCoach(l1, l2, secs > 0 ? secs : 8);
+                ov.Render();
+            };
+        }
+
         MemoryMappedFile mmf = null;
         MemoryMappedViewAccessor acc = null;
         byte[] buf = new byte[Telemetry.SHARED_SIZE];
@@ -207,7 +301,10 @@ static class Program
         double coastAcc = 0, topSpeed = 0, prevT = -1;
 
         var sw = Stopwatch.StartNew();
-        long lastPush = 0;
+        long lastPush = 0, lastHud = 0;
+        // etat de course, partage entre la diffusion et le HUD
+        int pos = -1, nCars = 0, totalLaps = -1;
+        double fuelPct = -1;
         int lastClients = 0;
 
         Console.CancelKeyPress += (s, e) =>
@@ -216,6 +313,7 @@ static class Program
             Console.WriteLine("Arret. " + saved + " tour(s) dans " + Path.GetFullPath(outDir));
             try { server.Stop(); } catch { }
             try { if (hook != null) hook.Dispose(); } catch { }
+            try { if (overlay != null) overlay.Dispose(); } catch { }
         };
 
         while (true)
@@ -439,6 +537,8 @@ static class Program
                 if (hook != null)
                     server.Broadcast("{\"type\":\"keybind\",\"key\":"
                         + JsonStr(KeyHook.KeyName(hook.WatchedKey)) + "}");
+                server.Broadcast("{\"type\":\"hudstate\",\"ok\":"
+                    + (overlay != null && overlay.IsRunning ? "true" : "false") + "}");
             }
             else if (server.ClientCount == 0) lastClients = 0;
 
@@ -449,10 +549,10 @@ static class Program
                 double delta = (curLap > 0 && bestLap > 0) ? curLap - bestLap : double.NaN;
 
                 // ---- donnees de course ----
-                int pos = BitConverter.ToInt32(buf, Telemetry.OFF_Position);
+                pos = BitConverter.ToInt32(buf, Telemetry.OFF_Position);
                 int posCls = BitConverter.ToInt32(buf, Telemetry.OFF_PositionClass);
-                int nCars = BitConverter.ToInt32(buf, Telemetry.OFF_NumCars);
-                int totalLaps = BitConverter.ToInt32(buf, Telemetry.OFF_NumberOfLaps);
+                nCars = BitConverter.ToInt32(buf, Telemetry.OFF_NumCars);
+                totalLaps = BitConverter.ToInt32(buf, Telemetry.OFF_NumberOfLaps);
                 float fuelLeft = BitConverter.ToSingle(buf, Telemetry.OFF_FuelLeft);
                 float fuelCap = BitConverter.ToSingle(buf, Telemetry.OFF_FuelCapacity);
                 float fuelPerLap = BitConverter.ToSingle(buf, Telemetry.OFF_FuelPerLap);
@@ -464,7 +564,7 @@ static class Program
                 int sessPhase = BitConverter.ToInt32(buf, Telemetry.OFF_SessionPhase);
 
                 // carburant : pourcentage + autonomie estimee
-                double fuelPct = (fuelCap > 0 && fuelLeft >= 0) ? fuelLeft / fuelCap * 100.0 : -1;
+                fuelPct = (fuelCap > 0 && fuelLeft >= 0) ? fuelLeft / fuelCap * 100.0 : -1;
                 double lapsLeft = (fuelPerLap > 0.01 && fuelLeft > 0) ? fuelLeft / fuelPerLap : -1;
 
                 // tours restants : soit compte de tours, soit estime au temps
@@ -523,6 +623,25 @@ static class Program
                   .Append(",\"flag\":").Append(JsonStr(flag))
                   .Append("}");
                 server.Broadcast(sb.ToString());
+            }
+
+            // ---- mise a jour du HUD (~12 Hz, suffisant et econome) --------
+            if (overlay != null && sw.ElapsedMilliseconds - lastHud >= 80)
+            {
+                lastHud = sw.ElapsedMilliseconds;
+                overlay.Delta = (curLap > 0 && bestLap > 0) ? curLap - bestLap : double.NaN;
+                overlay.CurLap = curLap;
+                overlay.BestLap = bestLap;
+                overlay.Throttle = thr;
+                overlay.Brake = brk;
+                overlay.Speed = speedKmh;
+                overlay.Gear = gear;
+                overlay.Pos = pos;
+                overlay.Cars = nCars;
+                overlay.Lap = laps;
+                overlay.TotalLaps = totalLaps;
+                overlay.FuelPct = fuelPct;
+                overlay.Render();
             }
 
             Thread.Sleep(periodMs);
