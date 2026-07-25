@@ -256,6 +256,8 @@ static class Program
                     ov.Height = ov.NeededHeight();
                     ov.Move(ov.PosX, ov.PosY);
                 }
+                string edit = JsonField(msg, "edit");
+                if (edit != null) ov.SetEditMode(edit == "true" || edit == "1");
                 string corner = JsonField(msg, "corner");
                 if (corner != null) ov.SetCorner(corner);
                 string op = JsonField(msg, "opacity");
@@ -477,11 +479,12 @@ static class Program
                         if (f.Length < 9) continue;
                         if (!first) tr.Append(',');
                         first = false;
-                        // [t, distance, vitesse, gaz, frein, direction, x, z]
+                        // [t, distance, vitesse, gaz, frein, direction, x, z, rapport]
                         tr.Append('[').Append(f[0]).Append(',').Append(f[2]).Append(',')
                           .Append(f[4]).Append(',').Append(f[5]).Append(',')
                           .Append(f[6]).Append(',').Append(f[8]).Append(',')
-                          .Append(f[12]).Append(',').Append(f[14]).Append(']');
+                          .Append(f[12]).Append(',').Append(f[14]).Append(',')
+                          .Append(f[9]).Append(']');
                     }
                     tr.Append(']');
 
@@ -538,7 +541,9 @@ static class Program
                     server.Broadcast("{\"type\":\"keybind\",\"key\":"
                         + JsonStr(KeyHook.KeyName(hook.WatchedKey)) + "}");
                 server.Broadcast("{\"type\":\"hudstate\",\"ok\":"
-                    + (overlay != null && overlay.IsRunning ? "true" : "false") + "}");
+                    + (overlay != null && overlay.IsRunning ? "true" : "false")
+                    + ",\"edit\":" + (overlay != null && overlay.EditMode ? "true" : "false")
+                    + "}");
             }
             else if (server.ClientCount == 0) lastClients = 0;
 
