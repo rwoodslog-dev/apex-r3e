@@ -84,8 +84,9 @@ class HudOverlay : IDisposable
     static extern int GetWindowLong(IntPtr hWnd, int nIndex);
     [DllImport("user32.dll", SetLastError = true)]
     static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
-    [DllImport("user32.dll")] static extern bool GetCursorPos(out POINT p);
     [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
+    [DllImport("user32.dll")] static extern bool ReleaseCapture();
+    [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr h, uint msg, IntPtr wParam, IntPtr lParam);
     [DllImport("gdi32.dll")] static extern IntPtr CreateCompatibleDC(IntPtr dc);
     [DllImport("gdi32.dll")] static extern bool DeleteDC(IntPtr dc);
     [DllImport("gdi32.dll")] static extern IntPtr SelectObject(IntPtr dc, IntPtr obj);
@@ -145,7 +146,7 @@ class HudOverlay : IDisposable
         {
             try
             {
-                wndProcRef = new WndProcDelegate(DefWindowProc);
+                wndProcRef = new WndProcDelegate(HudWndProc);
                 string cls = "ApexHudOverlay";
                 var wc = new WNDCLASSEX();
                 wc.cbSize = (uint)Marshal.SizeOf(typeof(WNDCLASSEX));
@@ -388,7 +389,6 @@ class HudOverlay : IDisposable
 
     // ---- mode edition : HUD deplaçable a la souris ----------------------
     volatile bool editMode;
-    Thread dragThread;
 
     public bool EditMode { get { return editMode; } }
 
@@ -411,58 +411,34 @@ class HudOverlay : IDisposable
     }
 
     /// <summary>
-    /// Surveille le glisser en mode edition. On lit l'etat du bouton gauche
-    /// via GetSystemMetrics(SM_SWAPBUTTON) n'est pas fiable : on utilise plutot
-    /// la position du curseur et l'etat du bouton via GetAsyncKeyState.
+    /// Deplacement natif : quand on clique sur le HUD en mode edition, on dit
+    /// a Windows "traite ce clic comme un glisser de barre de titre". Windows
+    /// gere le deplacement lui-meme, sans surveillance du clavier/souris en
+    /// arriere-plan : c'est la methode standard, propre pour les antivirus.
     /// </summary>
-    [DllImport("user32.dll")] static extern short GetAsyncKeyState(int vKey);
-    const int VK_LBUTTON = 0x01;
-    const int SM_CXSCREEN = 0, SM_CYSCREEN = 1;
+    const int WM_NCLBUTTONDOWN = 0x00A1;
+    const int HTCAPTION = 2;
+    const uint WM_LBUTTONDOWN = 0x0201;
+
+    IntPtr HudWndProc(IntPtr h, uint msg, IntPtr wParam, IntPtr lParam)
+    {
+        // en mode edition, un clic gauche lance le glisser natif de la fenetre
+        if (editMode && msg == WM_LBUTTONDOWN)
+        {
+            ReleaseCapture();
+            SendMessage(h, WM_NCLBUTTONDOWN, new IntPtr(HTCAPTION), IntPtr.Zero);
+            // memorise la nouvelle position apres le glisser
+            RECT r;
+            if (GetWindowRect(h, out r)) { PosX = r.Left; PosY = r.Top; }
+            return IntPtr.Zero;
+        }
+        return DefWindowProc(h, msg, wParam, lParam);
+    }
 
     void StartDragWatch()
     {
-        if (dragThread != null && dragThread.IsAlive) return;
-        dragThread = new Thread(() =>
-        {
-            bool dragging = false;
-            int grabDx = 0, grabDy = 0;
-            while (running && editMode)
-            {
-                bool down = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
-                POINT cur;
-                if (!GetCursorPos(out cur)) { Thread.Sleep(20); continue; }
-
-                RECT r;
-                if (down && !dragging && GetWindowRect(hwnd, out r))
-                {
-                    // le clic est-il sur le HUD ?
-                    if (cur.X >= r.Left && cur.X <= r.Right &&
-                        cur.Y >= r.Top && cur.Y <= r.Bottom)
-                    {
-                        dragging = true;
-                        grabDx = cur.X - r.Left;
-                        grabDy = cur.Y - r.Top;
-                    }
-                }
-                else if (down && dragging)
-                {
-                    int nx = cur.X - grabDx, ny = cur.Y - grabDy;
-                    // borne a l'ecran
-                    int sw = GetSystemMetrics(SM_CXSCREEN), sh = GetSystemMetrics(SM_CYSCREEN);
-                    nx = Math.Max(0, Math.Min(sw - Width, nx));
-                    ny = Math.Max(0, Math.Min(sh - Height, ny));
-                    PosX = nx; PosY = ny;
-                    SetWindowPos(hwnd, HWND_TOPMOST, nx, ny, Width, Height, SWP_NOACTIVATE);
-                }
-                else if (!down && dragging)
-                {
-                    dragging = false;   // relache : position figee
-                }
-                Thread.Sleep(16);
-            }
-        });
-        dragThread.IsBackground = true;
-        dragThread.Start();
+        // plus rien a surveiller : le glisser est gere nativement par Windows
+        // via HudWndProc. Methode conservee pour compatibilite d'appel.
     }
 
     /// <summary>Place le HUD dans un coin de l'ecran.</summary>
