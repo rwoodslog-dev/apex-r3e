@@ -84,6 +84,10 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--ui
   justify-content:center;font-family:var(--mono);font-size:3vh;color:#04122E;font-weight:700}
 
 /* etat connexion */
+.fsbtn{position:fixed;top:5px;right:26px;z-index:50;background:rgba(20,22,25,.85);
+  border:1px solid var(--frame);color:var(--ink);width:26px;height:26px;border-radius:6px;
+  font-size:14px;line-height:1;cursor:pointer;padding:0}
+.fsbtn:active{background:var(--y);color:#111}
 .conn{position:fixed;top:8px;right:10px;width:9px;height:9px;border-radius:50%;
   background:var(--red);z-index:50;transition:background .3s}
 .conn.on{background:var(--grn)}
@@ -144,6 +148,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--ui
 </div>
 
 <div class="conn" id="conn"></div>
+<button class="fsbtn" id="fsbtn" title="Plein écran">⛶</button>
 <div class="dots"><span class="dot-n" data-i="0"></span><span class="dot-n on" data-i="1"></span><span class="dot-n" data-i="2"></span></div>
 
 <div class="swipe" id="swipe">
@@ -360,6 +365,30 @@ function drawTimes(){
       '</span><span class="t">'+fmt(l.time)+'</span><span class="gap">'+gap+'</span></div>';
   }).join('') || '<div class="tlrow"><span class="n" style="color:var(--dim)">Aucun tour terminé</span></div>';
 }
+
+
+/* ---- plein ecran ---- */
+const fsb = $('fsbtn');
+if (fsb) fsb.addEventListener('click', () => {
+  const el = document.documentElement;
+  if (!document.fullscreenElement){
+    (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el);
+    // tente de verrouiller en paysage si dispo
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape'); } catch(e){}
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
+  }
+});
+
+/* garde l'ecran allume pendant la course (si le navigateur le permet) */
+let wakeLock = null;
+async function keepAwake(){
+  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') keepAwake();
+});
+keepAwake();
 
 connect();
 </script>
