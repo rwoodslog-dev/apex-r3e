@@ -69,6 +69,46 @@ static class Program
         return raw.Length > 0 ? raw : null;
     }
 
+    /// <summary>Lit toutes les fiches du disque et les renvoie au navigateur.</summary>
+    static void SendFiches(WebServer server, string fichesDir)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.Append("{\"type\":\"fiches\",\"list\":[");
+            bool first = true;
+            foreach (var f in Directory.GetFiles(fichesDir, "*.json"))
+            {
+                string content;
+                try { content = File.ReadAllText(f, Encoding.UTF8); }
+                catch { continue; }
+                if (string.IsNullOrEmpty(content)) continue;
+                if (!first) sb.Append(',');
+                first = false;
+                sb.Append(content);
+            }
+            sb.Append("]}");
+            server.Broadcast(sb.ToString());
+        }
+        catch { }
+    }
+
+    /// <summary>Temperature moyenne des 4 pneus, pour l'affichage mobile.</summary>
+    static double TireTempAvg(byte[] b)
+    {
+        double sum = 0; int n = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            int bas = Telemetry.OFF_TireTemp + i * 24;
+            for (int j = 0; j < 3; j++)
+            {
+                float v = BitConverter.ToSingle(b, bas + j * 4);
+                if (v > 0 && v < 250) { sum += v; n++; }
+            }
+        }
+        return n > 0 ? sum / n : -1.0;
+    }
+
     static string JsonStr(string s)
     {
         if (s == null) return "\"\"";
@@ -127,12 +167,15 @@ static class Program
         int periodMs = (int)Math.Max(1, 1000.0 / hz);
 
         Directory.CreateDirectory(outDir);
+        string fichesDir = Path.Combine(outDir, "fiches");
+        Directory.CreateDirectory(fichesDir);
         string sessionLog = Path.Combine(outDir, "_session.jsonl");
         var header = Telemetry.BuildHeader();
 
         // ---- dashboard embarque -----------------------------------------
         string html = EmbeddedDashboard.Html;
         var server = new WebServer(html, port);
+        server.MobileHtml = EmbeddedDashboard.Mobile;
         server.Start();
         string url = "http://localhost:" + server.Port + "/";
 
@@ -285,6 +328,34 @@ static class Program
             };
         }
 
+        // ---- fiches de session (module Anti-Oubli) -----------------------
+        // Le navigateur calcule la fiche (il a le moteur d'analyse) et l'envoie
+        // ici ; l'exe l'ecrit sur disque. Au demarrage on renvoie la liste.
+        server.MessageReceived += delegate(string msg)
+        {
+            if (msg == null) return;
+
+            if (msg.IndexOf("\"savefiche\"", StringComparison.Ordinal) >= 0)
+            {
+                string key = JsonField(msg, "key");
+                string payload = JsonField(msg, "data");
+                if (key == null || payload == null) return;
+                try
+                {
+                    string safe = Telemetry.Safe(key);
+                    if (safe.Length == 0) return;
+                    File.WriteAllText(Path.Combine(fichesDir, safe + ".json"), payload,
+                                      new UTF8Encoding(false));
+                    Console.WriteLine("  Fiche enregistree : " + safe);
+                }
+                catch (Exception ex) { Console.WriteLine("  [!] Fiche non sauvee : " + ex.Message); }
+            }
+            else if (msg.IndexOf("\"listfiches\"", StringComparison.Ordinal) >= 0)
+            {
+                SendFiches(server, fichesDir);
+            }
+        };
+
         MemoryMappedFile mmf = null;
         MemoryMappedViewAccessor acc = null;
         byte[] buf = new byte[Telemetry.SHARED_SIZE];
@@ -292,6 +363,17 @@ static class Program
         bool connected = false, warnedVersion = false, lapValid = true;
         var rows = new List<string>();
         var lapHistory = new List<LapRecord>();
+
+        // Reference pour le delta en direct : temps du meilleur tour a chaque
+        // distance. On compare la position courante a ce qu'on faisait au meme
+        // endroit sur le meilleur tour. Grille de 5 m sur 12 km max (Nordschleife).
+        const double DELTA_STEP = 5.0;
+        const int DELTA_SLOTS = 2600;
+        var refTimeByDist = new double[DELTA_SLOTS];
+        var curTimeByDist = new double[DELTA_SLOTS];
+        for (int k = 0; k < DELTA_SLOTS; k++) { refTimeByDist[k] = double.NaN; curTimeByDist[k] = double.NaN; }
+        double refBestTime = double.MaxValue;
+        double lapStartSim = -1;
         double? t0 = null;
         int lastLaps = -999;
         double lastDist = 0, lastSim = double.MinValue;
@@ -411,6 +493,30 @@ static class Program
             float bestLap = BitConverter.ToSingle(buf, Telemetry.OFF_LapTimeBest);
             double speedKmh = speedMs * 3.6;
 
+            // ---- delta en direct : temps a cette distance vs meilleur tour ----
+            double liveDelta = double.NaN;
+            if (lapStartSim < 0 || (lastDist > 50 && dist < lastDist - 50)) lapStartSim = simT;
+            double lapElapsed = (lapStartSim >= 0) ? simT - lapStartSim : 0;
+            int slot = (int)(dist / DELTA_STEP);
+            if (slot >= 0 && slot < DELTA_SLOTS && lapElapsed >= 0)
+            {
+                // enregistre le temps courant a cette distance
+                if (double.IsNaN(curTimeByDist[slot]) || lapElapsed < curTimeByDist[slot])
+                    curTimeByDist[slot] = lapElapsed;
+                // compare a la reference, interpolee entre deux points de grille
+                // pour lisser l'effet d'escalier du pas de 5 m.
+                if (!double.IsNaN(refTimeByDist[slot]))
+                {
+                    double refHere = refTimeByDist[slot];
+                    if (slot + 1 < DELTA_SLOTS && !double.IsNaN(refTimeByDist[slot + 1]))
+                    {
+                        double frac = (dist - slot * DELTA_STEP) / DELTA_STEP;
+                        refHere = refTimeByDist[slot] * (1 - frac) + refTimeByDist[slot + 1] * frac;
+                    }
+                    liveDelta = lapElapsed - refHere;
+                }
+            }
+
             // ---- passage de ligne ----------------------------------------
             bool crossed = false;
             if (lastLaps != -999 && laps > lastLaps) crossed = true;
@@ -423,6 +529,17 @@ static class Program
                 bool ok = lapValid && lapTime > 0;
                 double lapDur = prevT > 0 ? prevT : 0;
                 double coastPct = lapDur > 0 ? coastAcc / lapDur * 100.0 : 0;
+
+                // si ce tour est le meilleur et valide, il devient la reference
+                // du delta en direct pour les tours suivants.
+                if (ok && lapTime < refBestTime)
+                {
+                    refBestTime = lapTime;
+                    Array.Copy(curTimeByDist, refTimeByDist, DELTA_SLOTS);
+                }
+                // reinitialise l'enregistrement du tour a venir
+                for (int k = 0; k < DELTA_SLOTS; k++) curTimeByDist[k] = double.NaN;
+                lapStartSim = simT;
 
                 if (ok || keepInvalid)
                 {
@@ -544,6 +661,7 @@ static class Program
                     + (overlay != null && overlay.IsRunning ? "true" : "false")
                     + ",\"edit\":" + (overlay != null && overlay.EditMode ? "true" : "false")
                     + "}");
+                SendFiches(server, fichesDir);
             }
             else if (server.ClientCount == 0) lastClients = 0;
 
@@ -551,7 +669,7 @@ static class Program
             if (sw.ElapsedMilliseconds - lastPush >= 50 && server.ClientCount > 0)
             {
                 lastPush = sw.ElapsedMilliseconds;
-                double delta = (curLap > 0 && bestLap > 0) ? curLap - bestLap : double.NaN;
+                double delta = liveDelta;   // delta positionnel en direct
 
                 // ---- donnees de course ----
                 pos = BitConverter.ToInt32(buf, Telemetry.OFF_Position);
@@ -607,6 +725,9 @@ static class Program
                   .Append(",\"cur\":").Append(curLap > 0 ? J(curLap, 3) : "null")
                   .Append(",\"best\":").Append(bestLap > 0 ? J(bestLap, 3) : "null")
                   .Append(",\"delta\":").Append(double.IsNaN(delta) ? "null" : J(delta, 3))
+                  .Append(",\"px\":").Append(J(BitConverter.ToDouble(buf, Telemetry.OFF_LocalGX + 16), 1))
+                  .Append(",\"pz\":").Append(J(BitConverter.ToDouble(buf, Telemetry.OFF_LocalGX), 1))
+                  .Append(",\"dist\":").Append(J(dist, 1))
                   .Append(",\"track\":").Append(JsonStr(curTrack))
                   .Append(",\"layout\":").Append(JsonStr(curLayout))
                   .Append(",\"pos\":").Append(pos)
@@ -623,6 +744,7 @@ static class Program
                   .Append(",\"dBehind\":").Append(J(dBehind, 2))
                   .Append(",\"penalties\":").Append(penalties)
                   .Append(",\"tireWear\":").Append(J(wearWorst, 1))
+                  .Append(",\"tireTemp\":").Append(J(TireTempAvg(buf), 0))
                   .Append(",\"pitWindow\":").Append(pitWin)
                   .Append(",\"phase\":").Append(sessPhase)
                   .Append(",\"flag\":").Append(JsonStr(flag))
@@ -634,7 +756,7 @@ static class Program
             if (overlay != null && sw.ElapsedMilliseconds - lastHud >= 80)
             {
                 lastHud = sw.ElapsedMilliseconds;
-                overlay.Delta = (curLap > 0 && bestLap > 0) ? curLap - bestLap : double.NaN;
+                overlay.Delta = liveDelta;   // delta positionnel en direct
                 overlay.CurLap = curLap;
                 overlay.BestLap = bestLap;
                 overlay.Throttle = thr;
