@@ -283,20 +283,6 @@ tbody tr.new{animation:flash 1s ease-out}
 .zbar i{display:block;height:100%;background:linear-gradient(90deg,var(--y),var(--red));
   transition:width .4s cubic-bezier(.4,0,.2,1)}
 .ztxt{font-size:12.5px;color:var(--ink-2);line-height:1.5}
-.ctable{width:100%;border-collapse:collapse;border:1px solid var(--line-2)}
-.ctable th{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--ink-3);text-align:left;padding:10px 13px;
-  font-weight:400;border-bottom:1px solid var(--line-2);background:var(--card-2)}
-.ctable th.r,.ctable td.r{text-align:right}
-.ctable td{padding:9px 13px;font-family:var(--mono);font-size:13px;
-  font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line-2);cursor:pointer}
-.ctable tbody tr:last-child td{border-bottom:none}
-.ctable tbody tr:hover{background:rgba(255,198,42,.05)}
-.ctable .tn{font-weight:700;color:var(--y);font-size:14px}
-.ctable td b{color:var(--ink);font-size:15px}
-.ctable .dirc{color:var(--ink-3);font-size:15px;text-align:center}
-.thint{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);padding:11px 13px;
-  line-height:1.6;letter-spacing:.02em}
 .chart{width:100%;height:auto;display:block}
 .chart .cl{font-family:var(--mono);font-size:8.5px;fill:var(--ink-2)}
 .chart .cl.dim{fill:var(--ink-3)}
@@ -558,14 +544,6 @@ tbody tr.new{animation:flash 1s ease-out}
         </div>
       </section>
 
-      <!-- ---- tableau de coaching ---- -->
-      <section class="panel" id="tablePanel" style="margin-top:12px;display:none">
-        <div class="ph">Fiche de réglages — meilleur tour
-          <span class="sp hint" id="tableSub"></span>
-        </div>
-        <div id="tableBox"></div>
-      </section>
-
       <!-- ---- courbes ---- -->
       <section class="panel" id="chartPanel" style="margin-top:12px;display:none">
         <div class="ph">Vitesse · Accélérateur · Frein
@@ -618,7 +596,6 @@ tbody tr.new{animation:flash 1s ease-out}
           </div>
           <div>
             <div class="cfg-t">Position à l'écran</div>
-            <button class="btn" id="hudEdit" style="width:100%;margin-bottom:9px">Placer librement à la souris</button>
             <select id="hudCorner">
               <option value="tr">Haut droite</option>
               <option value="tl">Haut gauche</option>
@@ -1496,101 +1473,7 @@ function traceChart(refS, curS, opts){
   return svg;
 }
 
-/* ================= TABLEAU DE COACHING ================= */
-
-/* Trouve l'indice de l'echantillon le plus proche d'une distance. */
-function idxNear(samples, targetM){
-  let lo = 0, hi = samples.length - 1;
-  if (targetM <= samples[0].d) return 0;
-  if (targetM >= samples[hi].d) return hi;
-  while (hi - lo > 1){
-    const mid = (lo + hi) >> 1;
-    if (samples[mid].d <= targetM) lo = mid; else hi = mid;
-  }
-  return (targetM - samples[lo].d < samples[hi].d - targetM) ? lo : hi;
-}
-
-/* Analyse un virage : renvoie rapport, vitesse mini, point de freinage... */
-function analyzeTurn(samples, turn){
-  const a = idxNear(samples, turn.startM);
-  const b = idxNear(samples, turn.endM);
-  if (b <= a) return null;
-
-  // apex = point le plus lent du virage
-  let apexI = a, vmin = Infinity;
-  for (let i = a; i <= b; i++){
-    if (samples[i].spd < vmin){ vmin = samples[i].spd; apexI = i; }
-  }
-
-  // rapport a l'apex (si dispo)
-  const gear = (samples[apexI].gear != null && samples[apexI].gear > 0)
-    ? samples[apexI].gear : null;
-
-  // point de freinage : en remontant depuis l'apex, ou le frein depasse un seuil
-  let brakeI = -1;
-  for (let i = apexI; i > Math.max(0, a - 60); i--){
-    if (samples[i].br > 0.15){ brakeI = i; }
-    else if (brakeI >= 0 && samples[i].br < 0.05) break;   // debut du freinage
-  }
-  let brakeDistBeforeApex = null, entrySpeed = null;
-  if (brakeI >= 0){
-    brakeDistBeforeApex = samples[apexI].d - samples[brakeI].d;
-    entrySpeed = samples[brakeI].spd;
-  }
-
-  // vitesse de sortie : au point le plus rapide apres l'apex, dans le virage
-  let vExit = samples[b].spd;
-
-  return {
-    turn: turn.n || null,
-    startM: turn.startM,
-    endM: turn.endM,
-    apexM: samples[apexI].d,
-    dir: turn.dir,
-    gear: gear,
-    minSpeed: Math.round(vmin),
-    entrySpeed: entrySpeed != null ? Math.round(entrySpeed) : null,
-    exitSpeed: Math.round(vExit),
-    brakeDist: brakeDistBeforeApex != null ? Math.round(brakeDistBeforeApex) : null,
-    brakeAtM: brakeI >= 0 ? Math.round(samples[brakeI].d) : null,
-  };
-}
-
-/* Construit le tableau complet a partir du meilleur tour. */
-function coachingTable(bestSamples, turns){
-  if (!bestSamples || !turns || !turns.length) return [];
-  const rows = [];
-  for (let i = 0; i < turns.length; i++){
-    const t = Object.assign({ n: i + 1 }, turns[i]);
-    const r = analyzeTurn(bestSamples, t);
-    if (r) rows.push(r);
-  }
-  return rows;
-}
-
-/* Phrase pour l'annonce vocale en course, sur un virage donne.
-   Ex : "Virage 3, troisieme, freine 120 metres avant." */
-function tableSpeech(row){
-  if (!row) return null;
-  const parts = ['Virage ' + row.turn];
-  if (row.gear) parts.push(gearWord(row.gear));
-  if (row.brakeDist != null && row.brakeDist > 3)
-    parts.push('freine ' + row.brakeDist + ' mètres avant');
-  else if (row.minSpeed)
-    parts.push('passage à ' + row.minSpeed);
-  return parts.join(', ') + '.';
-}
-
-function gearWord(g){
-  const w = ['', 'première', 'deuxième', 'troisième', 'quatrième',
-             'cinquième', 'sixième', 'septième'];
-  return (g >= 1 && g < w.length) ? w[g] : (g + 'e');
-}
-
 /* ================= CARTE DU CIRCUIT ================= */
-/* Carte du circuit tracee depuis les coordonnees XYZ reelles.
-   Plan horizontal = X/Z (Y est l'altitude dans R3E).
-   Chaque virage detecte est colore selon le temps gagne ou perdu. */
 
 /* Projette les points sur un viewBox, en conservant les proportions. */
 function projectTrack(pts, w, h, pad){
@@ -1608,11 +1491,9 @@ function projectTrack(pts, w, h, pad){
   // centrage
   const ox = (w - spanX*s)/2 - mnx*s;
   const oy = (h - spanZ*s)/2 - mnz*s;
-  // L'axe Z du jeu croit dans le sens oppose a l'axe Y de l'ecran (qui va vers
-  // le bas). Sans inversion, le circuit s'affiche a l'envers (miroir haut-bas).
   return pts.map(p => ({
     x: p.x*s + ox,
-    y: h - (p.z*s + oy),   // Z du jeu -> Y ecran, inverse
+    y: p.z*s + oy,      // Z du jeu -> Y de l'ecran
     d: p.d
   }));
 }
@@ -1810,7 +1691,7 @@ let lastComparisons = null, lastTips = null, lastCur = null;
 function toSamples(trace){
   if (!trace || !trace.length) return null;
   return trace.map(r => ({ t:r[0], d:r[1], spd:r[2], th:r[3], br:r[4], st:r[5],
-                           x:r[6], z:r[7], gear:r[8] }));
+                           x:r[6], z:r[7] }));
 }
 
 function drawSplitBar(){
@@ -1966,7 +1847,6 @@ function runCoach(l){
         + turns.length + ' virages détectés. Le prochain tour sera analysé.</div>';
       drawMap(); drawSplitBar();
       drawOptimal();
-      drawTable();
     }
     return;
   }
@@ -1986,7 +1866,6 @@ function runCoach(l){
   drawZones();
   drawOptimal();
   drawChart();
-  drawTable();
 
   if (!tips.length){
     $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour propre — '
@@ -2055,51 +1934,6 @@ document.querySelectorAll('#nav a').forEach(a => {
 });
 
 
-
-
-/* ============ tableau de coaching ============ */
-function drawTable(){
-  const panel = $('tablePanel');
-  if (!panel) return;
-  // le tableau se fonde sur le MEILLEUR tour et ses virages
-  let bestSamples = null, bestNum = null, bestTime = Infinity;
-  for (const l of lapTraces){
-    if (l.time > 0 && l.time < bestTime){ bestTime = l.time; bestSamples = l.samples; bestNum = l.lap; }
-  }
-  if (!bestSamples || !turns || !turns.length){ panel.style.display = 'none'; return; }
-
-  const rows = coachingTable(bestSamples, turns);
-  if (!rows.length){ panel.style.display = 'none'; return; }
-  panel.style.display = '';
-  $('tableSub').textContent = 'tour ' + bestNum + ' · ' + fmt(bestTime)
-    + ' · ' + rows.length + ' virages';
-
-  const body = rows.map(r => `<tr data-apex="${r.apexM}">
-      <td class="tn">${r.turn}</td>
-      <td>${r.gear != null ? '<b>'+r.gear+'</b>' : '—'}</td>
-      <td class="r">${r.brakeDist != null ? r.brakeDist+' m' : '—'}</td>
-      <td class="r">${r.entrySpeed != null ? r.entrySpeed : '—'}</td>
-      <td class="r pb">${r.minSpeed}</td>
-      <td class="r">${r.exitSpeed}</td>
-      <td class="dirc">${r.dir === 'gauche' ? '↰' : '↱'}</td>
-    </tr>`).join('');
-
-  $('tableBox').innerHTML = `<table class="ctable"><thead><tr>
-      <th>Virage</th><th>Rapport</th><th class="r">Freinage</th>
-      <th class="r">Entrée</th><th class="r">Mini</th><th class="r">Sortie</th><th></th>
-    </tr></thead><tbody>${body}</tbody></table>
-    <div class="thint">Freinage = distance avant l'apex où tu commences à freiner ·
-      vitesses en km/h · valeurs relevées sur ton meilleur tour.</div>`;
-
-  // clic sur une ligne : annonce vocale du virage
-  window.__tableRows = rows;
-  $('tableBox').querySelectorAll('tbody tr').forEach((tr, i) => {
-    tr.addEventListener('click', () => {
-      const r = rows[i];
-      speak(tableSpeech(r), true);
-    });
-  });
-}
 
 /* ============ tour optimal & courbes ============ */
 const lapTraces = [];        // toutes les traces valides de la session
@@ -2172,22 +2006,6 @@ function hudSend(){
   } catch(e){}
 }
 
-let hudEditing = false;
-function setHudEdit(on){
-  hudEditing = on;
-  const b = $('hudEdit');
-  if (b){
-    b.textContent = on ? '✓ Termine — clique pour figer' : 'Placer librement à la souris';
-    b.style.background = on ? 'linear-gradient(180deg,#FFCB44,#E9A61F)' : '';
-    b.style.color = on ? '#151004' : '';
-    b.style.fontWeight = on ? '800' : '';
-  }
-  try {
-    if (ws && ws.readyState === 1)
-      ws.send(JSON.stringify({ type:'hudcfg', edit: on ? 'true' : 'false' }));
-  } catch(e){}
-}
-
 function buildHudList(){
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem('apexHud') || '{}'); } catch(e){}
@@ -2206,13 +2024,8 @@ function buildHudList(){
   });
   if (saved.corner && $('hudCorner')) $('hudCorner').value = saved.corner;
   if (saved.opacity && $('hudOpacity')) $('hudOpacity').value = saved.opacity;
-  $('hudCorner').addEventListener('change', () => {
-    if (hudEditing) setHudEdit(false);   // choisir un coin sort du mode libre
-    hudSend();
-  });
+  $('hudCorner').addEventListener('change', hudSend);
   $('hudOpacity').addEventListener('change', hudSend);
-  const eb = $('hudEdit');
-  if (eb) eb.addEventListener('click', () => setHudEdit(!hudEditing));
 }
 
 /* Envoie un conseil au HUD (2 lignes courtes, lisibles en pilotant). */
@@ -2263,7 +2076,6 @@ function connect(){
     else if (m.type === 'hudstate'){
       const e = $('hudStat');
       if (e) e.textContent = m.ok ? 'actif' : 'indisponible';
-      if (typeof m.edit === 'boolean' && m.edit !== hudEditing) setHudEdit(m.edit);
     }
     else if (m.type === 'state'){ $('trk').textContent = m.msg; }
   };
