@@ -283,6 +283,27 @@ tbody tr.new{animation:flash 1s ease-out}
 .zbar i{display:block;height:100%;background:linear-gradient(90deg,var(--y),var(--red));
   transition:width .4s cubic-bezier(.4,0,.2,1)}
 .ztxt{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.chart{width:100%;height:auto;display:block}
+.chart .cl{font-family:var(--mono);font-size:8.5px;fill:var(--ink-2)}
+.chart .cl.dim{fill:var(--ink-3)}
+.optgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.optcard{background:var(--card-2);border:1px solid var(--line-2);border-radius:8px;
+  padding:13px 15px}
+.optcard.hot{border-color:var(--y-dim);background:linear-gradient(180deg,#1A1710,#121316)}
+.optcard .ct{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.optcard .val{font-size:24px}
+.srow{display:flex;align-items:center;gap:11px;padding:7px 0;
+  border-bottom:1px solid var(--line-2);font-family:var(--mono);font-size:11.5px}
+.srow:last-child{border-bottom:none}
+.srow .sm{color:var(--ink-2);min-width:118px;font-variant-numeric:tabular-nums}
+.srow .sl{font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+.srow .sg{margin-left:auto;color:var(--grn);font-variant-numeric:tabular-nums}
+.srow .sg.zero{color:var(--ink-3)}
+.sbar{flex:1;height:3px;background:#1E2024;border-radius:2px;overflow:hidden;max-width:190px}
+.sbar i{display:block;height:100%;background:var(--grn)}
+@media(max-width:700px){.optgrid{grid-template-columns:1fr}.srow .sbar{display:none}}
 .mapsvg{width:100%;height:auto;display:block;border-radius:8px;background:#0B0C0E}
 .mapsvg .seg{cursor:pointer;transition:stroke-width .14s}
 .mapsvg .seg:hover{stroke-width:16}
@@ -500,6 +521,39 @@ tbody tr.new{animation:flash 1s ease-out}
       </section>
 
       <div id="turnDetail"></div>
+
+      <!-- ---- tour optimal ---- -->
+      <section class="panel" id="optPanel" style="margin-top:12px;display:none">
+        <div class="ph">Tour optimal <span class="sp hint" id="optSub"></span></div>
+        <div class="pb">
+          <div class="optgrid">
+            <div class="optcard">
+              <div class="ct">Ton meilleur</div>
+              <div class="val" id="optBest">—</div>
+            </div>
+            <div class="optcard hot">
+              <div class="ct">Tour optimal</div>
+              <div class="val y" id="optTotal">—</div>
+            </div>
+            <div class="optcard">
+              <div class="ct">Gain possible</div>
+              <div class="val g" id="optGain">—</div>
+            </div>
+          </div>
+          <div id="optSplits"></div>
+        </div>
+      </section>
+
+      <!-- ---- courbes ---- -->
+      <section class="panel" id="chartPanel" style="margin-top:12px;display:none">
+        <div class="ph">Vitesse · Accélérateur · Frein
+          <span class="sp hint">
+            <span class="leg"><i style="background:#5F656B"></i>référence</span>
+            <span class="leg"><i style="background:var(--y)"></i>ton tour</span>
+          </span>
+        </div>
+        <div class="pb" id="chartBox"></div>
+      </section>
       <section class="panel" id="zonesPanel" style="margin-top:12px;display:none">
         <div class="ph">Où gagner du temps <span class="sp" id="zonesSum"></span></div>
         <div class="pb" id="zonesBox"></div>
@@ -525,6 +579,36 @@ tbody tr.new{animation:flash 1s ease-out}
             <div class="krow" style="margin-top:10px;text-transform:none;letter-spacing:.02em;line-height:1.6">
               Fonctionne même quand RaceRoom est au premier plan.
               Le jeu reçoit aussi la touche : choisis-en une qu'il n'utilise pas.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---- HUD ---- -->
+      <section class="panel" style="margin-top:12px">
+        <div class="ph">HUD en jeu
+          <span class="sp"><span class="hint" id="hudStat" style="font-family:var(--mono);font-size:9px;color:var(--ink-3)"></span></span>
+        </div>
+        <div class="pb cfg-in">
+          <div>
+            <div class="cfg-t">Ce qui s'affiche par-dessus le jeu</div>
+            <div id="hudList"></div>
+          </div>
+          <div>
+            <div class="cfg-t">Position à l'écran</div>
+            <select id="hudCorner">
+              <option value="tr">Haut droite</option>
+              <option value="tl">Haut gauche</option>
+              <option value="tc">Haut centre</option>
+              <option value="br">Bas droite</option>
+              <option value="bl">Bas gauche</option>
+              <option value="bc">Bas centre</option>
+            </select>
+            <div class="cfg-t" style="margin-top:14px">Opacité</div>
+            <input type="range" id="hudOpacity" min="0.3" max="1" step="0.05" value="0.92">
+            <div class="krow" style="margin-top:12px;text-transform:none;letter-spacing:.02em;line-height:1.6">
+              Le jeu doit tourner en <b style="color:var(--y)">fenêtre sans bordure</b>.
+              En plein écran exclusif, Windows empêche tout overlay de s'afficher.
             </div>
           </div>
         </div>
@@ -1201,6 +1285,194 @@ function zonePhrase(z){
   }
 }
 
+/* ================= TOUR OPTIMAL & COURBES ================= */
+
+/* Temps mis pour parcourir une portion [fromM, toM] d'un tour. */
+function splitTime(samples, fromM, toM){
+  const a = timeAtDistance(samples, fromM);
+  const b = timeAtDistance(samples, toM);
+  if (a == null || b == null) return null;
+  const dt = b - a;
+  return dt > 0 ? dt : null;
+}
+
+/**
+ * Construit le tour optimal a partir de plusieurs tours.
+ * @param lapsData [{lap, time, samples}]
+ * @param segM     longueur des portions (defaut 200 m)
+ * @returns {total, best, gain, splits:[{from,to,best,lap,mine}], lapsUsed}
+ */
+function optimalLap(lapsData, segM){
+  segM = segM || 200;
+  const valid = (lapsData||[]).filter(l => l.samples && l.samples.length > 5 && l.time > 0);
+  if (valid.length < 1) return null;
+
+  // longueur commune : le plus court des tours, pour ne comparer que du reel
+  let lapLen = Infinity;
+  for (const l of valid){
+    const d = l.samples[l.samples.length-1].d;
+    if (d < lapLen) lapLen = d;
+  }
+  if (!isFinite(lapLen) || lapLen <= 0) return null;
+
+  // meilleur tour de reference
+  let bestLap = valid[0];
+  for (const l of valid) if (l.time < bestLap.time) bestLap = l;
+
+  const splits = [];
+  const used = {};
+  let total = 0;
+
+  for (let from = 0; from < lapLen; from += segM){
+    const to = Math.min(from + segM, lapLen);
+    if (to - from < segM * 0.35) break;
+
+    let bestT = null, bestSrc = null;
+    for (const l of valid){
+      const t = splitTime(l.samples, from, to);
+      if (t == null) continue;
+      if (bestT == null || t < bestT){ bestT = t; bestSrc = l; }
+    }
+    if (bestT == null) continue;
+
+    const mine = splitTime(bestLap.samples, from, to);
+    total += bestT;
+    used[bestSrc.lap] = (used[bestSrc.lap] || 0) + 1;
+    splits.push({
+      from: from, to: to,
+      best: bestT,
+      lap: bestSrc.lap,
+      mine: mine,
+      gain: (mine != null) ? mine - bestT : 0,
+    });
+  }
+
+  if (!splits.length) return null;
+
+  // le meilleur tour mesure sur la meme longueur, pour comparer a perimetre egal
+  const bestOnSameLen = splitTime(bestLap.samples, 0, splits[splits.length-1].to);
+
+  return {
+    total: total,
+    best: bestOnSameLen != null ? bestOnSameLen : bestLap.time,
+    bestLapNum: bestLap.lap,
+    gain: (bestOnSameLen != null ? bestOnSameLen : bestLap.time) - total,
+    splits: splits,
+    lapsUsed: used,
+    lapCount: valid.length,
+  };
+}
+
+/* Reechantillonne une trace sur une grille de distance reguliere.
+   Necessaire pour superposer deux tours : leurs echantillons ne tombent
+   jamais aux memes endroits. */
+function resample(samples, lapLen, points){
+  points = points || 260;
+  const out = [];
+  for (let i = 0; i < points; i++){
+    const d = lapLen * i / (points - 1);
+    // interpolation lineaire des canaux
+    let lo = 0, hi = samples.length - 1;
+    if (d <= samples[0].d){ out.push(pick(samples[0], d)); continue; }
+    if (d >= samples[hi].d){ out.push(pick(samples[hi], d)); continue; }
+    while (hi - lo > 1){
+      const mid = (lo + hi) >> 1;
+      if (samples[mid].d <= d) lo = mid; else hi = mid;
+    }
+    const a = samples[lo], b = samples[hi];
+    const span = b.d - a.d;
+    const f = span > 0 ? (d - a.d) / span : 0;
+    out.push({
+      d: d,
+      spd: a.spd + (b.spd - a.spd) * f,
+      th:  a.th  + (b.th  - a.th)  * f,
+      br:  a.br  + (b.br  - a.br)  * f,
+      t:   a.t   + (b.t   - a.t)   * f,
+    });
+  }
+  return out;
+}
+function pick(s, d){ return { d:d, spd:s.spd, th:s.th, br:s.br, t:s.t }; }
+
+/* Genere le SVG de superposition des traces.
+   Trois bandes : vitesse, accelerateur, frein. Reference en pointille,
+   tour courant en trait plein. */
+function traceChart(refS, curS, opts){
+  opts = opts || {};
+  const W = opts.width || 940;
+  const padL = 42, padR = 12, padT = 10, padB = 20;
+  const bands = [
+    { key:'spd', label:'Vitesse', unit:'km/h', h: 130, max: null },
+    { key:'th',  label:'Accélérateur', unit:'%', h: 62, max: 1 },
+    { key:'br',  label:'Frein', unit:'%', h: 62, max: 1 },
+  ];
+  const gap = 16;
+  const H = padT + bands.reduce((a,b) => a + b.h + gap, 0) + padB;
+
+  if (!refS || refS.length < 3) return '';
+  const lapLen = Math.min(refS[refS.length-1].d, curS ? curS[curS.length-1].d : Infinity);
+  if (!isFinite(lapLen) || lapLen <= 0) return '';
+
+  const R = resample(refS, lapLen, 300);
+  const C = curS ? resample(curS, lapLen, 300) : null;
+
+  const x = d => padL + (d / lapLen) * (W - padL - padR);
+
+  let svg = '<svg viewBox="0 0 '+W+' '+H+'" class="chart" '
+          + 'xmlns="http://www.w3.org/2000/svg" role="img" '
+          + 'aria-label="Comparaison des traces vitesse, accélérateur et frein">';
+
+  let y0 = padT;
+  for (const band of bands){
+    const vals = R.map(p => p[band.key]).concat(C ? C.map(p => p[band.key]) : []);
+    let mx = band.max != null ? band.max : Math.max.apply(null, vals) * 1.05;
+    if (!(mx > 0)) mx = 1;
+    const y = v => y0 + band.h - (v / mx) * band.h;
+
+    // cadre et graduations
+    svg += '<rect x="'+padL+'" y="'+y0+'" width="'+(W-padL-padR)+'" height="'+band.h+'" '
+         + 'fill="#0E0F11" stroke="#1A1C1F"/>';
+    for (let k = 1; k < 4; k++){
+      const yy = y0 + band.h * k / 4;
+      svg += '<line x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)
+           + '" stroke="#17191C"/>';
+    }
+    svg += '<text x="4" y="'+(y0+11)+'" class="cl">'+band.label+'</text>';
+    svg += '<text x="4" y="'+(y0+band.h)+'" class="cl dim">'
+         + (band.max === 1 ? '0' : '0') + '</text>';
+    svg += '<text x="4" y="'+(y0+22)+'" class="cl dim">'
+         + (band.max === 1 ? '100' : Math.round(mx)) + '</text>';
+
+    // reference : pointille
+    let dRef = '';
+    for (let i = 0; i < R.length; i++)
+      dRef += (i ? 'L' : 'M') + x(R[i].d).toFixed(1) + ',' + y(R[i][band.key]).toFixed(1);
+    svg += '<path d="'+dRef+'" fill="none" stroke="#5F656B" stroke-width="1.3" '
+         + 'stroke-dasharray="3,3"/>';
+
+    // tour courant : trait plein
+    if (C){
+      let dCur = '';
+      for (let i = 0; i < C.length; i++)
+        dCur += (i ? 'L' : 'M') + x(C[i].d).toFixed(1) + ',' + y(C[i][band.key]).toFixed(1);
+      const col = band.key === 'br' ? '#E0503C' : (band.key === 'th' ? '#5FBF6A' : '#FFC62A');
+      svg += '<path d="'+dCur+'" fill="none" stroke="'+col+'" stroke-width="1.7"/>';
+    }
+    y0 += band.h + gap;
+  }
+
+  // axe des distances
+  const ticks = 6;
+  for (let i = 0; i <= ticks; i++){
+    const d = lapLen * i / ticks;
+    svg += '<text x="'+x(d).toFixed(1)+'" y="'+(H-6)+'" class="cl dim" text-anchor="middle">'
+         + Math.round(d) + '</text>';
+  }
+  svg += '<text x="'+(W-padR)+'" y="'+(H-6)+'" class="cl dim" text-anchor="end">mètres</text>';
+  svg += '</svg>';
+  return svg;
+}
+
 /* ================= CARTE DU CIRCUIT ================= */
 
 /* Projette les points sur un viewBox, en conservant les proportions. */
@@ -1560,6 +1832,12 @@ function showTurn(n){
 function runCoach(l){
   const cur = toSamples(l.trace);
   if (!cur) return;
+
+  // memorise le tour pour le calcul du tour optimal
+  if (l.valid && l.time > 0){
+    lapTraces.push({ lap: l.lap, time: l.time, samples: cur });
+    if (lapTraces.length > 40) lapTraces.shift();   // garde la session raisonnable
+  }
   if (!refTrace){
     if (l.valid && l.time > 0){
       refTrace = cur; refTime = l.time;
@@ -1568,6 +1846,7 @@ function runCoach(l){
       $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour de référence enregistré — '
         + turns.length + ' virages détectés. Le prochain tour sera analysé.</div>';
       drawMap(); drawSplitBar();
+      drawOptimal();
     }
     return;
   }
@@ -1585,6 +1864,8 @@ function runCoach(l){
 
   drawMap();
   drawZones();
+  drawOptimal();
+  drawChart();
 
   if (!tips.length){
     $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour propre — '
@@ -1605,6 +1886,7 @@ function runCoach(l){
        </div>
      </div>`).join('');
   tips.forEach(t => speak(phrase(t)));
+  if (tips.length) hudTip(tips[0]);   // le plus couteux seulement : lisible en pilotant
 
   if (l.valid && l.time > 0 && l.time < refTime){
     refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
@@ -1651,6 +1933,124 @@ document.querySelectorAll('#nav a').forEach(a => {
   });
 });
 
+
+
+/* ============ tour optimal & courbes ============ */
+const lapTraces = [];        // toutes les traces valides de la session
+
+function drawOptimal(){
+  const panel = $('optPanel');
+  if (!panel) return;
+  if (lapTraces.length < 1){ panel.style.display = 'none'; return; }
+
+  const r = optimalLap(lapTraces, 200);
+  if (!r){ panel.style.display = 'none'; return; }
+  panel.style.display = '';
+
+  $('optBest').textContent  = fmt(r.best);
+  $('optTotal').textContent = fmt(r.total);
+  $('optGain').textContent  = r.gain > 0.001 ? '−' + r.gain.toFixed(3) : '—';
+  $('optSub').textContent = r.lapCount + ' tour' + (r.lapCount>1?'s':'')
+    + ' · meilleures portions assemblées';
+
+  // les portions ou tu as le plus a gagner
+  const top = r.splits.slice().sort((a,b) => b.gain - a.gain).filter(x => x.gain > 0.005);
+  if (!top.length){
+    $('optSplits').innerHTML = '<div class="note" style="padding:14px 0">'
+      + 'Ton meilleur tour est déjà optimal : chaque portion est ta meilleure.</div>';
+    return;
+  }
+  const maxG = top[0].gain;
+  $('optSplits').innerHTML = top.slice(0,8).map(sp => {
+    const pct = Math.min(100, sp.gain / maxG * 100);
+    return `<div class="srow">
+      <span class="sm">${Math.round(sp.from)} – ${Math.round(sp.to)} m</span>
+      <span class="sl">tour ${sp.lap}</span>
+      <span class="sbar"><i style="width:${pct.toFixed(0)}%"></i></span>
+      <span class="sg">−${sp.gain.toFixed(3)} s</span>
+    </div>`;
+  }).join('');
+}
+
+function drawChart(){
+  const panel = $('chartPanel');
+  if (!panel || !refTrace) return;
+  if (!lastCur){ panel.style.display = 'none'; return; }
+  panel.style.display = '';
+  const svg = traceChart(refTrace, lastCur, { width: 940 });
+  $('chartBox').innerHTML = svg || '<div class="note">Données insuffisantes.</div>';
+}
+
+/* ============ HUD en jeu ============ */
+const HUD_WIDGETS = [
+  { id:'coach',  label:'Conseils du coach', def:true },
+  { id:'delta',  label:'Delta vs meilleur tour', def:true },
+  { id:'times',  label:'Temps au tour', def:false },
+  { id:'inputs', label:'Barres gaz / frein', def:false },
+  { id:'race',   label:'Position, tour, carburant', def:false },
+];
+
+function hudSend(){
+  const widgets = HUD_WIDGETS.filter(w => {
+    const el = $('hud_'+w.id); return el && el.checked;
+  }).map(w => w.id);
+  const cfg = {
+    type:'hudcfg',
+    widgets: widgets.join(','),
+    corner: ($('hudCorner')||{}).value || 'tr',
+    opacity: String(($('hudOpacity')||{}).value || 0.92)
+  };
+  try {
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify(cfg));
+    localStorage.setItem('apexHud', JSON.stringify(cfg));
+  } catch(e){}
+}
+
+function buildHudList(){
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('apexHud') || '{}'); } catch(e){}
+  const act = (saved.widgets != null)
+    ? String(saved.widgets).split(',')
+    : HUD_WIDGETS.filter(w => w.def).map(w => w.id);
+
+  $('hudList').innerHTML = HUD_WIDGETS.map(w =>
+    `<label class="chk"><input type="checkbox" id="hud_${w.id}"${
+      act.indexOf(w.id) >= 0 ? ' checked' : ''
+    }><span>${esc(w.label)}</span></label>`).join('');
+
+  HUD_WIDGETS.forEach(w => {
+    const el = $('hud_'+w.id);
+    if (el) el.addEventListener('change', hudSend);
+  });
+  if (saved.corner && $('hudCorner')) $('hudCorner').value = saved.corner;
+  if (saved.opacity && $('hudOpacity')) $('hudOpacity').value = saved.opacity;
+  $('hudCorner').addEventListener('change', hudSend);
+  $('hudOpacity').addEventListener('change', hudSend);
+}
+
+/* Envoie un conseil au HUD (2 lignes courtes, lisibles en pilotant). */
+function hudTip(tip){
+  const el = $('hud_coach');
+  if (!el || !el.checked) return;
+  const l1 = 'Virage ' + tip.turn + ' : ' + shortAction(tip.kind);
+  const l2 = tip.detail.charAt(0).toUpperCase() + tip.detail.slice(1);
+  try {
+    if (ws && ws.readyState === 1)
+      ws.send(JSON.stringify({ type:'hudtip', l1:l1, l2:l2, secs:9 }));
+  } catch(e){}
+}
+
+function shortAction(kind){
+  switch(kind){
+    case 'freinage_tot': return 'freine plus tard';
+    case 'freinage_mou': return 'appuie plus fort';
+    case 'coasting':     return 'enchaîne frein et gaz';
+    case 'gaz_tard':     return 'rouvre plus tôt';
+    case 'trop_lent':    return 'porte plus de vitesse';
+    default:             return 'à corriger';
+  }
+}
+
 /* ============ WebSocket ============ */
 let ws = null, retry = 0;
 function setConn(on, msg){
@@ -1660,7 +2060,7 @@ function setConn(on, msg){
 function connect(){
   try { ws = new WebSocket('ws://' + location.host + '/ws'); }
   catch(e){ scheduleRetry(); return; }
-  ws.onopen = () => { retry = 0; setConn(true,'connecté'); };
+  ws.onopen = () => { retry = 0; setConn(true,'connecté'); setTimeout(hudSend, 300); };
   ws.onclose = () => { setConn(false,'reconnexion…'); scheduleRetry(); };
   ws.onerror = () => { try{ws.close();}catch(e){} };
   ws.onmessage = e => {
@@ -1672,6 +2072,10 @@ function connect(){
       window.__hotkey = m.key;
       const b = $('hkBadge'); if (b) b.textContent = m.key;
       const sel = $('keySel'); if (sel && sel.value !== m.key) sel.value = m.key;
+    }
+    else if (m.type === 'hudstate'){
+      const e = $('hudStat');
+      if (e) e.textContent = m.ok ? 'actif' : 'indisponible';
     }
     else if (m.type === 'state'){ $('trk').textContent = m.msg; }
   };
@@ -1717,6 +2121,8 @@ window.addEventListener('keydown', e => {
   if (e.target && /input|select|textarea/i.test(e.target.tagName)) return;
   if (e.key && e.key.toLowerCase() === (window.__hotkey||'c').toLowerCase()) announce();
 });
+
+buildHudList();
 
 $('modeSeg').addEventListener('click', () => {
   mapMode = 'seg';
