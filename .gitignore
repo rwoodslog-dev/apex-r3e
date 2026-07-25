@@ -1,6 +1,0 @@
-dist/
-*.exe
-*.dll
-*.pdb
-laps/
-__pycache__/
