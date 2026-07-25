@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>APEX — Tableau de bord</title>
+<style>
+:root{
+  --bg:#000;--panel:#0A0B0D;--frame:#3A3D42;--ink:#F4F5F6;--dim:#6A7078;
+  --y:#FFC62A;--red:#E0503C;--grn:#5FBF6A;--cy:#6FA0FF;
+  --mono:"DSEG7",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --ui:"Inter",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;
+  user-select:none}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--ui);
+  overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* conseil : tourne l'ecran en paysage */
+.rotate{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  text-align:center;padding:30px}
+.rotate svg{width:64px;height:64px;stroke:var(--y);fill:none;stroke-width:1.5;
+  animation:rot 2.5s ease-in-out infinite}
+@keyframes rot{0%,100%{transform:rotate(0)}50%{transform:rotate(90deg)}}
+@media(orientation:portrait){.rotate{display:flex}.grid{display:none}}
+
+.grid{height:100vh;width:100vw;display:grid;gap:6px;padding:6px;
+  grid-template-columns:1.15fr 0.7fr 1.15fr 1.3fr;
+  grid-template-rows:repeat(4,1fr)}
+
+.cell{background:var(--panel);border:2px solid var(--frame);border-radius:9px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;min-height:0}
+.cell .lbl{position:absolute;top:5px;left:0;right:0;text-align:center;
+  font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--dim);
+  text-transform:uppercase}
+.cell .big{font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums;
+  line-height:1;letter-spacing:.02em}
+.v-xl .big{font-size:14vh}
+.v-l  .big{font-size:9vh}
+.v-m  .big{font-size:6.5vh}
+.cell .u{font-size:2.4vh;color:var(--dim);margin-left:4px}
+.y{color:var(--y)} .r{color:var(--red)} .g{color:var(--grn)}
+
+/* placements facon capture */
+.pos   {grid-column:1;grid-row:1}
+.fuel  {grid-column:1;grid-row:2}
+.fuelpl{grid-column:1;grid-row:3}
+.brakeb{grid-column:1;grid-row:4}
+.tyres {grid-column:1;grid-row:1;display:none}
+
+.speed {grid-column:2;grid-row:1}
+.gear  {grid-column:2;grid-row:2 / span 2;background:#050506}
+.gear .big{font-size:22vh;color:var(--ink)}
+.rpm   {grid-column:2;grid-row:4}
+
+.laptime{grid-column:3 / span 2;grid-row:1}
+.laptime .big{font-size:11vh}
+.last  {grid-column:3 / span 2;grid-row:2}
+.last .big{font-size:9vh}
+.delta {grid-column:3;grid-row:3}
+.best  {grid-column:4;grid-row:3}
+.tc    {grid-column:3;grid-row:4}
+.abs   {grid-column:4;grid-row:4}
+
+/* barre delta sous le chiffre */
+.dwrap{width:88%;height:6px;background:#1A1C1F;border-radius:3px;position:relative;
+  margin-top:1vh;overflow:hidden}
+.dwrap .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--dim)}
+.dwrap i{position:absolute;top:0;height:100%;width:0}
+
+/* rpm barre */
+.rpmbar{width:90%;height:8px;background:#1A1C1F;border-radius:2px;margin-top:1vh;overflow:hidden}
+.rpmbar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--grn),var(--y),var(--red))}
+
+/* pneus (petits) */
+.tyre-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:100%;height:100%;
+  padding:16px 8px 4px}
+.tw{background:var(--cy);border-radius:5px;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:3vh;color:#04122E;font-weight:700}
+
+/* etat connexion */
+.conn{position:fixed;top:8px;right:10px;width:9px;height:9px;border-radius:50%;
+  background:var(--red);z-index:50;transition:background .3s}
+.conn.on{background:var(--grn)}
+
+/* coach en bandeau bas, superpose */
+.coach{position:fixed;left:6px;right:6px;bottom:6px;background:rgba(10,11,13,.96);
+  border:2px solid var(--y);border-radius:9px;padding:10px 16px;z-index:40;
+  display:none;font-size:2.4vh;color:var(--y);text-align:center;font-weight:600}
+.coach.show{display:block;animation:cf .3s ease-out}
+@keyframes cf{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---- carrousel 3 vues ---- */
+.swipe{display:flex;width:300vw;height:100vh;transition:transform .28s cubic-bezier(.3,.7,.3,1);
+  touch-action:pan-y}
+.view{width:100vw;height:100vh;flex:none;position:relative;overflow:hidden}
+.dots{position:fixed;top:7px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:50}
+.dot-n{width:7px;height:7px;border-radius:50%;background:#33363C;transition:.2s}
+.dot-n.on{background:var(--y);width:18px;border-radius:4px}
+.vtitle{position:absolute;top:8px;left:12px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);z-index:20}
+
+/* ---- vue carte ---- */
+.mapv{width:100%;height:100%;display:block;background:#050506}
+.mapv .track{fill:none;stroke:#2A2D32;stroke-width:14;stroke-linecap:round;stroke-linejoin:round}
+.mapv .trackline{fill:none;stroke:#3A3D42;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+.mapv .car{fill:var(--y);stroke:#050506;stroke-width:2}
+.mapv .tnum{font-family:var(--mono);font-size:13px;fill:var(--dim);font-weight:700}
+.mapinfo{position:absolute;bottom:12px;left:0;right:0;text-align:center;
+  font-family:var(--mono);color:var(--ink)}
+.mapinfo .d{font-size:8vh;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.mapinfo .d.g{color:var(--grn)} .mapinfo .d.r{color:var(--red)}
+.mapinfo .s{font-size:3vh;color:var(--dim);margin-top:1vh}
+
+/* ---- vue temps ---- */
+.timesv{width:100%;height:100%;padding:34px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.tbest{display:flex;gap:8px}
+.tcard{flex:1;background:var(--panel);border:2px solid var(--frame);border-radius:9px;
+  padding:12px;text-align:center}
+.tcard .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tcard .v{font-family:var(--mono);font-size:6vh;font-weight:700;margin-top:6px;
+  font-variant-numeric:tabular-nums}
+.tcard .v.y{color:var(--y)}
+.tlist{flex:1;overflow-y:auto;background:var(--panel);border:2px solid var(--frame);
+  border-radius:9px}
+.tlrow{display:flex;align-items:center;padding:11px 15px;border-bottom:1px solid #1A1C1F;
+  font-family:var(--mono);font-size:2.5vh}
+.tlrow:last-child{border-bottom:none}
+.tlrow .n{color:var(--dim);min-width:44px}
+.tlrow .t{font-variant-numeric:tabular-nums}
+.tlrow.pb .t{color:var(--y);font-weight:700}
+.tlrow .gap{margin-left:auto;color:var(--red);font-size:2vh}
+</style>
+</head>
+<body>
+<div class="rotate">
+  <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+  <div>Tourne ton téléphone en <b>paysage</b></div>
+</div>
+
+<div class="conn" id="conn"></div>
+<div class="dots"><span class="dot-n" data-i="0"></span><span class="dot-n on" data-i="1"></span><span class="dot-n" data-i="2"></span></div>
+
+<div class="swipe" id="swipe">
+  <div class="view" id="v0">
+    <div class="vtitle">Carte</div>
+    <svg class="mapv" id="mapv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="mapinfo">
+      <div class="d" id="mapDelta">––.–––</div>
+      <div class="s" id="mapWhere">–</div>
+    </div>
+  </div>
+  <div class="view" id="v1">
+
+<div class="grid">
+  <div class="cell pos v-m"><span class="lbl">Pos</span><span class="big" id="pos">–/–</span></div>
+  <div class="cell fuel v-m"><span class="lbl">Carburant</span><span class="big" id="fuel">–<span class="u">%</span></span></div>
+  <div class="cell fuelpl v-m"><span class="lbl">Autonomie</span><span class="big" id="range">–<span class="u">t</span></span></div>
+  <div class="cell brakeb v-m"><span class="lbl">Pneus °C</span><span class="big" id="tyretemp">–</span></div>
+
+  <div class="cell speed v-l"><span class="lbl">Vitesse</span><span class="big" id="speed">0</span></div>
+  <div class="cell gear v-xl"><span class="lbl">Rapport</span><span class="big" id="gear">N</span></div>
+  <div class="cell rpm v-m"><span class="lbl">Régime</span><span class="big" id="rpm" style="font-size:4vh">0</span><div class="rpmbar"><i id="rpmbar"></i></div></div>
+
+  <div class="cell laptime v-l"><span class="lbl">Tour en cours</span><span class="big y" id="cur">–:––.–––</span></div>
+  <div class="cell last v-l"><span class="lbl">Dernier tour</span><span class="big" id="last">–:––.–––</span></div>
+  <div class="cell delta v-m"><span class="lbl">Delta</span><span class="big" id="delta">––.–––</span>
+    <div class="dwrap"><span class="mid"></span><i id="dbar"></i></div>
+  </div>
+  <div class="cell best v-m"><span class="lbl">Meilleur</span><span class="big y" id="best">–:––.–––</span></div>
+  <div class="cell tc v-m"><span class="lbl">Frein/Gaz</span><span class="big" id="inputs" style="font-size:3.5vh">–</span></div>
+  <div class="cell abs v-m"><span class="lbl">Écart</span><span class="big" id="gap" style="font-size:4vh">–</span></div>
+</div>
+
+  </div>
+  <div class="view" id="v2">
+    <div class="vtitle">Tes temps</div>
+    <div class="timesv">
+      <div class="tbest">
+        <div class="tcard"><div class="k">Meilleur</div><div class="v y" id="tBest">–:––.–––</div></div>
+        <div class="tcard"><div class="k">Dernier</div><div class="v" id="tLast">–:––.–––</div></div>
+      </div>
+      <div class="tlist" id="tList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="coach" id="coach"></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const fmt = s => {
+  if (s == null || !isFinite(s) || s <= 0) return '–:––.–––';
+  const m = Math.floor(s/60), r = s - m*60;
+  return m + ':' + r.toFixed(3).padStart(6,'0');
+};
+
+let ws = null, retry = 0, coachTimer = null;
+
+function connect(){
+  try { ws = new WebSocket('ws://' + location.host + '/ws'); }
+  catch(e){ return schedule(); }
+  ws.onopen = () => { retry = 0; $('conn').classList.add('on'); };
+  ws.onclose = () => { $('conn').classList.remove('on'); schedule(); };
+  ws.onerror = () => { try{ws.close();}catch(e){} };
+  ws.onmessage = e => {
+    let m; try { m = JSON.parse(e.data); } catch(err){ return; }
+    if (m.type === 'telemetry') render(m);
+    else if (m.type === 'lap' && m.time > 0){
+      $('last').textContent = fmt(m.time);
+      addLap(m);
+      // construit la carte depuis le trace du tour (format [t,d,spd,th,br,st,x,z,gear])
+      if (!trackPts && m.trace && m.trace.length > 20){
+        buildMap(m.trace.map(r => ({ x:r[6], z:r[7], d:r[1] })));
+      }
+    }
+    else if (m.type === 'hudtip'){ showCoach(m.l1, m.l2); }
+  };
+}
+function schedule(){ retry = Math.min(retry+1,10); setTimeout(connect, 400*retry); }
+
+function render(d){
+  $('speed').textContent = Math.round(d.speed || 0);
+  $('gear').textContent = d.gear <= 0 ? (d.gear === 0 ? 'N' : 'R') : d.gear;
+  const rpm = Math.round(d.rpm || 0);
+  $('rpm').textContent = rpm;
+  $('rpmbar').style.width = Math.min(100, rpm/8000*100) + '%';
+  $('cur').textContent = fmt(d.cur);
+  $('best').textContent = fmt(d.best);
+  $('pos').textContent = (d.pos > 0 ? d.pos : '–') + '/' + (d.cars > 0 ? d.cars : '–');
+  $('fuel').innerHTML = (d.fuelPct != null && d.fuelPct >= 0 ? Math.round(d.fuelPct) : '–') + '<span class="u">%</span>';
+  $('range').innerHTML = (d.fuelLaps != null && d.fuelLaps >= 0 ? d.fuelLaps.toFixed(1) : '–') + '<span class="u">t</span>';
+  $('tyretemp').textContent = (d.tireTemp != null && d.tireTemp > 0) ? Math.round(d.tireTemp) : '–';
+
+  // delta + barre
+  const dl = $('delta'), db = $('dbar');
+  if (d.delta == null || !isFinite(d.delta)){ dl.textContent = '––.–––'; dl.className = 'big'; db.style.width = '0'; }
+  else {
+    dl.textContent = (d.delta > 0 ? '+' : '') + d.delta.toFixed(3);
+    dl.className = 'big ' + (d.delta <= 0 ? 'g' : 'r');
+    const mag = Math.min(1, Math.abs(d.delta));
+    db.style.width = (mag * 50) + '%';
+    if (d.delta <= 0){ db.style.left='auto'; db.style.right='50%'; db.style.background='var(--grn)'; }
+    else { db.style.right='auto'; db.style.left='50%'; db.style.background='var(--red)'; }
+  }
+
+  // frein / gaz compact
+  const th = Math.round((d.throttle||0)*100), br = Math.round((d.brake||0)*100);
+  $('inputs').textContent = br + '/' + th;
+
+  // ecart devant
+  $('gap').textContent = (d.dFront != null && d.dFront > 0) ? '+'+d.dFront.toFixed(1) : '–';
+
+  // vue carte : position live + delta
+  if (d.px != null && d.pz != null) updateCar(d.px, d.pz);
+  const md = $('mapDelta');
+  if (d.delta == null || !isFinite(d.delta)){ md.textContent = '––.–––'; md.className = 'd'; }
+  else {
+    md.textContent = (d.delta > 0 ? '+' : '') + d.delta.toFixed(3);
+    md.className = 'd ' + (d.delta <= 0 ? 'g' : 'r');
+  }
+  if (d.dist != null) $('mapWhere').textContent = Math.round(d.dist) + ' m';
+}
+
+function showCoach(l1, l2){
+  const c = $('coach');
+  c.textContent = l1 + (l2 ? ' — ' + l2 : '');
+  c.classList.add('show');
+  clearTimeout(coachTimer);
+  coachTimer = setTimeout(() => c.classList.remove('show'), 6000);
+}
+
+
+/* ---- carrousel swipe ---- */
+let view = 1;   // demarre sur le dashboard
+const swipe = $('swipe');
+function goView(i){
+  view = Math.max(0, Math.min(2, i));
+  swipe.style.transform = 'translateX(' + (-view * 100) + 'vw)';
+  document.querySelectorAll('.dot-n').forEach((d,k) => d.classList.toggle('on', k === view));
+}
+document.querySelectorAll('.dot-n').forEach(d =>
+  d.addEventListener('click', () => goView(+d.dataset.i)));
+
+let tx0 = null, ty0 = null;
+swipe.addEventListener('touchstart', e => {
+  tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY;
+}, {passive:true});
+swipe.addEventListener('touchend', e => {
+  if (tx0 == null) return;
+  const dx = e.changedTouches[0].clientX - tx0;
+  const dy = e.changedTouches[0].clientY - ty0;
+  // swipe horizontal franc uniquement
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5){
+    goView(view + (dx < 0 ? 1 : -1));
+  }
+  tx0 = ty0 = null;
+}, {passive:true});
+
+/* ---- vue carte : trace + position live ---- */
+let trackPts = null, proj = null, mapTrack = null;
+
+function projectTrack(pts){
+  let mnx=1e9,mxx=-1e9,mnz=1e9,mxz=-1e9;
+  for (const p of pts){ if(p.x<mnx)mnx=p.x; if(p.x>mxx)mxx=p.x; if(p.z<mnz)mnz=p.z; if(p.z>mxz)mxz=p.z; }
+  const spanX=Math.max(1,mxx-mnx), spanZ=Math.max(1,mxz-mnz), pad=10;
+  const s=Math.min((100-2*pad)/spanX,(100-2*pad)/spanZ);
+  const ox=(100-spanX*s)/2-mnx*s, oy=(100-spanZ*s)/2-mnz*s;
+  return pts.map(p => ({ x:p.x*s+ox, y:100-(p.z*s+oy), d:p.d }));
+}
+function buildMap(pts){
+  if (!pts || pts.length < 10) return;
+  trackPts = pts;
+  proj = projectTrack(pts);
+  let d = 'M' + proj[0].x.toFixed(1) + ',' + proj[0].y.toFixed(1);
+  for (let i=1;i<proj.length;i++) d += 'L'+proj[i].x.toFixed(1)+','+proj[i].y.toFixed(1);
+  d += 'Z';
+  $('mapv').innerHTML =
+    '<path class="track" d="'+d+'"/>' +
+    '<path class="trackline" d="'+d+'"/>' +
+    '<circle class="car" id="carDot" cx="'+proj[0].x.toFixed(1)+'" cy="'+proj[0].y.toFixed(1)+'" r="3.2"/>';
+  mapTrack = d;
+}
+function updateCar(px, pz){
+  if (!proj || !trackPts || px == null) return;
+  // place la voiture au point du trace le plus proche
+  let best = 0, bd = 1e18;
+  for (let i=0;i<trackPts.length;i++){
+    const dx = trackPts[i].x - px, dz = trackPts[i].z - pz;
+    const dd = dx*dx + dz*dz;
+    if (dd < bd){ bd = dd; best = i; }
+  }
+  const dot = $('carDot');
+  if (dot){ dot.setAttribute('cx', proj[best].x.toFixed(1)); dot.setAttribute('cy', proj[best].y.toFixed(1)); }
+}
+
+/* ---- vue temps ---- */
+const myLaps = [];
+let myBest = null;
+function addLap(l){
+  if (l.time > 0){
+    myLaps.push(l);
+    if (myBest == null || l.time < myBest) myBest = l.time;
+    $('tLast').textContent = fmt(l.time);
+    $('tBest').textContent = fmt(myBest);
+    drawTimes();
+  }
+}
+function drawTimes(){
+  $('tList').innerHTML = myLaps.slice().reverse().map(l => {
+    const pb = (l.time === myBest);
+    const gap = (myBest && !pb) ? '+' + (l.time - myBest).toFixed(3) : '';
+    return '<div class="tlrow'+(pb?' pb':'')+'"><span class="n">T'+String(l.lap).padStart(2,'0')+
+      '</span><span class="t">'+fmt(l.time)+'</span><span class="gap">'+gap+'</span></div>';
+  }).join('') || '<div class="tlrow"><span class="n" style="color:var(--dim)">Aucun tour terminé</span></div>';
+}
+
+connect();
+</script>
+</body>
+</html>
