@@ -21,7 +21,7 @@ jobs:
 
       - name: Regenerer le dashboard embarque
         shell: pwsh
-        working-directory: src
+        working-directory: app
         run: |
           python embed.py
           Write-Host "EmbeddedDashboard.cs regenere depuis live.html + mobile.html"
@@ -38,8 +38,8 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           & $csc /nologo /optimize /warn:4 /target:exe /out:dist\APEX.exe `
             /reference:System.Drawing.dll `
-            src\Program.cs src\Telemetry.cs src\WebServer.cs `
-            src\KeyHook.cs src\HudOverlay.cs src\EmbeddedDashboard.cs
+            app\Program.cs app\Telemetry.cs app\WebServer.cs `
+            app\KeyHook.cs app\HudOverlay.cs app\EmbeddedDashboard.cs
           if ($LASTEXITCODE -ne 0) { throw "La compilation a echoue" }
 
           $size = (Get-Item dist\APEX.exe).Length
@@ -60,7 +60,6 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item docs\DEMARRAGE.md dist\LISEZMOI.md -ErrorAction SilentlyContinue
-          Copy-Item src\dashboard.html dist\dashboard-hors-ligne.html -ErrorAction SilentlyContinue
           Compress-Archive -Path dist\* -DestinationPath APEX-windows.zip -Force
           Get-ChildItem dist | Format-Table Name, Length
 
