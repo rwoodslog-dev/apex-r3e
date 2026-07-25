@@ -109,6 +109,40 @@ static class Program
         return n > 0 ? sum / n : -1.0;
     }
 
+    /// <summary>Trouve l'IP locale du PC (192.168.x.x) pour l'acces mobile.</summary>
+    static string GetLanIp()
+    {
+        string fallback = null;
+        try
+        {
+            foreach (var ni in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up) continue;
+                var t = ni.NetworkInterfaceType;
+                if (t == System.Net.NetworkInformation.NetworkInterfaceType.Loopback) continue;
+                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+                {
+                    if (ua.Address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork) continue;
+                    string ip = ua.Address.ToString();
+                    if (ip.StartsWith("127.")) continue;
+                    // priorise les adresses de reseau local classiques
+                    if (ip.StartsWith("192.168.") || ip.StartsWith("10.") ||
+                        (ip.StartsWith("172.") && IsPrivate172(ip)))
+                        return ip;
+                    if (fallback == null) fallback = ip;   // sinon, garde la 1ere IPv4 valide
+                }
+            }
+        }
+        catch { }
+        return fallback;
+    }
+    static bool IsPrivate172(string ip)
+    {
+        var parts = ip.Split('.');
+        if (parts.Length < 2) return false;
+        int b; return int.TryParse(parts[1], out b) && b >= 16 && b <= 31;
+    }
+
     static string JsonStr(string s)
     {
         if (s == null) return "\"\"";
@@ -178,14 +212,17 @@ static class Program
         server.MobileHtml = EmbeddedDashboard.Mobile;
         server.Start();
         string url = "http://localhost:" + server.Port + "/";
+        string lanIp = GetLanIp();
 
         Console.Title = "APEX — R3E Telemetry Coach";
         Console.WriteLine(new string('=', 64));
         Console.WriteLine("  APEX — R3E Telemetry Coach");
         Console.WriteLine(new string('=', 64));
-        Console.WriteLine("  Dashboard : " + url);
-        Console.WriteLine("  Sortie    : " + Path.GetFullPath(outDir));
-        Console.WriteLine("  Frequence : " + hz.ToString(INV) + " Hz");
+        Console.WriteLine("  Dashboard PC : " + url);
+        if (lanIp != null)
+            Console.WriteLine("  Sur mobile   : http://" + lanIp + ":" + server.Port + "/mobile");
+        Console.WriteLine("  Sortie       : " + Path.GetFullPath(outDir));
+        Console.WriteLine("  Frequence    : " + hz.ToString(INV) + " Hz");
         Console.WriteLine(new string('=', 64));
         Console.WriteLine();
 

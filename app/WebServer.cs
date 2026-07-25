@@ -27,16 +27,26 @@ class WebServer
     public WebServer(string html, int preferredPort)
     {
         indexHtml = html;
-        // on tente le port demande, sinon on laisse l'OS en choisir un libre
+        // Ecoute sur toutes les interfaces (IPAddress.Any) pour que le telephone
+        // puisse se connecter via l'IP du PC, pas seulement en local (loopback).
+        // Si Any echoue (droits, port occupe), on retombe sur loopback.
         try
         {
-            listener = new TcpListener(IPAddress.Loopback, preferredPort);
+            listener = new TcpListener(IPAddress.Any, preferredPort);
             listener.Start();
         }
         catch (SocketException)
         {
-            listener = new TcpListener(IPAddress.Loopback, 0);
-            listener.Start();
+            try
+            {
+                listener = new TcpListener(IPAddress.Loopback, preferredPort);
+                listener.Start();
+            }
+            catch (SocketException)
+            {
+                listener = new TcpListener(IPAddress.Any, 0);
+                listener.Start();
+            }
         }
         Port = ((IPEndPoint)listener.LocalEndpoint).Port;
     }
