@@ -24,7 +24,7 @@ jobs:
         working-directory: app
         run: |
           python embed.py
-          Write-Host "EmbeddedDashboard.cs regenere depuis live.html + mobile.html"
+          Write-Host "EmbeddedDashboard.cs regenere depuis live.html"
 
       - name: Compiler APEX.exe
         shell: pwsh
@@ -39,7 +39,7 @@ jobs:
           & $csc /nologo /optimize /warn:4 /target:exe /out:dist\APEX.exe `
             /reference:System.Drawing.dll `
             app\Program.cs app\Telemetry.cs app\WebServer.cs `
-            app\KeyHook.cs app\HudOverlay.cs app\EmbeddedDashboard.cs
+            app\EmbeddedDashboard.cs
           if ($LASTEXITCODE -ne 0) { throw "La compilation a echoue" }
 
           $size = (Get-Item dist\APEX.exe).Length
