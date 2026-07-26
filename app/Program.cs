@@ -166,9 +166,6 @@ static class Program
         double hz = 60.0;
         int port = DEFAULT_PORT;
         bool keepInvalid = false, noBrowser = false;
-        string hotkey = "C";
-        bool hud = true;
-        int hudX = -1, hudY = -1;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -179,10 +176,6 @@ static class Program
                 int.TryParse(args[++i], out port);
             else if (args[i] == "--keep-invalid") keepInvalid = true;
             else if (args[i] == "--no-browser") noBrowser = true;
-            else if (args[i] == "--key" && i + 1 < args.Length) hotkey = args[++i];
-            else if (args[i] == "--no-hud") hud = false;
-            else if (args[i] == "--hud-pos" && i + 2 < args.Length)
-            { int.TryParse(args[++i], out hudX); int.TryParse(args[++i], out hudY); }
             else if (args[i] == "--help" || args[i] == "-h")
             {
                 Console.WriteLine("APEX — options :");
@@ -192,8 +185,6 @@ static class Program
                 Console.WriteLine("  --keep-invalid     garde les tours passes par les stands");
                 Console.WriteLine("  --no-browser       n'ouvre pas le navigateur");
                 Console.WriteLine("  --key TOUCHE       raccourci d'annonce (defaut: C)");
-                Console.WriteLine("  --no-hud           desactive le HUD superpose au jeu");
-                Console.WriteLine("  --hud-pos X Y      position du HUD a l'ecran");
                 return;
             }
         }
@@ -209,7 +200,6 @@ static class Program
         // ---- dashboard embarque -----------------------------------------
         string html = EmbeddedDashboard.Html;
         var server = new WebServer(html, port);
-        server.MobileHtml = EmbeddedDashboard.Mobile;
         server.Start();
         string url = "http://localhost:" + server.Port + "/";
         string lanIp = GetLanIp();
@@ -220,7 +210,7 @@ static class Program
         Console.WriteLine(new string('=', 64));
         Console.WriteLine("  Dashboard PC : " + url);
         if (lanIp != null)
-            Console.WriteLine("  Sur mobile   : http://" + lanIp + ":" + server.Port + "/mobile");
+            Console.WriteLine("  Sur le reseau : http://" + lanIp + ":" + server.Port + "/");
         Console.WriteLine("  Sortie       : " + Path.GetFullPath(outDir));
         Console.WriteLine("  Frequence    : " + hz.ToString(INV) + " Hz");
         Console.WriteLine(new string('=', 64));
@@ -234,136 +224,6 @@ static class Program
 
         Console.WriteLine("En attente de RaceRoom...  (Ctrl+C pour arreter)");
         Console.WriteLine();
-
-        // ---- hook clavier global -----------------------------------------
-        // Permet de declencher l'annonce vocale meme quand RaceRoom a le focus.
-        KeyHook hook = null;
-        try
-        {
-            int vk = KeyHook.ParseKey(hotkey);
-            if (vk == 0) vk = KeyHook.ParseKey("C");
-            hook = new KeyHook(vk);
-            hook.Triggered += delegate {
-                server.Broadcast("{\"type\":\"say\"}");
-            };
-            hook.KeyLearned += delegate(int k) {
-                Console.WriteLine("  Touche assignee : " + KeyHook.KeyName(k));
-                server.Broadcast("{\"type\":\"keybind\",\"key\":" + JsonStr(KeyHook.KeyName(k)) + "}");
-            };
-            if (hook.Start())
-                Console.WriteLine("  Raccourci global : " + KeyHook.KeyName(vk)
-                                  + "  (fonctionne meme en jeu)");
-            else
-            {
-                Console.WriteLine("  [!] Raccourci global indisponible.");
-                Console.WriteLine("      L'annonce reste possible depuis le dashboard.");
-                hook = null;
-            }
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("  [!] Raccourci global indisponible : " + ex.Message);
-            hook = null;
-        }
-
-        // Le navigateur peut changer la touche a la volee.
-        // Enregistre meme si le hook global a echoue : le dashboard garde
-        // alors son propre raccourci local, et le reglage reste coherent.
-        {
-            var hookRef = hook;
-            server.MessageReceived += delegate(string msg)
-            {
-                if (msg == null || msg.IndexOf("setkey", StringComparison.Ordinal) < 0) return;
-                string name = JsonField(msg, "key");
-                if (name == null) return;
-                int nv = KeyHook.ParseKey(name);
-                if (nv == 0) return;
-                if (hookRef != null) hookRef.WatchedKey = nv;
-                Console.WriteLine("  Raccourci change : " + KeyHook.KeyName(nv)
-                    + (hookRef == null ? "  (dashboard uniquement)" : ""));
-                server.Broadcast("{\"type\":\"keybind\",\"key\":"
-                                 + JsonStr(KeyHook.KeyName(nv)) + "}");
-            };
-        }
-        Console.WriteLine();
-
-        // ---- HUD superpose -----------------------------------------------
-        HudOverlay overlay = null;
-        if (hud)
-        {
-            try
-            {
-                overlay = new HudOverlay();
-                overlay.PosX = hudX; overlay.PosY = hudY;
-                overlay.Height = overlay.NeededHeight();
-                if (overlay.Start())
-                {
-                    Console.WriteLine("  HUD actif : coin haut droit de l'ecran.");
-                    Console.WriteLine("      Le jeu doit tourner en FENETRE SANS BORDURE,");
-                    Console.WriteLine("      sinon aucun overlay ne peut s'afficher (limite Windows).");
-                    overlay.Render();
-                }
-                else
-                {
-                    Console.WriteLine("  [!] HUD indisponible.");
-                    overlay.Dispose(); overlay = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("  [!] HUD indisponible : " + ex.Message);
-                overlay = null;
-            }
-            Console.WriteLine();
-        }
-
-        // le navigateur pilote les reglages du HUD
-        {
-            var ov = overlay;
-            server.MessageReceived += delegate(string msg)
-            {
-                if (msg == null || ov == null) return;
-                if (msg.IndexOf("hudcfg", StringComparison.Ordinal) < 0) return;
-                string w = JsonField(msg, "widgets");
-                if (w != null)
-                {
-                    ov.ShowDelta  = w.IndexOf("delta",  StringComparison.Ordinal) >= 0;
-                    ov.ShowTimes  = w.IndexOf("times",  StringComparison.Ordinal) >= 0;
-                    ov.ShowInputs = w.IndexOf("inputs", StringComparison.Ordinal) >= 0;
-                    ov.ShowRace   = w.IndexOf("race",   StringComparison.Ordinal) >= 0;
-                    ov.ShowCoach  = w.IndexOf("coach",  StringComparison.Ordinal) >= 0;
-                    ov.Height = ov.NeededHeight();
-                    ov.Move(ov.PosX, ov.PosY);
-                }
-                string edit = JsonField(msg, "edit");
-                if (edit != null) ov.SetEditMode(edit == "true" || edit == "1");
-                string corner = JsonField(msg, "corner");
-                if (corner != null) ov.SetCorner(corner);
-                string op = JsonField(msg, "opacity");
-                if (op != null)
-                {
-                    double o;
-                    if (double.TryParse(op, NumberStyles.Any, INV, out o))
-                        ov.Opacity = Math.Max(0.2, Math.Min(1.0, o));
-                }
-                ov.Render();
-                Console.WriteLine("  HUD reconfigure.");
-            };
-
-            server.MessageReceived += delegate(string msg)
-            {
-                if (msg == null || ov == null) return;
-                if (msg.IndexOf("hudtip", StringComparison.Ordinal) < 0) return;
-                string l1 = JsonField(msg, "l1");
-                string l2 = JsonField(msg, "l2");
-                int secs = 8;
-                string sv = JsonField(msg, "secs");
-                if (sv != null) int.TryParse(sv, out secs);
-                ov.SetCoach(l1, l2, secs > 0 ? secs : 8);
-                ov.Render();
-            };
-        }
 
         // ---- fiches de session (module Anti-Oubli) -----------------------
         // Le navigateur calcule la fiche (il a le moteur d'analyse) et l'envoie
@@ -422,7 +282,7 @@ static class Program
         double coastAcc = 0, topSpeed = 0, prevT = -1;
 
         var sw = Stopwatch.StartNew();
-        long lastPush = 0, lastHud = 0;
+        long lastPush = 0;
         // etat de course, partage entre la diffusion et le HUD
         int pos = -1, nCars = 0, totalLaps = -1;
         double fuelPct = -1;
@@ -433,8 +293,6 @@ static class Program
             Console.WriteLine();
             Console.WriteLine("Arret. " + saved + " tour(s) dans " + Path.GetFullPath(outDir));
             try { server.Stop(); } catch { }
-            try { if (hook != null) hook.Dispose(); } catch { }
-            try { if (overlay != null) overlay.Dispose(); } catch { }
         };
 
         while (true)
@@ -691,13 +549,6 @@ static class Program
             if (server.ClientCount > 0 && server.ClientCount != lastClients)
             {
                 lastClients = server.ClientCount;
-                if (hook != null)
-                    server.Broadcast("{\"type\":\"keybind\",\"key\":"
-                        + JsonStr(KeyHook.KeyName(hook.WatchedKey)) + "}");
-                server.Broadcast("{\"type\":\"hudstate\",\"ok\":"
-                    + (overlay != null && overlay.IsRunning ? "true" : "false")
-                    + ",\"edit\":" + (overlay != null && overlay.EditMode ? "true" : "false")
-                    + "}");
                 SendFiches(server, fichesDir);
             }
             else if (server.ClientCount == 0) lastClients = 0;
@@ -787,25 +638,6 @@ static class Program
                   .Append(",\"flag\":").Append(JsonStr(flag))
                   .Append("}");
                 server.Broadcast(sb.ToString());
-            }
-
-            // ---- mise a jour du HUD (~12 Hz, suffisant et econome) --------
-            if (overlay != null && sw.ElapsedMilliseconds - lastHud >= 80)
-            {
-                lastHud = sw.ElapsedMilliseconds;
-                overlay.Delta = liveDelta;   // delta positionnel en direct
-                overlay.CurLap = curLap;
-                overlay.BestLap = bestLap;
-                overlay.Throttle = thr;
-                overlay.Brake = brk;
-                overlay.Speed = speedKmh;
-                overlay.Gear = gear;
-                overlay.Pos = pos;
-                overlay.Cars = nCars;
-                overlay.Lap = laps;
-                overlay.TotalLaps = totalLaps;
-                overlay.FuelPct = fuelPct;
-                overlay.Render();
             }
 
             Thread.Sleep(periodMs);

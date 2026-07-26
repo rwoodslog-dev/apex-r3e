@@ -305,6 +305,117 @@ tbody tr.new{animation:flash 1s ease-out}
   letter-spacing:.04em}
 .hcar{margin-top:8px;width:100%;background:#131417;border:1px solid var(--line);
   border-radius:6px;padding:6px 9px;color:var(--ink);font-family:var(--ui);font-size:12px}
+.tbhead{display:flex;gap:16px;align-items:center;margin-bottom:14px}
+.tbscore{text-align:center;min-width:96px}
+.tbnum{font-family:var(--mono);font-size:42px;font-weight:700;line-height:1;color:var(--y)}
+.tblbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+.tbworst{flex:1;background:var(--card-2);border:1px solid var(--line-2);border-radius:8px;padding:11px 14px;
+  border-left:2px solid var(--red)}
+.tbworst .wd{font-size:13px;color:var(--ink);font-weight:600}
+.tbworst .wf{font-size:12px;color:var(--ink-2);margin-top:4px}
+.tbz{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--line-2);
+  font-family:var(--mono);font-size:12px}
+.tbz:last-child{border-bottom:none}
+.tbz .zn{color:var(--y);font-weight:700;min-width:26px}
+.tbz .zs{min-width:52px;font-variant-numeric:tabular-nums}
+.tbz .zbar{flex:1;height:5px;background:#1E2024;border-radius:2px;overflow:hidden;max-width:120px}
+.tbz .zbar i{display:block;height:100%}
+.tbz .zd{color:var(--ink-2);font-size:11px}
+.tbtrain{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-2)}
+.tbtitle{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-bottom:5px}
+.tbhint{font-size:11px;color:var(--ink-3);line-height:1.5;margin-bottom:12px}
+.tbcurve{width:100%;height:150px;background:#0E0F11;border:1px solid var(--line-2);border-radius:8px}
+.tbtrainscore{margin-top:9px;font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.tbtrainscore b{color:var(--y);font-size:16px}
+/* MODULE Donnees circuit */
+/* MODULE Training */
+/* Jeu Esquive */
+/* Plein ecran training generique */
+.train-full{position:fixed;inset:0;z-index:9998;background:#070809;display:none;
+  flex-direction:column;padding:40px 32px;box-sizing:border-box}
+.train-full.on{display:flex}
+.tf-quit{position:absolute;top:20px;right:24px}
+.tf-quit .btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff}
+.tf-title{font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--y);text-align:center;margin-bottom:24px}
+.tf-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;max-width:900px;margin:0 auto;width:100%}
+.tf-body .train-curve{height:min(50vh,360px)}
+.tf-body .reflex-light{height:min(55vh,400px);font-size:min(9vw,64px);width:100%}
+.tf-body .train-stat{font-size:18px}
+.tf-body .train-stat b{font-size:26px}
+.tf-body .train-desc{font-size:16px;text-align:center;max-width:640px}
+.tf-launch{margin-top:6px}
+
+.esq-hiscore{margin-top:12px;font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.esq-hiscore b{color:var(--y);font-size:16px}
+.esq-game{position:fixed;inset:0;z-index:9999;background:#050506;display:none}
+.esq-game.on{display:block}
+.esq-side{position:absolute;top:0;bottom:0;width:50%;background:#0A0B0D;transition:background .06s}
+.esq-left{left:0;border-right:1px solid #17181B}
+.esq-right{right:0}
+.esq-side.lit-y{background:linear-gradient(90deg,#FFC62A,#E9A61F)}
+.esq-side.lit-r{background:linear-gradient(90deg,#E0503C,#B83525)}
+.esq-right.lit-y{background:linear-gradient(270deg,#FFC62A,#E9A61F)}
+.esq-right.lit-r{background:linear-gradient(270deg,#E0503C,#B83525)}
+.esq-hud{position:absolute;inset:0;display:flex;flex-direction:column;pointer-events:none;padding:26px}
+.esq-top{display:flex;justify-content:center;gap:40px;font-family:var(--mono);font-size:13px;
+  letter-spacing:.14em;color:rgba(255,255,255,.65);text-align:center}
+.esq-top b{display:block;font-size:38px;color:#fff;margin-top:4px;font-variant-numeric:tabular-nums}
+.esq-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.esq-big{font-family:var(--mono);font-size:72px;font-weight:800;color:#fff;letter-spacing:.04em;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+.esq-msg{font-family:var(--mono);font-size:17px;color:rgba(255,255,255,.7);margin-top:14px}
+.esq-bottom{display:flex;justify-content:center;pointer-events:auto}
+.esq-bottom .btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff}
+
+.train-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.train-tab{background:var(--card-2);border:1px solid var(--line-2);color:var(--ink-2);
+  border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:inherit}
+.train-tab.active{background:linear-gradient(180deg,#FFCB44,#E9A61F);color:#151004;font-weight:700;border-color:transparent}
+.train-desc{font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:14px}
+.train-curve{width:100%;height:180px;background:#0E0F11;border:1px solid var(--line-2);border-radius:8px}
+.train-stat{margin-top:12px;font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.train-stat b{color:var(--y);font-size:16px}
+.train-sub{font-size:11px;color:var(--ink-3)}
+.reflex-light{height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:.05em;
+  background:#1A1C1F;color:var(--ink-3);transition:background .08s,color .08s;border:2px solid var(--line-2)}
+.reflex-light.wait{background:#2A1414;color:#E0503C;border-color:#E0503C}
+.reflex-light.go{background:#123018;color:#5FBF6A;border-color:#5FBF6A}
+.reflex-light.early{background:#2A2414;color:var(--y);border-color:var(--y)}
+.btn-y{background:linear-gradient(180deg,#FFCB44,#E9A61F);color:#151004;font-weight:700;border:none}
+
+.circ-edit{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.circ-edit .btn{font-size:12px;padding:7px 12px}
+.circ-edit .btn.active{background:linear-gradient(180deg,#FFCB44,#E9A61F);color:#151004;font-weight:700}
+.circ-editnote{font-size:11px;color:var(--y);margin-top:8px;min-height:15px}
+.circ-map .cturn.addmode{cursor:crosshair}
+.circ-map .cdel{fill:#E0503C;cursor:pointer;opacity:0;transition:opacity .15s}
+.circ-map .cturng:hover .cdel{opacity:1}
+
+.circ-wrap{display:flex;gap:16px;flex-wrap:wrap}
+.circ-map{width:400px;max-width:100%;height:400px;background:#0C0D0F;border:1px solid var(--line-2);border-radius:10px;flex:none}
+.circ-map .ctrack{fill:none;stroke:#3A3D42;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+.circ-map .ctrackline{fill:none;stroke:#585E64;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.circ-map .cturn{fill:var(--y);stroke:#0C0D0F;stroke-width:2;cursor:pointer}
+.circ-map .cturn.sharp{fill:#E0503C}
+.circ-map .cnum{fill:#151004;font-family:var(--mono);font-size:12px;font-weight:700;pointer-events:none;text-anchor:middle;dominant-baseline:central}
+.circ-map .cstart{fill:none;stroke:#5FBF6A;stroke-width:3}
+.circ-info{flex:1;min-width:180px}
+.circ-name{font-size:19px;font-weight:700;color:var(--ink)}
+.circ-meta{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.7}
+.circ-hint{font-size:11px;color:var(--ink-3);margin-top:14px;line-height:1.5}
+.circ-table-wrap{margin-top:16px;overflow-x:auto}
+.circ-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px}
+.circ-table th{text-align:left;padding:8px 10px;color:var(--ink-3);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--line-2);font-weight:600}
+.circ-table td{padding:7px 10px;border-bottom:1px solid #17191C}
+.circ-table td:first-child{color:var(--y);font-weight:700;width:44px}
+.circ-table .cdir{color:var(--ink-3)}
+.circ-table input{width:56px;background:#0E0F11;border:1px solid var(--line-2);color:var(--ink);
+  border-radius:5px;padding:4px 7px;font-family:var(--mono);font-size:13px;text-align:center}
+.circ-table input:focus{outline:none;border-color:var(--y)}
+.circ-table .cnote-in{width:100%;text-align:left}
+@media (max-width:560px){ .circ-map{width:100%;height:340px} }
 .ctable{width:100%;border-collapse:collapse;border:1px solid var(--line-2)}
 .ctable th{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--ink-3);text-align:left;padding:10px 13px;
@@ -421,6 +532,7 @@ tbody tr.new{animation:flash 1s ease-out}
       <a data-v="coach"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7v4l-1.5 3h17L19 13V9a7 7 0 00-7-7z"/><path d="M9 20a3 3 0 006 0"/></svg><span>Coach</span></a>
       <a data-v="analyse"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg><span>Analyse</span></a>
       <a data-v="map"><svg viewBox="0 0 24 24"><circle cx="7" cy="17" r="3"/><circle cx="17" cy="7" r="3"/><path d="M10 17h5a3 3 0 000-6H9a3 3 0 010-6h5"/></svg><span>Circuits</span></a>
+      <a data-v="training"><svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M6 18l-4 4"/><circle cx="12" cy="12" r="2"/></svg><span>Training</span></a>
       <a data-v="laps"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Sessions</span></a>
       <a data-v="cfg"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1A1.7 1.7 0 008 19.4a1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H2a2 2 0 110-4h.1A1.7 1.7 0 004.6 8a1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V2a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H22a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg><span>Réglages</span></a>
     </nav>
@@ -432,9 +544,6 @@ tbody tr.new{animation:flash 1s ease-out}
       <div class="ctx">RaceRoom · <b id="trk">en attente</b></div>
       <div class="right">
         <div class="conn"><span class="dot" id="dot"></span><span id="cstat">connexion…</span></div>
-        <a class="iconbtn" href="/mobile" target="_blank" title="Vue mobile (tableau de bord)" style="text-decoration:none">
-          <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-        </a>
         <button class="iconbtn" id="goCfg" title="Réglages"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9 2 2 0 11-2.8 2.8 1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5 2 2 0 11-4 0 1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.9.3 2 2 0 11-2.8-2.8 1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1 2 2 0 110-4 1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9 2 2 0 112.8-2.8 1.7 1.7 0 001.9.3 1.7 1.7 0 001-1.5 2 2 0 114 0 1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3 2 2 0 112.8 2.8 1.7 1.7 0 00-.3 1.9 1.7 1.7 0 001.5 1 2 2 0 110 4 1.7 1.7 0 00-1.5 1z"/></svg></button>
       </div>
     </header>
@@ -535,6 +644,85 @@ tbody tr.new{animation:flash 1s ease-out}
           </div>
         </div>
 
+        <!-- ---- MODULE Donnees circuit — debut ---- -->
+        <div class="panel" id="circuitPanel" style="margin-top:12px">
+          <div class="ph">Données circuit
+            <span class="sp">
+              <select id="circuitSel" style="min-width:150px"></select>
+            </span>
+          </div>
+          <div class="pb">
+            <div class="circ-wrap">
+              <svg id="circuitMap" class="circ-map" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet"></svg>
+              <div class="circ-info">
+                <div class="circ-name" id="circName">—</div>
+                <div class="circ-meta" id="circMeta"></div>
+                <div class="circ-hint">Clique un numéro sur la carte pour noter le rapport. Utilise les boutons pour caler sur ton plan 51gt3.</div>
+                <div class="circ-edit">
+                  <button class="btn" id="circAddMode">+ Ajouter un virage</button>
+                  <button class="btn" id="circReset">Réinitialiser</button>
+                </div>
+                <div class="circ-editnote" id="circEditNote"></div>
+              </div>
+            </div>
+            <div class="circ-table-wrap">
+              <table class="circ-table" id="circTable"></table>
+            </div>
+          </div>
+        </div>
+        <!-- ---- MODULE Donnees circuit — fin ---- -->
+
+        <!-- ---- MODULE Training — debut ---- -->
+        <div class="panel" id="trainPanel" style="margin-top:12px">
+          <div class="ph">Training
+            <span class="sp hint" id="trainConn" style="font-family:var(--mono);font-size:10px"></span>
+          </div>
+          <div class="pb">
+            <div class="train-tabs">
+              <button class="train-tab active" data-ex="degressif">Freinage dégressif</button>
+              <button class="train-tab" data-ex="reflexe">Réflexe freinage</button>
+              <button class="train-tab" data-ex="reflexe2">Réflexe général</button>
+              <button class="train-tab" data-ex="esquive">Esquive ⚡</button>
+            </div>
+
+            <!-- exercice 1 : freinage degressif -->
+            <div class="train-ex" id="ex-degressif">
+              <div class="train-desc">Freine pour superposer ta pédale (rouge) sur la courbe cible (pointillé). Monte franc, relâche progressif jusqu'à ~13%.</div>
+              <svg id="trainCurve" class="train-curve" viewBox="0 0 300 150" preserveAspectRatio="none"></svg>
+              <div class="train-stat">Précision : <b id="trainPrec">—</b> <span class="train-sub" id="trainPrecHist"></span></div>
+              <button class="btn btn-y tf-launch" data-full="degressif" style="width:100%;margin-top:10px">▶ Plein écran</button>
+            </div>
+
+            <!-- exercice 2 : reflexe freinage -->
+            <div class="train-ex" id="ex-reflexe" style="display:none">
+              <div class="train-desc">Quand le voyant passe au <b style="color:var(--grn)">VERT</b>, freine à fond le plus vite possible. Ne pars pas avant !</div>
+              <div class="reflex-light" id="reflexLight"><span id="reflexTxt">Prêt ?</span></div>
+              <button class="btn btn-y" id="reflexStart" style="width:100%;margin-top:12px">Démarrer</button>
+              <div class="train-stat">Dernier : <b id="reflexTime">—</b> · Meilleur : <b id="reflexBest">—</b> · Moyenne : <b id="reflexAvg">—</b></div>
+              <div class="train-sub" style="margin-top:6px">Précision de mesure : ±50 ms (limite télémétrie)</div>
+              <button class="btn btn-y tf-launch" data-full="reflexe" style="width:100%;margin-top:10px">▶ Plein écran</button>
+            </div>
+
+            <!-- exercice 3 : reflexe general -->
+            <div class="train-ex" id="ex-reflexe2" style="display:none">
+              <div class="train-desc">Entraîne ton réflexe pur. Au signal <b style="color:var(--grn)">VERT</b>, appuie n'importe quelle pédale (frein ou gaz) le plus vite possible.</div>
+              <div class="reflex-light" id="reflexLight2"><span id="reflexTxt2">Prêt ?</span></div>
+              <button class="btn btn-y" id="reflexStart2" style="width:100%;margin-top:12px">Démarrer</button>
+              <div class="train-stat">Dernier : <b id="reflexTime2">—</b> · Meilleur : <b id="reflexBest2">—</b> · Moyenne : <b id="reflexAvg2">—</b></div>
+              <button class="btn btn-y tf-launch" data-full="reflexe2" style="width:100%;margin-top:10px">▶ Plein écran</button>
+            </div>
+
+            <!-- exercice 4 : esquive (jeu plein ecran) -->
+            <div class="train-ex" id="ex-esquive" style="display:none">
+              <div class="train-desc">Échauffement avant de rouler. Un côté s'allume : <b style="color:var(--y)">braque à l'opposé</b> pour esquiver. Si c'est <b style="color:var(--red)">ROUGE</b>, braque à l'opposé <b>ET freine</b>. Plus tu enchaînes, plus ça accélère.</div>
+              <div class="esq-hiscore">Meilleur score : <b id="esqHiscore">0</b></div>
+              <button class="btn btn-y" id="esqLaunch" style="width:100%;margin-top:12px">▶ Lancer en plein écran</button>
+              <div class="train-sub" style="margin-top:8px">Assis au volant, jeu lancé. Ta pédale et ton volant pilotent le jeu.</div>
+            </div>
+          </div>
+        </div>
+        <!-- ---- MODULE Training — fin ---- -->
+
         <div class="panel">
           <div class="ph">Coach vocal
             <span class="sp">
@@ -575,6 +763,24 @@ tbody tr.new{animation:flash 1s ease-out}
           <span class="sp"><button class="btn" id="saveFicheBtn">Enregistrer cette session</button></span>
         </div>
         <div class="pb" id="histBox"></div>
+      </section>
+
+      <!-- ---- trail braking ---- -->
+      <section class="panel" id="tbPanel" style="margin-top:12px;display:none">
+        <div class="ph">Trail braking <span class="sp hint" id="tbSub"></span></div>
+        <div class="pb">
+          <div class="tbhead">
+            <div class="tbscore"><div class="tbnum" id="tbGlobal">–</div><div class="tblbl">note globale</div></div>
+            <div class="tbworst" id="tbWorst"></div>
+          </div>
+          <div id="tbZones"></div>
+          <div class="tbtrain">
+            <div class="tbtitle">Entraînement — freinage dégressif</div>
+            <div class="tbhint">Courbe cible en pointillé. Freine pour superposer ta pédale (rouge) dessus. Score en direct.</div>
+            <svg id="tbCurve" class="tbcurve" viewBox="0 0 300 140" preserveAspectRatio="none"></svg>
+            <div class="tbtrainscore">Précision : <b id="tbPrecision">–</b></div>
+          </div>
+        </div>
       </section>
 
       <!-- ---- tour optimal ---- -->
@@ -648,36 +854,6 @@ tbody tr.new{animation:flash 1s ease-out}
       </section>
 
       <!-- ---- HUD ---- -->
-      <section class="panel" style="margin-top:12px">
-        <div class="ph">HUD en jeu
-          <span class="sp"><span class="hint" id="hudStat" style="font-family:var(--mono);font-size:9px;color:var(--ink-3)"></span></span>
-        </div>
-        <div class="pb cfg-in">
-          <div>
-            <div class="cfg-t">Ce qui s'affiche par-dessus le jeu</div>
-            <div id="hudList"></div>
-          </div>
-          <div>
-            <div class="cfg-t">Position à l'écran</div>
-            <button class="btn" id="hudEdit" style="width:100%;margin-bottom:9px">Placer librement à la souris</button>
-            <select id="hudCorner">
-              <option value="tr">Haut droite</option>
-              <option value="tl">Haut gauche</option>
-              <option value="tc">Haut centre</option>
-              <option value="br">Bas droite</option>
-              <option value="bl">Bas gauche</option>
-              <option value="bc">Bas centre</option>
-            </select>
-            <div class="cfg-t" style="margin-top:14px">Opacité</div>
-            <input type="range" id="hudOpacity" min="0.3" max="1" step="0.05" value="0.92">
-            <div class="krow" style="margin-top:12px;text-transform:none;letter-spacing:.02em;line-height:1.6">
-              Le jeu doit tourner en <b style="color:var(--y)">fenêtre sans bordure</b>.
-              En plein écran exclusif, Windows empêche tout overlay de s'afficher.
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- ---- citation ---- -->
       <section class="quote" style="margin-top:12px">
         <div class="q">&ldquo;</div>
@@ -773,6 +949,8 @@ function onTelemetry(d){
   const th = Math.round(d.throttle*100), br = Math.round(d.brake*100);
   $('thv').textContent = th + '%'; $('thb').style.width = th + '%';
   $('brv').textContent = br + '%'; $('brb').style.width = br + '%';
+  feedBrakeTraining(d.brake, d.dist != null ? d.dist : 0);
+  try{ trainFeed(d); }catch(e){}
   $('stv').textContent = d.steer.toFixed(2);
   const st = $('stb'), p = d.steer;
   if (p >= 0){ st.style.left = '50%'; st.style.right = 'auto'; st.style.width = (p*50)+'%'; }
@@ -1553,6 +1731,118 @@ function traceChart(refS, curS, opts){
   return svg;
 }
 
+/* ================= TRAIL BRAKING ================= */
+
+/* Detecte les zones de freinage dans une trace.
+   trace = [{d, br, spd, ...}] triee par distance. */
+function findBrakeZones(samples, minBrake){
+  minBrake = minBrake || 0.15;
+  const zones = [];
+  let i = 0;
+  while (i < samples.length){
+    if (samples[i].br > minBrake){
+      const start = i;
+      let peak = 0, peakI = i;
+      while (i < samples.length && samples[i].br > 0.05){
+        if (samples[i].br > peak){ peak = samples[i].br; peakI = i; }
+        i++;
+      }
+      if (i - start >= 3 && peak > 0.25)
+        zones.push({ a: start, b: i, peakI: peakI, peak: peak });
+    } else i++;
+  }
+  return zones;
+}
+
+/* Analyse une zone de freinage : renvoie note et defaut principal. */
+function analyzeBrakeZone(samples, zone){
+  const a = zone.a, b = zone.b, pk = zone.peakI;
+  const dt = i => (i > a) ? Math.max(0.001, samples[i].d - samples[i-1].d) : 0.001;
+
+  // --- 1. ATTAQUE : vitesse de montee jusqu'au pic ---
+  // combien de metres pour passer de <20% a >90% du pic
+  let mStart = a, mEnd = pk;
+  for (let i = a; i <= pk; i++){ if (samples[i].br < 0.20 * zone.peak) mStart = i; }
+  for (let i = a; i <= pk; i++){ if (samples[i].br >= 0.90 * zone.peak){ mEnd = i; break; } }
+  const attackDist = Math.max(0.1, samples[mEnd].d - samples[mStart].d);
+  // ideal : montee en < 15 m. Au-dela, l'attaque est molle.
+  const attackScore = clamp(1 - (attackDist - 12) / 40, 0, 1);
+
+  // --- 2. RELACHEMENT : progressif du pic jusqu'a la fin ---
+  // on mesure la regularite de la decroissance apres le pic.
+  const rel = [];
+  for (let i = pk; i < b; i++) rel.push(samples[i].br);
+  let releaseScore = 0.5, brutal = false;
+  if (rel.length > 3){
+    // ecart entre la vraie courbe et une descente lineaire ideale
+    const n = rel.length, top = rel[0], bot = rel[n-1];
+    let sumDev = 0, maxDrop = 0;
+    for (let k = 0; k < n; k++){
+      const ideal = top + (bot - top) * (k / (n - 1));
+      sumDev += Math.abs(rel[k] - ideal);
+      if (k > 0){ const drop = rel[k-1] - rel[k]; if (drop > maxDrop) maxDrop = drop; }
+    }
+    const meanDev = sumDev / n;
+    // relachement fluide = faible deviation ET pas de chute brutale
+    releaseScore = clamp(1 - meanDev * 3, 0, 1) * clamp(1 - (maxDrop - 0.15) * 3, 0, 1);
+    brutal = maxDrop > 0.35;   // une chute de +35% d'un coup = lacher brutal
+  }
+
+  // --- 3. RESIDUEL : reste-t-il un filet de frein en fin de zone ? ---
+  const residual = samples[b-1].br;
+  // ideal : 8-18% maintenus. Trop = on traine le frein, zero = pas de trail.
+  let residualScore;
+  if (residual < 0.03) residualScore = 0.2;          // relache tout : pas de trail
+  else if (residual <= 0.20) residualScore = 1.0;    // bon filet
+  else residualScore = clamp(1 - (residual - 0.20) * 3, 0.3, 1); // trop de frein
+
+  // note globale ponderee
+  const score = Math.round(
+    (attackScore * 0.30 + releaseScore * 0.45 + residualScore * 0.25) * 100
+  );
+
+  // defaut principal = le critere le plus faible
+  const crit = [
+    { key:'attack',  s:attackScore,  bad:'Attaque trop molle',      fix:"Tape le frein plus franchement à l'entrée" },
+    { key:'release', s:releaseScore, bad: brutal ? 'Relâchement trop brutal' : 'Relâchement irrégulier',
+      fix:'Dégressif plus fluide vers la corde' },
+    { key:'residual',s:residualScore, bad: residual < 0.03 ? 'Frein lâché trop tôt' : 'Trop de frein maintenu',
+      fix: residual < 0.03 ? "Garde un filet de frein jusqu'à la corde" : 'Relâche un peu plus vers la corde' },
+  ];
+  crit.sort((x,y) => x.s - y.s);
+  const worst = crit[0];
+
+  return {
+    d: samples[a].d,
+    score: score,
+    peak: Math.round(zone.peak * 100),
+    residual: Math.round(residual * 100),
+    attackDist: Math.round(attackDist),
+    brutal: brutal,
+    defaut: worst.bad,
+    correction: worst.fix,
+    parts: { attack: Math.round(attackScore*100), release: Math.round(releaseScore*100),
+             residual: Math.round(residualScore*100) },
+  };
+}
+
+/* Analyse tout le tour : note chaque freinage + note globale. */
+function analyzeTrailBraking(samples){
+  const zones = findBrakeZones(samples);
+  if (!zones.length) return null;
+  const results = zones.map((z, i) => {
+    const r = analyzeBrakeZone(samples, z);
+    r.turn = i + 1;
+    return r;
+  });
+  const avg = Math.round(results.reduce((a, r) => a + r.score, 0) / results.length);
+  // le freinage a travailler en priorite = le moins bon
+  const worst = results.slice().sort((a, b) => a.score - b.score)[0];
+  return { global: avg, zones: results, worst: worst };
+}
+
+function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
+
 /* ================= TABLEAU DE COACHING ================= */
 
 /* Trouve l'indice de l'echantillon le plus proche d'une distance. */
@@ -2024,6 +2314,7 @@ function runCoach(l){
       drawMap(); drawSplitBar();
       drawOptimal();
       drawTable();
+      drawTrailBraking();
     }
     return;
   }
@@ -2045,8 +2336,9 @@ function runCoach(l){
   drawChart();
   drawTable();
   drawRevision();
-  saveFiche();   // memorise les reperes du meilleur tour sur le PC
-  drawRevision(); // redessine maintenant que la fiche est en memoire
+  saveFiche();
+  drawRevision();
+  drawTrailBraking();
 
   if (!tips.length){
     $('coachBox').innerHTML = '<div class="note" style="padding:16px 0">Tour propre — '
@@ -2067,7 +2359,6 @@ function runCoach(l){
        </div>
      </div>`).join('');
   tips.forEach(t => speak(phrase(t)));
-  if (tips.length) hudTip(tips[0]);   // le plus couteux seulement : lisible en pilotant
 
   if (l.valid && l.time > 0 && l.time < refTime){
     refTrace = cur; refTime = l.time; turns = detectTurns(refTrace); drawMap();
@@ -2218,6 +2509,99 @@ function drawHistory(){
   });
 }
 
+
+/* ============ trail braking ============ */
+function drawTrailBraking(){
+  const panel = $('tbPanel');
+  if (!panel) return;
+  let bestSamples = null, bestTime = Infinity;
+  for (const l of lapTraces){
+    if (l.time > 0 && l.time < bestTime){ bestTime = l.time; bestSamples = l.samples; }
+  }
+  if (!bestSamples){ panel.style.display = 'none'; return; }
+  const r = analyzeTrailBraking(bestSamples);
+  if (!r){ panel.style.display = 'none'; return; }
+  panel.style.display = '';
+
+  $('tbGlobal').textContent = r.global;
+  $('tbGlobal').style.color = r.global >= 80 ? 'var(--grn)' : (r.global >= 60 ? 'var(--y)' : 'var(--red)');
+  $('tbSub').textContent = r.zones.length + ' freinages analysés';
+  $('tbWorst').innerHTML = '<div class="wd">À travailler : freinage ' + r.worst.turn
+    + ' — ' + r.worst.defaut + '</div><div class="wf">' + r.worst.correction + '</div>';
+
+  $('tbZones').innerHTML = r.zones.map(z => {
+    const col = z.score >= 80 ? 'var(--grn)' : (z.score >= 60 ? 'var(--y)' : 'var(--red)');
+    return `<div class="tbz">
+      <span class="zn">${z.turn}</span>
+      <span class="zs" style="color:${col}">${z.score}/100</span>
+      <span class="zbar"><i style="width:${z.score}%;background:${col}"></i></span>
+      <span class="zd">${z.defaut}</span>
+    </div>`;
+  }).join('');
+
+  drawTargetCurve();
+}
+
+/* Courbe cible du freinage degressif ideal. */
+function drawTargetCurve(){
+  const svg = $('tbCurve');
+  if (!svg) return;
+  const W = 300, H = 140, pad = 8;
+  // cible : montee verticale a gauche, puis descente progressive jusqu'a ~13%
+  const target = [];
+  target.push({ x:0, y:0 });
+  target.push({ x:0.08, y:1 });           // montee franche
+  for (let k=0;k<=20;k++){ const t=k/20; target.push({ x:0.08+t*0.92, y:1-(1-0.13)*t }); }
+  const px = v => pad + v * (W-2*pad);
+  const py = v => H-pad - v * (H-2*pad);
+  let d='';
+  target.forEach((p,i)=> d += (i?'L':'M')+px(p.x).toFixed(1)+','+py(p.y).toFixed(1));
+  svg.innerHTML =
+    '<line x1="'+pad+'" y1="'+py(0.13)+'" x2="'+(W-pad)+'" y2="'+py(0.13)+'" stroke="#1E2024"/>' +
+    '<path d="'+d+'" fill="none" stroke="#5F656B" stroke-width="1.5" stroke-dasharray="4,3"/>' +
+    '<path id="tbLive" d="" fill="none" stroke="var(--red)" stroke-width="2"/>';
+}
+
+/* Entrainement live : enregistre ta pedale pendant un freinage et la superpose. */
+let tbRec = null;
+function feedBrakeTraining(brake, dist){
+  const svg = $('tbCurve');
+  if (!svg || $('tbPanel').style.display === 'none') return;
+  const live = $('tbLive');
+  if (!live) return;
+  if (brake > 0.15){
+    if (!tbRec){ tbRec = { pts:[], d0:dist }; }
+    tbRec.pts.push({ d:dist - tbRec.d0, br:brake });
+    if (tbRec.pts.length > 2) renderLiveCurve(tbRec.pts, live);
+  } else if (tbRec && tbRec.pts.length > 4){
+    // fin du freinage : calcule la precision vs cible
+    scoreTraining(tbRec.pts);
+    tbRec = null;
+  } else { tbRec = null; }
+}
+function renderLiveCurve(pts, live){
+  const W=300,H=140,pad=8;
+  const maxD = Math.max(1, pts[pts.length-1].d);
+  const px = v => pad + (v/maxD) * (W-2*pad);
+  const py = v => H-pad - v * (H-2*pad);
+  let d='';
+  pts.forEach((p,i)=> d += (i?'L':'M')+px(p.d).toFixed(1)+','+py(p.br).toFixed(1));
+  live.setAttribute('d', d);
+}
+function scoreTraining(pts){
+  // compare la forme de ta pedale a la cible ideale
+  const maxD = pts[pts.length-1].d;
+  let sumDev = 0;
+  pts.forEach(p => {
+    const t = p.d / maxD;
+    const ideal = t < 0.08 ? (t/0.08) : (1 - (1-0.13)*((t-0.08)/0.92));
+    sumDev += Math.abs(p.br - ideal);
+  });
+  const prec = Math.max(0, Math.round((1 - sumDev/pts.length*2) * 100));
+  const el = $('tbPrecision');
+  if (el){ el.textContent = prec + '%'; el.style.color = prec>=75?'var(--grn)':(prec>=50?'var(--y)':'var(--red)'); }
+}
+
 /* ============ tableau de coaching ============ */
 function drawTable(){
   const panel = $('tablePanel');
@@ -2308,96 +2692,502 @@ function drawChart(){
   $('chartBox').innerHTML = svg || '<div class="note">Données insuffisantes.</div>';
 }
 
-/* ============ HUD en jeu ============ */
-const HUD_WIDGETS = [
-  { id:'coach',  label:'Conseils du coach', def:true },
-  { id:'delta',  label:'Delta vs meilleur tour', def:true },
-  { id:'times',  label:'Temps au tour', def:false },
-  { id:'inputs', label:'Barres gaz / frein', def:false },
-  { id:'race',   label:'Position, tour, carburant', def:false },
-];
 
-function hudSend(){
-  const widgets = HUD_WIDGETS.filter(w => {
-    const el = $('hud_'+w.id); return el && el.checked;
-  }).map(w => w.id);
-  const cfg = {
-    type:'hudcfg',
-    widgets: widgets.join(','),
-    corner: ($('hudCorner')||{}).value || 'tr',
-    opacity: String(($('hudOpacity')||{}).value || 0.92)
+/* ============ MODULE Donnees circuit — debut ============ */
+const CIRCUITS_DATA = {"zolder": {"name": "Zolder", "length": 3878, "pts": [[-355.8, 383.0], [-355.0, 393.0], [-354.2, 402.9], [-353.4, 412.9], [-352.6, 422.9], [-351.7, 432.8], [-350.9, 442.8], [-350.1, 452.8], [-349.2, 462.7], [-348.4, 472.7], [-347.5, 482.6], [-346.7, 492.6], [-345.8, 502.6], [-344.9, 512.5], [-344.0, 522.5], [-343.2, 532.5], [-342.4, 542.4], [-341.5, 552.4], [-340.7, 562.4], [-339.9, 572.3], [-339.0, 582.3], [-338.3, 592.3], [-337.5, 602.2], [-336.6, 612.2], [-335.8, 622.2], [-335.0, 632.1], [-334.1, 642.1], [-333.3, 652.0], [-332.3, 662.0], [-331.3, 672.0], [-329.8, 681.8], [-328.1, 691.7], [-324.7, 701.1], [-320.3, 710.0], [-314.9, 718.4], [-307.6, 725.3], [-299.7, 731.3], [-291.0, 736.2], [-281.6, 739.4], [-271.9, 742.0], [-262.0, 742.7], [-252.0, 742.7], [-242.1, 741.5], [-232.3, 739.6], [-222.6, 737.3], [-212.8, 734.9], [-203.1, 732.5], [-193.4, 730.2], [-183.7, 727.9], [-173.9, 725.7], [-164.1, 723.6], [-154.4, 721.5], [-144.6, 719.5], [-134.8, 717.4], [-125.0, 715.4], [-115.2, 713.3], [-105.4, 711.1], [-95.7, 709.0], [-85.9, 706.7], [-76.2, 704.4], [-66.6, 701.8], [-56.9, 699.0], [-47.4, 696.0], [-38.1, 692.3], [-28.8, 688.7], [-19.9, 684.1], [-11.1, 679.5], [-2.5, 674.4], [5.7, 668.7], [14.0, 663.0], [21.5, 656.4], [28.9, 649.7], [36.0, 642.7], [42.4, 635.0], [48.8, 627.4], [54.3, 619.0], [59.5, 610.4], [64.4, 601.8], [68.3, 592.5], [72.1, 583.3], [75.1, 573.8], [77.7, 564.1], [80.1, 554.4], [81.7, 544.6], [83.3, 534.7], [85.0, 524.8], [86.7, 515.0], [88.3, 505.1], [90.5, 495.4], [92.8, 485.6], [95.3, 475.9], [98.3, 466.4], [101.3, 456.9], [104.7, 447.5], [108.4, 438.2], [112.1, 428.9], [116.5, 419.9], [121.0, 411.0], [125.8, 402.2], [131.2, 393.8], [136.6, 385.4], [142.5, 377.3], [148.7, 369.5], [155.0, 361.7], [161.9, 354.5], [168.9, 347.4], [176.0, 340.3], [183.3, 333.5], [190.7, 326.8], [198.0, 320.0], [205.3, 313.1], [212.6, 306.2], [219.5, 299.1], [226.4, 291.8], [233.2, 284.5], [239.4, 276.6], [245.6, 268.7], [251.6, 260.8], [257.0, 252.4], [262.5, 244.0], [267.7, 235.5], [272.3, 226.6], [277.0, 217.8], [281.3, 208.7], [285.2, 199.5], [289.1, 190.3], [292.6, 181.0], [295.7, 171.5], [298.9, 162.0], [301.6, 152.4], [304.1, 142.7], [306.6, 133.0], [308.4, 123.2], [310.1, 113.3], [311.9, 103.5], [312.9, 93.5], [313.9, 83.6], [314.8, 73.6], [315.3, 63.6], [315.8, 53.6], [316.2, 43.7], [316.4, 33.7], [316.7, 23.7], [316.9, 13.7], [317.0, 3.7], [317.2, -6.3], [317.3, -16.3], [317.6, -26.3], [317.8, -36.3], [318.1, -46.3], [318.3, -56.3], [318.6, -66.3], [318.9, -76.3], [319.2, -86.3], [319.4, -96.3], [319.7, -106.3], [319.9, -116.3], [320.2, -126.3], [320.4, -136.3], [320.6, -146.3], [320.8, -156.3], [321.0, -166.3], [321.2, -176.3], [321.4, -186.3], [321.6, -196.3], [321.8, -206.3], [322.0, -216.3], [322.1, -226.3], [322.3, -236.3], [322.4, -246.3], [322.5, -256.3], [322.6, -266.3], [322.7, -276.3], [322.8, -286.3], [322.9, -296.3], [323.0, -306.3], [323.1, -316.3], [323.2, -326.3], [323.3, -336.3], [323.4, -346.3], [323.6, -356.3], [323.8, -366.3], [323.9, -376.3], [324.1, -386.3], [324.3, -396.3], [324.5, -406.3], [324.6, -416.3], [324.8, -426.3], [324.9, -436.3], [325.1, -446.3], [325.2, -456.3], [325.4, -466.3], [325.6, -476.3], [325.7, -486.3], [325.9, -496.3], [326.1, -506.3], [326.3, -516.2], [326.4, -526.2], [326.6, -536.2], [326.8, -546.2], [326.9, -556.2], [327.0, -566.2], [327.2, -576.2], [327.3, -586.2], [327.4, -596.2], [327.5, -606.2], [327.7, -616.2], [327.7, -626.2], [327.8, -636.2], [327.9, -646.2], [327.9, -656.2], [327.9, -666.2], [327.9, -676.2], [327.8, -686.2], [327.8, -696.2], [327.7, -706.2], [327.3, -716.2], [326.9, -726.2], [325.3, -736.1], [323.7, -746.0], [320.4, -755.4], [316.9, -764.8], [311.8, -773.3], [306.3, -781.7], [299.7, -789.1], [292.6, -796.2], [284.8, -802.5], [276.6, -808.1], [267.9, -813.1], [258.8, -817.2], [249.4, -820.6], [239.8, -823.1], [230.0, -825.0], [220.1, -826.0], [210.1, -826.3], [200.1, -825.7], [190.2, -824.4], [180.4, -822.3], [170.9, -819.3], [161.6, -815.9], [152.7, -811.2], [143.9, -806.4], [136.1, -800.2], [128.3, -794.0], [121.3, -786.8], [114.6, -779.4], [108.5, -771.5], [103.0, -763.2], [97.8, -754.7], [93.5, -745.6], [89.3, -736.5], [86.1, -727.1], [83.1, -717.6], [80.4, -707.9], [78.3, -698.1], [76.2, -688.4], [74.6, -678.5], [72.9, -668.6], [71.4, -658.8], [69.9, -648.9], [68.4, -639.0], [66.9, -629.1], [65.3, -619.2], [63.8, -609.3], [62.2, -599.5], [60.6, -589.6], [58.8, -579.8], [57.0, -569.9], [55.2, -560.1], [53.4, -550.2], [51.6, -540.4], [49.7, -530.6], [47.9, -520.8], [46.1, -510.9], [44.2, -501.1], [42.3, -491.3], [40.4, -481.5], [38.5, -471.6], [36.6, -461.8], [34.7, -452.0], [32.7, -442.2], [30.7, -432.4], [28.8, -422.6], [26.9, -412.8], [25.0, -403.0], [23.2, -393.1], [21.3, -383.3], [19.5, -373.5], [17.7, -363.6], [15.9, -353.8], [14.1, -344.0], [12.3, -334.1], [10.4, -324.3], [8.6, -314.5], [6.7, -304.6], [4.9, -294.8], [3.0, -285.0], [1.1, -275.2], [-0.7, -265.4], [-2.6, -255.5], [-4.5, -245.7], [-6.4, -235.9], [-8.3, -226.1], [-10.2, -216.3], [-12.1, -206.4], [-14.0, -196.6], [-15.9, -186.8], [-17.9, -177.0], [-19.9, -167.2], [-21.9, -157.4], [-24.0, -147.6], [-26.4, -137.9], [-28.9, -128.2], [-32.3, -118.9], [-35.9, -109.5], [-41.0, -100.9], [-46.3, -92.5], [-53.0, -85.0], [-60.0, -77.9], [-67.9, -71.8], [-76.2, -66.3], [-85.1, -61.8], [-94.3, -57.9], [-103.8, -54.8], [-113.4, -52.3], [-123.2, -50.3], [-133.1, -48.7], [-143.0, -47.6], [-153.0, -46.7], [-163.0, -46.2], [-173.0, -45.7], [-183.0, -45.2], [-192.9, -44.7], [-202.9, -44.3], [-212.9, -43.8], [-222.9, -43.4], [-232.9, -43.1], [-242.9, -42.7], [-252.9, -42.3], [-262.9, -41.8], [-272.9, -41.2], [-282.8, -40.5], [-292.8, -39.3], [-302.7, -37.9], [-312.2, -35.1], [-321.7, -31.8], [-330.4, -26.9], [-338.7, -21.5], [-346.3, -15.0], [-353.2, -7.8], [-359.4, 0.1], [-364.7, 8.5], [-369.2, 17.4], [-372.8, 26.7], [-375.6, 36.3], [-377.8, 46.0], [-379.3, 55.9], [-380.2, 65.9], [-380.6, 75.8], [-380.6, 85.8], [-380.0, 95.8], [-379.4, 105.8], [-378.3, 115.7], [-377.3, 125.7], [-376.3, 135.6], [-375.3, 145.6], [-374.3, 155.5], [-373.4, 165.5], [-372.4, 175.5], [-371.5, 185.4], [-370.6, 195.4], [-369.8, 205.3], [-369.0, 215.3], [-368.2, 225.3], [-367.5, 235.2], [-366.7, 245.2], [-365.9, 255.2], [-365.1, 265.2], [-364.3, 275.1], [-363.4, 285.1], [-362.6, 295.0], [-361.8, 305.0], [-361.0, 315.0], [-360.1, 324.9], [-359.3, 334.9], [-358.4, 344.9], [-357.5, 354.8], [-356.7, 364.8]]}, "zandvoort": {"name": "Zandvoort", "length": 4246, "pts": [[-340.5, 79.7], [-336.7, 88.9], [-332.8, 98.2], [-329.0, 107.4], [-325.1, 116.6], [-321.3, 125.9], [-317.4, 135.1], [-313.6, 144.3], [-309.7, 153.6], [-305.9, 162.8], [-302.0, 172.0], [-298.2, 181.3], [-294.4, 190.5], [-290.5, 199.7], [-286.7, 209.0], [-282.8, 218.2], [-279.0, 227.4], [-275.1, 236.6], [-271.3, 245.9], [-267.4, 255.1], [-263.6, 264.3], [-259.7, 273.6], [-255.9, 282.8], [-252.1, 292.0], [-248.2, 301.3], [-244.4, 310.5], [-240.5, 319.7], [-236.7, 329.0], [-232.8, 338.2], [-228.9, 347.4], [-224.9, 356.6], [-221.0, 365.7], [-217.0, 374.9], [-213.1, 384.1], [-209.1, 393.3], [-205.1, 402.5], [-201.2, 411.7], [-197.2, 420.8], [-193.3, 430.0], [-188.8, 438.9], [-182.2, 446.4], [-173.7, 451.4], [-164.3, 454.6], [-154.4, 455.8], [-144.6, 453.9], [-135.8, 449.6], [-127.9, 443.6], [-121.6, 435.8], [-117.9, 426.6], [-116.1, 416.9], [-116.2, 407.0], [-120.2, 397.8], [-124.2, 388.6], [-128.1, 379.4], [-132.0, 370.2], [-135.8, 360.9], [-139.6, 351.7], [-143.4, 342.5], [-147.2, 333.2], [-151.1, 324.0], [-154.9, 314.7], [-158.7, 305.5], [-162.5, 296.3], [-165.3, 286.6], [-168.0, 277.0], [-170.8, 267.4], [-173.5, 257.8], [-174.7, 247.9], [-175.8, 237.9], [-176.9, 228.0], [-178.0, 218.1], [-177.6, 208.1], [-177.0, 198.1], [-176.3, 188.1], [-175.9, 178.2], [-178.2, 168.4], [-182.4, 159.6], [-188.9, 152.1], [-196.7, 145.8], [-204.5, 139.6], [-213.8, 135.8], [-223.1, 132.1], [-232.4, 128.5], [-241.7, 124.9], [-251.0, 121.3], [-260.4, 117.7], [-269.7, 114.1], [-278.2, 109.1], [-286.2, 103.1], [-288.9, 93.5], [-290.3, 83.7], [-289.9, 73.8], [-286.2, 64.5], [-279.8, 57.0], [-271.7, 51.4], [-262.4, 48.0], [-252.4, 48.2], [-242.5, 49.1], [-233.0, 52.1], [-223.4, 55.1], [-213.9, 58.2], [-204.4, 61.2], [-194.8, 64.2], [-185.3, 67.2], [-175.8, 70.2], [-166.2, 73.3], [-156.7, 76.3], [-147.0, 78.7], [-137.2, 80.5], [-127.3, 82.3], [-117.5, 84.1], [-107.7, 85.7], [-97.7, 86.1], [-87.7, 86.4], [-77.7, 86.7], [-67.7, 86.6], [-57.7, 85.8], [-47.7, 85.1], [-37.8, 84.2], [-27.9, 82.5], [-18.1, 80.9], [-8.2, 79.2], [1.4, 76.3], [10.9, 73.4], [20.6, 71.1], [30.4, 69.0], [40.2, 66.9], [50.0, 64.9], [60.0, 64.0], [69.9, 63.2], [79.9, 62.3], [89.7, 63.4], [99.5, 65.4], [109.3, 67.5], [119.0, 70.1], [128.7, 72.6], [138.1, 75.7], [147.0, 80.2], [156.0, 84.7], [164.9, 89.1], [173.6, 94.1], [182.0, 99.5], [190.4, 105.0], [198.8, 110.4], [207.2, 115.8], [216.0, 120.5], [225.1, 124.7], [234.1, 129.0], [243.5, 132.2], [253.1, 135.0], [262.8, 137.5], [272.8, 138.6], [282.7, 139.7], [292.6, 140.8], [302.6, 140.6], [312.6, 140.4], [322.6, 140.0], [332.6, 139.4], [342.6, 138.8], [352.6, 138.2], [362.5, 137.6], [372.5, 137.0], [382.5, 136.4], [392.5, 135.8], [402.5, 135.2], [412.4, 134.6], [422.4, 134.0], [432.2, 131.9], [442.0, 129.7], [451.4, 126.6], [460.3, 122.1], [469.3, 117.7], [477.1, 111.4], [484.7, 104.9], [490.8, 97.1], [496.6, 89.0], [501.8, 80.4], [506.7, 71.7], [509.4, 62.1], [511.9, 52.4], [512.7, 42.5], [513.4, 32.5], [512.5, 22.6], [511.4, 12.6], [508.6, 3.0], [505.8, -6.6], [500.8, -15.2], [495.8, -23.9], [490.4, -32.3], [484.5, -40.3], [478.5, -48.4], [472.6, -56.4], [466.7, -64.5], [460.7, -72.5], [454.8, -80.6], [448.8, -88.6], [443.1, -96.8], [437.9, -105.3], [432.7, -113.9], [427.5, -122.4], [423.2, -131.4], [418.9, -140.5], [414.7, -149.5], [410.5, -158.6], [406.3, -167.7], [402.0, -176.7], [397.8, -185.8], [393.6, -194.9], [389.3, -203.9], [383.2, -210.9], [373.8, -214.2], [364.2, -216.8], [354.2, -217.9], [344.3, -219.1], [334.3, -218.7], [324.3, -218.3], [314.4, -217.1], [304.6, -215.4], [294.7, -213.7], [285.2, -210.7], [275.7, -207.5], [266.3, -204.3], [257.2, -200.1], [248.2, -195.8], [239.1, -191.5], [230.6, -186.3], [222.5, -180.5], [214.3, -174.7], [206.1, -169.0], [199.4, -161.6], [192.7, -154.2], [186.9, -146.3], [184.3, -136.6], [186.3, -126.8], [190.7, -118.0], [196.4, -109.8], [203.8, -103.4], [212.2, -98.0], [221.3, -94.0], [230.7, -90.6], [240.2, -87.4], [250.1, -85.9], [259.9, -84.3], [269.8, -82.8], [279.7, -81.2], [289.4, -78.8], [299.1, -76.4], [308.8, -74.0], [318.5, -71.6], [327.9, -68.1], [337.2, -64.5], [346.6, -61.0], [355.9, -57.3], [364.0, -51.5], [372.2, -45.8], [377.8, -37.9], [381.9, -28.8], [383.2, -19.0], [383.7, -9.0], [380.4, 0.4], [376.9, 9.7], [369.8, 16.7], [362.7, 23.8], [353.9, 28.1], [344.4, 31.1], [334.4, 32.3], [324.5, 33.5], [314.6, 34.7], [304.7, 35.9], [294.7, 37.1], [284.8, 38.3], [274.9, 39.5], [264.9, 40.4], [254.9, 40.3], [244.9, 40.3], [234.9, 40.3], [224.9, 40.2], [214.9, 40.2], [204.9, 40.2], [194.9, 40.2], [185.0, 39.6], [175.0, 38.4], [165.1, 37.2], [155.2, 36.0], [145.2, 34.8], [135.3, 33.6], [125.4, 32.4], [115.4, 31.2], [105.5, 29.9], [95.8, 27.5], [86.1, 25.0], [76.4, 22.6], [66.7, 20.2], [57.0, 17.8], [47.3, 15.3], [37.6, 12.9], [28.1, 10.0], [18.5, 7.0], [9.0, 4.0], [-0.6, 1.0], [-10.0, -2.1], [-19.4, -5.6], [-28.8, -9.0], [-38.2, -12.5], [-47.6, -15.9], [-56.9, -19.5], [-66.1, -23.4], [-75.3, -27.3], [-84.6, -31.2], [-93.8, -35.0], [-102.9, -39.2], [-111.5, -44.3], [-120.1, -49.4], [-128.7, -54.4], [-137.3, -59.5], [-146.5, -63.5], [-155.9, -65.1], [-164.1, -60.7], [-170.0, -52.6], [-174.9, -43.9], [-179.6, -35.0], [-187.2, -29.0], [-196.0, -24.7], [-206.0, -24.3], [-215.6, -26.1], [-224.6, -30.3], [-231.8, -36.8], [-237.5, -45.0], [-240.5, -54.5], [-240.1, -64.3], [-238.6, -74.2], [-237.0, -84.1], [-235.3, -93.9], [-233.6, -103.8], [-231.9, -113.6], [-230.2, -123.5], [-228.5, -133.3], [-226.8, -143.2], [-225.1, -153.0], [-223.4, -162.9], [-221.7, -172.7], [-220.0, -182.6], [-218.3, -192.5], [-216.6, -202.3], [-214.9, -212.2], [-213.2, -222.0], [-211.5, -231.9], [-209.8, -241.7], [-208.1, -251.6], [-206.4, -261.4], [-204.7, -271.3], [-203.0, -281.1], [-201.3, -291.0], [-199.6, -300.9], [-199.0, -310.8], [-200.0, -320.6], [-202.7, -330.3], [-207.2, -339.2], [-212.7, -347.5], [-219.9, -354.2], [-228.2, -359.8], [-237.3, -363.5], [-247.1, -365.8], [-257.0, -366.3], [-267.0, -366.5], [-277.0, -366.7], [-287.0, -366.8], [-297.0, -367.0], [-307.0, -367.2], [-317.0, -367.3], [-327.0, -367.1], [-337.0, -366.5], [-346.8, -365.0], [-356.7, -363.4], [-366.3, -360.5], [-375.8, -357.4], [-385.1, -353.7], [-394.2, -349.6], [-402.6, -344.3], [-410.4, -338.1], [-418.3, -332.0], [-425.3, -324.9], [-431.3, -316.9], [-437.3, -308.9], [-442.6, -300.4], [-447.7, -291.9], [-451.3, -282.6], [-454.4, -273.0], [-457.1, -263.4], [-458.2, -253.5], [-459.3, -243.6], [-458.7, -233.6], [-458.0, -223.6], [-457.4, -213.6], [-455.6, -203.8], [-453.0, -194.2], [-450.4, -184.5], [-446.6, -175.3], [-442.7, -166.1], [-438.9, -156.8], [-435.1, -147.6], [-431.2, -138.4], [-427.4, -129.1], [-423.6, -119.9], [-419.7, -110.6], [-415.9, -101.4], [-412.1, -92.2], [-408.2, -82.9], [-404.4, -73.7], [-400.6, -64.5], [-396.7, -55.2], [-392.9, -46.0], [-389.1, -36.8], [-385.2, -27.5], [-381.4, -18.3], [-377.6, -9.1], [-373.7, 0.2], [-369.9, 9.4], [-366.1, 18.7], [-362.2, 27.9], [-358.4, 37.1], [-354.6, 46.4], [-350.7, 55.6], [-346.9, 64.8], [-343.0, 74.0]]}, "spa": {"name": "Spa-Francorchamps", "length": 6954, "pts": [[-257.2, 1053.8], [-262.2, 1062.4], [-267.2, 1071.1], [-272.2, 1079.8], [-277.2, 1088.4], [-282.2, 1097.1], [-287.2, 1105.8], [-292.1, 1114.4], [-297.1, 1123.1], [-302.1, 1131.8], [-307.1, 1140.4], [-312.1, 1149.1], [-317.1, 1157.7], [-322.1, 1166.4], [-327.1, 1175.1], [-332.1, 1183.7], [-337.1, 1192.4], [-342.1, 1201.1], [-347.1, 1209.7], [-352.1, 1218.4], [-357.1, 1227.1], [-362.1, 1235.7], [-367.0, 1244.4], [-371.1, 1253.4], [-369.9, 1262.7], [-362.7, 1268.9], [-353.2, 1270.2], [-343.7, 1267.4], [-334.7, 1262.9], [-325.8, 1258.4], [-316.8, 1254.0], [-307.9, 1249.5], [-298.9, 1245.2], [-289.8, 1240.9], [-280.8, 1236.6], [-271.8, 1232.3], [-262.8, 1228.0], [-253.7, 1223.7], [-244.7, 1219.4], [-235.7, 1215.1], [-226.6, 1210.8], [-217.6, 1206.5], [-209.0, 1201.3], [-200.5, 1196.1], [-192.0, 1190.9], [-183.4, 1185.7], [-174.9, 1180.5], [-166.7, 1174.7], [-158.7, 1168.8], [-150.6, 1162.9], [-142.6, 1156.9], [-134.5, 1151.0], [-126.5, 1145.0], [-118.8, 1138.6], [-111.1, 1132.2], [-103.4, 1125.8], [-95.7, 1119.5], [-88.1, 1113.1], [-81.1, 1105.9], [-74.4, 1098.5], [-67.6, 1091.2], [-60.8, 1083.8], [-54.0, 1076.4], [-47.6, 1068.8], [-41.1, 1061.2], [-34.7, 1053.5], [-28.2, 1045.9], [-21.8, 1038.2], [-15.3, 1030.6], [-8.9, 1023.0], [-2.4, 1015.3], [4.0, 1007.7], [10.5, 1000.0], [16.9, 992.4], [23.4, 984.8], [29.8, 977.1], [36.3, 969.5], [42.7, 961.8], [49.2, 954.2], [55.7, 946.6], [62.1, 938.9], [68.6, 931.3], [75.0, 923.6], [81.5, 916.0], [87.9, 908.4], [94.4, 900.7], [100.8, 893.1], [107.3, 885.4], [113.7, 877.8], [120.4, 870.3], [127.6, 863.5], [135.6, 857.5], [144.1, 852.3], [152.6, 847.0], [161.0, 841.6], [169.4, 836.2], [177.9, 830.8], [186.3, 825.4], [193.8, 818.9], [201.0, 811.9], [207.4, 804.4], [212.8, 795.9], [218.1, 787.5], [222.5, 778.5], [226.6, 769.3], [229.7, 759.9], [232.3, 750.2], [234.5, 740.5], [235.7, 730.6], [236.9, 720.6], [238.1, 710.7], [239.4, 700.8], [241.3, 691.0], [244.3, 681.5], [248.0, 672.2], [252.8, 663.4], [257.7, 654.7], [263.0, 646.2], [268.4, 637.8], [273.7, 629.3], [279.0, 620.9], [284.4, 612.4], [289.7, 603.9], [295.0, 595.5], [300.3, 587.0], [305.7, 578.5], [311.0, 570.1], [316.3, 561.6], [321.6, 553.1], [327.0, 544.7], [332.3, 536.2], [337.6, 527.8], [343.0, 519.3], [348.3, 510.8], [353.6, 502.4], [359.0, 493.9], [364.3, 485.5], [369.6, 477.0], [375.0, 468.5], [380.3, 460.1], [385.6, 451.6], [391.0, 443.2], [396.3, 434.7], [400.7, 425.7], [404.9, 416.7], [409.1, 407.6], [413.2, 398.5], [416.9, 389.2], [420.7, 379.9], [423.7, 370.4], [426.6, 360.8], [429.4, 351.2], [432.2, 341.6], [435.0, 332.0], [437.8, 322.4], [440.5, 312.8], [443.3, 303.2], [446.1, 293.6], [448.9, 284.0], [451.6, 274.4], [454.4, 264.8], [457.2, 255.2], [459.9, 245.6], [462.7, 236.0], [465.5, 226.3], [468.3, 216.7], [471.0, 207.1], [473.8, 197.5], [476.6, 187.9], [479.4, 178.3], [482.1, 168.7], [484.9, 159.1], [487.7, 149.5], [490.4, 139.9], [493.2, 130.3], [496.0, 120.7], [498.8, 111.0], [501.5, 101.4], [504.3, 91.8], [507.1, 82.2], [509.9, 72.6], [512.7, 63.0], [515.5, 53.4], [518.3, 43.8], [521.1, 34.2], [523.9, 24.6], [526.7, 15.0], [529.5, 5.4], [532.3, -4.2], [535.1, -13.8], [537.9, -23.4], [540.7, -33.0], [543.5, -42.6], [546.3, -52.2], [549.1, -61.8], [551.9, -71.4], [554.7, -81.0], [557.5, -90.6], [560.3, -100.2], [563.1, -109.8], [565.9, -119.4], [568.7, -129.0], [571.5, -138.6], [574.3, -148.2], [577.1, -157.8], [579.9, -167.4], [582.7, -177.0], [585.5, -186.6], [588.3, -196.2], [591.1, -205.8], [593.9, -215.4], [596.7, -225.0], [599.5, -234.6], [602.3, -244.2], [605.1, -253.8], [607.8, -263.4], [610.5, -273.0], [613.2, -282.6], [615.9, -292.3], [618.6, -301.9], [621.3, -311.5], [624.1, -321.2], [626.8, -330.8], [629.5, -340.4], [631.2, -350.2], [631.7, -360.2], [630.1, -370.0], [626.3, -379.0], [620.6, -387.2], [613.1, -393.8], [604.9, -399.5], [596.1, -404.2], [588.4, -410.4], [582.0, -418.0], [577.2, -426.7], [574.2, -436.3], [573.1, -446.0], [573.6, -456.0], [575.8, -465.8], [578.0, -475.5], [580.2, -485.3], [582.3, -495.0], [584.5, -504.8], [586.7, -514.6], [588.9, -524.3], [591.1, -534.1], [593.3, -543.8], [594.5, -553.7], [594.2, -563.7], [592.4, -573.5], [589.1, -582.7], [583.3, -590.9], [576.9, -598.5], [569.1, -604.8], [561.1, -610.7], [552.8, -616.4], [544.6, -622.0], [536.3, -627.7], [528.1, -633.3], [519.9, -639.0], [511.6, -644.7], [503.4, -650.3], [495.1, -656.0], [486.9, -661.6], [478.6, -667.3], [470.4, -672.9], [462.1, -678.6], [453.9, -684.3], [445.7, -689.9], [437.4, -695.6], [429.2, -701.2], [420.9, -706.9], [412.7, -712.6], [404.4, -718.2], [396.2, -723.9], [387.9, -729.5], [379.7, -735.2], [371.4, -740.9], [363.2, -746.5], [355.0, -752.2], [346.7, -757.8], [338.5, -763.5], [330.2, -769.1], [321.4, -773.7], [312.2, -777.6], [302.2, -778.0], [292.4, -777.0], [282.8, -774.2], [274.3, -769.0], [266.7, -762.7], [261.0, -754.5], [257.0, -745.5], [254.6, -735.8], [254.0, -725.8], [256.0, -716.2], [259.6, -706.9], [264.7, -698.3], [271.5, -691.1], [279.3, -684.9], [287.8, -679.6], [296.3, -674.4], [304.8, -669.2], [313.4, -663.9], [321.9, -658.7], [330.4, -653.5], [338.9, -648.2], [347.5, -643.0], [356.0, -637.8], [364.5, -632.6], [373.0, -627.3], [381.6, -622.1], [388.9, -615.4], [395.6, -608.0], [400.4, -599.3], [402.7, -589.6], [403.3, -579.7], [402.5, -569.7], [399.8, -560.2], [396.5, -550.7], [393.3, -541.2], [390.0, -531.8], [386.8, -522.3], [383.6, -512.9], [380.3, -503.4], [377.1, -493.9], [373.8, -484.5], [370.6, -475.0], [367.3, -465.6], [364.1, -456.1], [360.8, -446.6], [357.9, -437.1], [355.4, -427.4], [352.9, -417.7], [350.4, -408.1], [347.9, -398.4], [345.4, -388.7], [343.6, -378.9], [341.7, -369.0], [339.8, -359.2], [337.9, -349.4], [336.0, -339.6], [334.1, -329.8], [332.2, -319.9], [330.3, -310.1], [328.4, -300.3], [326.5, -290.5], [324.6, -280.7], [322.7, -270.8], [320.8, -261.0], [319.0, -251.2], [317.1, -241.4], [315.2, -231.6], [313.5, -221.7], [311.9, -211.8], [310.3, -202.0], [308.6, -192.1], [307.0, -182.2], [305.4, -172.4], [303.7, -162.5], [302.1, -152.6], [300.5, -142.8], [298.5, -133.0], [296.2, -123.3], [292.0, -114.2], [287.4, -105.4], [281.4, -97.3], [274.7, -89.9], [267.5, -83.0], [259.8, -76.8], [251.4, -71.3], [242.5, -66.7], [233.2, -63.1], [223.7, -60.4], [213.8, -58.9], [203.9, -57.8], [193.9, -57.1], [183.9, -56.4], [173.9, -55.8], [163.9, -55.1], [154.0, -54.4], [144.0, -54.3], [134.1, -55.4], [124.1, -56.5], [114.5, -59.0], [104.8, -61.7], [95.5, -65.1], [86.3, -69.0], [77.2, -73.3], [68.9, -78.8], [60.6, -84.4], [53.2, -91.1], [45.9, -97.9], [38.8, -104.9], [33.0, -113.1], [27.3, -121.3], [22.5, -130.0], [17.8, -138.9], [13.1, -147.7], [9.1, -156.8], [5.3, -166.1], [1.6, -175.4], [-2.1, -184.7], [-5.9, -193.9], [-9.6, -203.2], [-13.4, -212.5], [-17.1, -221.8], [-20.8, -231.0], [-24.6, -240.3], [-28.3, -249.6], [-32.0, -258.9], [-35.8, -268.1], [-39.5, -277.4], [-43.2, -286.7], [-47.0, -296.0], [-50.7, -305.2], [-54.5, -314.5], [-58.2, -323.8], [-62.0, -333.1], [-65.7, -342.3], [-69.5, -351.6], [-73.2, -360.9], [-77.0, -370.1], [-80.7, -379.4], [-84.5, -388.7], [-88.2, -397.9], [-92.0, -407.2], [-95.7, -416.5], [-99.5, -425.8], [-104.1, -434.6], [-108.9, -443.4], [-114.6, -451.5], [-121.5, -458.7], [-129.3, -464.8], [-138.0, -469.7], [-147.1, -473.9], [-156.7, -476.6], [-166.5, -478.2], [-176.5, -478.6], [-186.3, -477.1], [-196.1, -475.1], [-205.2, -471.0], [-214.1, -466.4], [-222.5, -461.0], [-230.9, -455.6], [-239.6, -450.8], [-248.9, -446.9], [-258.5, -444.7], [-268.4, -443.1], [-278.3, -443.5], [-288.3, -444.6], [-297.9, -447.3], [-307.4, -450.3], [-315.7, -456.0], [-323.6, -461.9], [-329.9, -469.7], [-336.0, -477.7], [-341.9, -485.7], [-347.5, -494.0], [-352.9, -502.4], [-358.3, -510.9], [-363.7, -519.3], [-369.1, -527.7], [-374.5, -536.1], [-379.9, -544.5], [-385.3, -552.9], [-390.7, -561.4], [-396.1, -569.8], [-401.5, -578.2], [-406.9, -586.6], [-412.3, -595.0], [-417.7, -603.4], [-423.1, -611.9], [-428.5, -620.3], [-433.9, -628.7], [-439.3, -637.1], [-445.9, -644.5], [-453.8, -650.5], [-462.6, -655.3], [-472.3, -657.4], [-482.2, -658.0], [-492.2, -657.4], [-501.4, -653.5], [-510.0, -648.6], [-518.1, -642.8], [-526.2, -636.9], [-534.4, -631.0], [-542.5, -625.2], [-550.6, -619.3], [-558.7, -613.4], [-566.8, -607.6], [-574.8, -601.7], [-582.9, -595.8], [-591.0, -589.9], [-599.1, -584.1], [-607.2, -578.2], [-614.2, -571.1], [-620.3, -563.2], [-625.8, -554.9], [-631.1, -546.4], [-634.8, -537.1], [-637.7, -527.6], [-640.1, -517.9], [-640.9, -508.0], [-641.3, -498.0], [-640.0, -488.1], [-638.6, -478.2], [-635.4, -468.7], [-631.9, -459.3], [-628.4, -450.0], [-624.9, -440.6], [-621.4, -431.2], [-617.9, -421.8], [-614.5, -412.5], [-611.0, -403.1], [-606.6, -394.1], [-601.7, -385.4], [-596.8, -376.7], [-591.9, -368.0], [-586.9, -359.3], [-581.1, -351.2], [-575.3, -343.0], [-569.5, -334.9], [-563.8, -326.7], [-557.3, -319.1], [-550.6, -311.7], [-543.9, -304.2], [-537.3, -296.8], [-530.6, -289.3], [-523.9, -281.9], [-516.7, -275.0], [-509.5, -268.0], [-502.3, -261.0], [-495.1, -254.1], [-488.0, -247.1], [-480.8, -240.2], [-473.6, -233.2], [-466.4, -226.3], [-459.0, -219.6], [-451.1, -213.5], [-443.2, -207.3], [-435.3, -201.2], [-427.4, -195.1], [-418.9, -189.7], [-410.3, -184.7], [-401.6, -179.7], [-393.0, -174.7], [-384.1, -170.1], [-375.2, -165.5], [-366.3, -160.9], [-357.5, -156.3], [-348.6, -151.7], [-339.7, -147.1], [-330.8, -142.5], [-321.9, -137.9], [-313.1, -133.3], [-304.2, -128.7], [-295.3, -124.1], [-286.4, -119.5], [-277.5, -114.9], [-268.7, -110.3], [-259.8, -105.7], [-250.9, -101.1], [-242.0, -96.5], [-233.1, -91.9], [-224.6, -86.8], [-216.1, -81.5], [-207.6, -76.2], [-199.7, -70.1], [-191.8, -63.9], [-184.0, -57.7], [-176.7, -50.8], [-169.4, -44.0], [-162.4, -36.9], [-156.0, -29.2], [-149.6, -21.6], [-143.4, -13.7], [-137.4, -5.7], [-131.4, 2.3], [-126.6, 11.1], [-121.8, 19.9], [-117.0, 28.6], [-112.2, 37.4], [-107.7, 46.3], [-103.5, 55.4], [-99.3, 64.5], [-95.2, 73.6], [-91.0, 82.7], [-86.9, 91.8], [-82.8, 100.9], [-78.7, 110.0], [-74.5, 119.1], [-70.4, 128.2], [-66.3, 137.4], [-62.2, 146.5], [-58.1, 155.6], [-53.9, 164.7], [-50.1, 173.9], [-46.6, 183.3], [-43.6, 192.8], [-41.6, 202.6], [-39.9, 212.4], [-39.6, 222.4], [-39.3, 232.4], [-40.2, 242.3], [-41.9, 252.2], [-44.0, 261.9], [-47.7, 271.2], [-51.3, 280.5], [-55.0, 289.9], [-58.6, 299.2], [-62.2, 308.5], [-65.9, 317.8], [-69.5, 327.1], [-73.1, 336.4], [-76.7, 345.8], [-80.4, 355.1], [-84.0, 364.4], [-87.6, 373.7], [-91.2, 383.1], [-94.8, 392.4], [-98.3, 401.8], [-101.8, 411.1], [-105.3, 420.5], [-108.8, 429.9], [-112.3, 439.2], [-115.8, 448.6], [-119.3, 457.9], [-122.9, 467.3], [-125.9, 476.8], [-128.4, 486.5], [-130.9, 496.2], [-133.2, 505.9], [-135.2, 515.7], [-137.2, 525.5], [-139.2, 535.3], [-140.9, 545.2], [-142.2, 555.1], [-143.5, 565.0], [-144.9, 574.9], [-145.9, 584.8], [-146.9, 594.8], [-147.9, 604.7], [-148.6, 614.7], [-149.3, 624.7], [-149.9, 634.7], [-150.6, 644.6], [-151.3, 654.6], [-152.0, 664.6], [-152.7, 674.6], [-153.4, 684.5], [-154.0, 694.5], [-154.7, 704.5], [-155.4, 714.5], [-156.1, 724.5], [-156.8, 734.4], [-156.1, 744.3], [-151.2, 752.7], [-142.1, 756.2], [-132.3, 754.9], [-122.3, 754.2], [-112.3, 754.3], [-102.5, 756.3], [-95.8, 763.7], [-94.7, 773.4], [-98.3, 782.7], [-103.5, 791.3], [-108.7, 799.8], [-114.0, 808.3], [-119.2, 816.8], [-124.4, 825.3], [-129.7, 833.8], [-134.9, 842.4], [-140.2, 850.9], [-145.4, 859.4], [-150.6, 867.9], [-155.6, 876.6], [-160.6, 885.3], [-165.5, 894.0], [-170.5, 902.6], [-175.5, 911.3], [-180.5, 920.0], [-185.4, 928.7], [-190.4, 937.3], [-195.4, 946.0], [-200.4, 954.7], [-205.3, 963.4], [-210.3, 972.0], [-215.3, 980.7], [-220.3, 989.4], [-225.2, 998.0], [-230.2, 1006.7], [-235.2, 1015.4], [-240.2, 1024.1], [-245.1, 1032.7], [-250.1, 1041.4], [-255.1, 1050.1]]}, "hockenheim": {"name": "Hockenheim", "length": 4546, "pts": [[-421.2, -199.9], [-425.7, -191.0], [-430.1, -182.0], [-434.5, -173.1], [-439.0, -164.1], [-443.4, -155.1], [-447.8, -146.2], [-452.3, -137.2], [-456.7, -128.2], [-461.1, -119.3], [-465.6, -110.3], [-470.0, -101.3], [-474.4, -92.4], [-478.9, -83.4], [-483.5, -74.6], [-488.2, -65.8], [-493.0, -57.0], [-497.7, -48.2], [-502.5, -39.4], [-507.2, -30.6], [-512.0, -21.8], [-516.7, -13.0], [-521.5, -4.2], [-526.2, 4.6], [-531.0, 13.4], [-535.7, 22.2], [-539.2, 31.5], [-538.3, 41.2], [-534.7, 50.5], [-530.6, 59.6], [-526.6, 68.8], [-522.6, 77.9], [-518.5, 87.1], [-514.5, 96.2], [-510.4, 105.3], [-506.2, 114.4], [-501.9, 123.4], [-497.6, 132.4], [-492.8, 141.2], [-488.0, 150.0], [-482.9, 158.6], [-477.3, 166.9], [-471.8, 175.2], [-465.7, 183.2], [-459.6, 191.1], [-453.2, 198.8], [-446.7, 206.3], [-440.1, 213.9], [-433.6, 221.5], [-426.8, 228.8], [-419.8, 235.9], [-412.8, 243.1], [-405.8, 250.2], [-398.8, 257.4], [-391.8, 264.5], [-384.8, 271.6], [-377.8, 278.8], [-370.8, 286.0], [-363.9, 293.2], [-357.0, 300.4], [-350.0, 307.6], [-343.1, 314.8], [-336.2, 322.0], [-329.3, 329.2], [-322.3, 336.4], [-315.4, 343.6], [-308.5, 350.9], [-301.5, 358.1], [-294.6, 365.3], [-287.7, 372.5], [-280.8, 379.7], [-273.8, 386.9], [-266.9, 394.1], [-260.0, 401.3], [-253.0, 408.5], [-246.1, 415.7], [-239.2, 422.9], [-232.2, 430.2], [-225.3, 437.4], [-218.4, 444.6], [-211.5, 451.8], [-204.5, 459.0], [-197.1, 465.5], [-187.7, 468.6], [-178.1, 467.7], [-170.0, 462.1], [-163.4, 454.7], [-158.1, 446.2], [-153.9, 437.2], [-150.5, 427.8], [-148.7, 418.0], [-147.9, 408.1], [-148.1, 398.1], [-148.2, 388.1], [-147.3, 378.2], [-145.3, 368.4], [-141.9, 359.0], [-137.4, 350.1], [-131.5, 342.0], [-124.4, 335.1], [-116.4, 329.2], [-107.9, 323.8], [-99.4, 318.7], [-90.8, 313.5], [-82.3, 308.3], [-73.7, 303.1], [-65.0, 298.2], [-56.3, 293.3], [-47.6, 288.4], [-38.8, 283.5], [-30.1, 278.7], [-21.2, 274.2], [-12.2, 269.7], [-3.3, 265.3], [5.7, 260.8], [14.6, 256.4], [23.7, 252.1], [32.7, 247.8], [41.8, 243.6], [50.8, 239.3], [59.9, 235.1], [69.1, 231.2], [78.3, 227.4], [87.6, 223.5], [96.9, 219.9], [106.3, 216.7], [115.8, 213.4], [125.3, 210.2], [134.7, 207.0], [144.4, 204.4], [154.0, 201.8], [163.7, 199.2], [173.4, 196.6], [183.1, 194.3], [192.8, 192.0], [202.5, 189.7], [212.3, 187.6], [222.2, 185.8], [232.0, 184.1], [241.9, 182.3], [251.7, 180.6], [261.6, 179.1], [271.5, 177.8], [281.4, 176.6], [291.4, 175.5], [301.3, 174.6], [311.3, 173.8], [321.3, 172.9], [331.2, 172.4], [341.2, 172.3], [351.2, 172.1], [361.2, 172.2], [371.2, 172.6], [381.2, 173.1], [391.2, 173.6], [401.2, 174.2], [411.1, 175.2], [421.1, 176.2], [431.0, 177.3], [441.0, 178.4], [450.8, 180.3], [460.6, 182.2], [470.4, 184.1], [480.2, 186.0], [489.9, 188.4], [499.6, 191.0], [509.3, 193.5], [519.0, 196.0], [528.6, 198.6], [538.1, 201.8], [547.6, 205.0], [557.0, 208.2], [566.5, 211.4], [576.0, 214.6], [585.5, 217.8], [594.9, 221.0], [604.4, 224.1], [613.9, 227.4], [623.2, 230.9], [632.6, 234.4], [642.0, 238.0], [651.3, 241.5], [660.7, 245.0], [670.0, 248.5], [679.4, 252.0], [688.8, 255.6], [698.1, 259.1], [707.5, 262.6], [716.8, 266.1], [726.2, 269.7], [735.5, 273.2], [744.9, 276.7], [754.3, 280.2], [763.6, 283.7], [773.0, 287.3], [782.3, 290.8], [791.7, 294.3], [801.1, 297.8], [810.4, 301.3], [819.8, 304.9], [829.1, 308.4], [838.5, 311.9], [847.9, 315.4], [857.2, 319.0], [866.6, 322.5], [875.9, 326.0], [885.3, 329.5], [894.7, 332.7], [904.5, 333.4], [912.5, 328.3], [915.7, 319.1], [911.3, 310.4], [903.5, 304.2], [895.1, 298.8], [886.8, 293.3], [878.4, 287.8], [870.0, 282.4], [861.6, 276.9], [853.3, 271.5], [844.9, 266.0], [836.5, 260.5], [828.1, 255.1], [819.8, 249.6], [811.4, 244.1], [803.0, 238.7], [794.6, 233.2], [786.3, 227.7], [777.9, 222.2], [769.5, 216.8], [761.2, 211.3], [752.8, 205.8], [744.5, 200.3], [736.1, 194.8], [727.7, 189.3], [719.4, 183.9], [711.0, 178.4], [702.6, 172.9], [694.3, 167.4], [685.9, 161.9], [677.6, 156.5], [669.2, 151.0], [660.8, 145.5], [652.5, 140.0], [644.1, 134.5], [635.7, 129.0], [627.4, 123.6], [619.0, 118.1], [610.6, 112.6], [602.3, 107.1], [593.9, 101.6], [585.6, 96.2], [577.2, 90.7], [568.1, 86.7], [558.7, 83.3], [548.7, 82.4], [538.8, 82.2], [528.9, 83.5], [518.9, 84.7], [509.0, 85.9], [499.1, 87.2], [489.2, 88.4], [479.2, 89.6], [469.3, 90.9], [459.4, 92.1], [449.5, 93.3], [439.5, 94.5], [429.6, 95.8], [419.7, 97.0], [409.8, 98.2], [399.8, 99.5], [389.9, 100.7], [380.0, 101.9], [370.1, 103.2], [360.2, 104.4], [350.2, 105.6], [340.3, 106.9], [330.4, 108.1], [320.5, 109.3], [310.5, 110.6], [300.6, 111.8], [290.7, 112.6], [281.4, 110.6], [275.3, 103.1], [272.3, 93.6], [271.5, 83.6], [271.0, 73.6], [271.4, 63.7], [272.1, 53.7], [272.9, 43.7], [275.7, 34.2], [278.7, 24.6], [282.8, 15.5], [287.7, 6.8], [292.8, -1.8], [298.8, -9.7], [304.9, -17.7], [309.7, -26.4], [312.6, -35.9], [313.7, -45.8], [312.7, -55.7], [309.7, -65.2], [305.3, -74.2], [300.1, -82.7], [294.3, -90.8], [287.1, -97.7], [279.6, -104.4], [271.8, -110.6], [263.9, -116.7], [255.8, -122.5], [247.4, -128.0], [239.1, -133.5], [230.8, -139.1], [222.4, -144.6], [214.1, -150.1], [205.8, -155.7], [197.4, -161.2], [189.1, -166.7], [180.8, -172.2], [172.4, -177.8], [164.1, -183.3], [155.7, -188.8], [147.4, -194.3], [139.1, -199.8], [130.7, -205.3], [122.3, -210.7], [113.9, -216.1], [105.5, -221.6], [97.1, -227.0], [88.7, -232.5], [80.3, -237.9], [71.9, -243.3], [63.5, -248.8], [55.1, -254.2], [46.7, -259.6], [38.3, -265.1], [29.9, -270.5], [21.5, -275.9], [13.2, -281.4], [4.8, -286.8], [-3.9, -291.9], [-12.7, -296.5], [-22.2, -299.6], [-32.0, -301.5], [-41.9, -302.0], [-51.9, -300.9], [-61.7, -299.1], [-71.2, -296.1], [-80.3, -292.0], [-88.7, -286.6], [-96.5, -280.3], [-104.0, -273.7], [-110.3, -266.0], [-116.7, -258.3], [-123.1, -250.6], [-129.6, -243.0], [-136.1, -235.4], [-142.6, -227.8], [-149.0, -220.2], [-155.5, -212.6], [-162.0, -205.0], [-168.5, -197.3], [-175.0, -189.7], [-181.5, -182.1], [-188.0, -174.5], [-194.5, -166.9], [-201.0, -159.3], [-207.5, -151.7], [-213.9, -144.1], [-220.4, -136.5], [-226.9, -128.9], [-233.4, -121.3], [-239.9, -113.7], [-246.4, -106.0], [-253.9, -99.5], [-262.5, -94.5], [-272.0, -91.8], [-281.9, -91.4], [-291.7, -92.8], [-300.7, -97.2], [-307.7, -104.3], [-313.5, -112.5], [-316.9, -121.8], [-318.2, -131.7], [-317.5, -141.6], [-315.6, -151.4], [-312.5, -160.9], [-309.4, -170.4], [-306.4, -179.9], [-303.3, -189.5], [-300.2, -199.0], [-297.1, -208.5], [-293.3, -217.7], [-288.4, -226.4], [-282.6, -234.5], [-274.9, -241.0], [-266.5, -246.2], [-257.4, -250.4], [-248.1, -253.9], [-238.8, -257.5], [-229.7, -261.7], [-221.0, -266.6], [-213.7, -273.4], [-207.1, -280.9], [-200.8, -288.7], [-195.0, -296.8], [-189.2, -305.0], [-183.4, -313.1], [-177.6, -321.3], [-171.8, -329.4], [-167.0, -338.1], [-163.3, -347.4], [-161.9, -357.2], [-163.4, -367.0], [-167.0, -376.1], [-173.4, -383.9], [-181.1, -390.2], [-189.1, -396.3], [-197.2, -402.1], [-205.3, -407.9], [-213.5, -413.7], [-221.6, -419.5], [-229.8, -425.3], [-238.3, -430.5], [-247.1, -435.2], [-256.6, -437.9], [-266.5, -438.7], [-276.5, -438.0], [-286.3, -436.0], [-294.9, -431.2], [-303.0, -425.4], [-310.1, -418.3], [-316.5, -410.6], [-322.3, -402.5], [-327.4, -393.9], [-332.4, -385.2], [-336.8, -376.3], [-341.1, -367.3], [-345.4, -358.2], [-349.7, -349.2], [-354.1, -340.2], [-358.4, -331.2], [-362.7, -322.2], [-367.0, -313.1], [-371.3, -304.1], [-375.7, -295.1], [-380.0, -286.1], [-384.3, -277.1], [-388.6, -268.0], [-392.9, -259.0], [-397.3, -250.0], [-401.6, -241.0], [-405.9, -232.0], [-410.2, -222.9], [-414.5, -213.9], [-418.8, -204.9]]}, "nurburgring": {"name": "Nürburgring GP", "length": 5122, "pts": [[531.4, 495.4], [524.3, 488.3], [517.3, 481.2], [510.3, 474.1], [503.3, 466.9], [496.2, 459.8], [489.2, 452.7], [482.2, 445.6], [475.2, 438.5], [468.1, 431.4], [461.1, 424.2], [454.1, 417.1], [447.1, 410.0], [440.0, 402.9], [433.0, 395.8], [426.0, 388.7], [419.0, 381.5], [411.9, 374.4], [404.9, 367.3], [397.9, 360.2], [390.9, 353.1], [383.9, 345.9], [376.8, 338.8], [369.8, 331.7], [362.8, 324.6], [355.8, 317.5], [348.7, 310.4], [341.7, 303.2], [334.7, 296.1], [327.7, 289.0], [320.6, 281.9], [313.6, 274.8], [306.6, 267.6], [299.6, 260.5], [292.5, 253.4], [285.5, 246.3], [278.5, 239.2], [271.5, 232.1], [264.4, 224.9], [257.4, 217.8], [250.3, 210.8], [243.2, 203.8], [236.0, 196.8], [228.9, 189.8], [221.7, 182.8], [214.6, 175.8], [207.4, 168.8], [200.3, 161.8], [192.8, 155.2], [184.9, 149.1], [177.0, 143.0], [169.1, 136.9], [161.0, 130.9], [153.0, 125.0], [144.9, 119.0], [136.8, 113.2], [128.5, 107.6], [120.3, 102.0], [112.0, 96.4], [103.7, 90.7], [95.5, 85.1], [87.2, 79.5], [78.7, 74.6], [68.7, 73.3], [59.8, 77.4], [56.0, 86.6], [57.4, 96.4], [59.6, 106.1], [62.1, 115.8], [64.7, 125.5], [67.6, 135.0], [71.9, 144.0], [76.3, 153.0], [80.8, 162.0], [85.6, 170.7], [90.4, 179.5], [95.3, 188.2], [100.1, 197.0], [105.0, 205.7], [107.8, 215.2], [108.5, 225.1], [107.8, 235.1], [104.8, 244.6], [100.5, 253.5], [94.6, 261.5], [87.6, 268.7], [79.9, 274.9], [71.0, 279.4], [61.5, 282.3], [51.7, 284.0], [41.7, 283.5], [31.8, 282.1], [21.9, 280.6], [12.0, 279.2], [2.1, 277.7], [-7.8, 276.3], [-17.7, 274.8], [-27.4, 272.7], [-37.1, 270.1], [-46.8, 267.5], [-56.3, 264.6], [-65.9, 261.6], [-75.4, 258.6], [-84.1, 253.6], [-92.6, 248.4], [-100.4, 242.2], [-107.0, 234.9], [-110.5, 225.6], [-110.6, 215.6], [-109.2, 205.8], [-105.9, 196.7], [-98.7, 189.8], [-90.3, 184.9], [-80.7, 182.1], [-70.8, 181.6], [-60.8, 182.1], [-50.8, 182.6], [-40.8, 182.6], [-30.9, 182.2], [-21.8, 178.1], [-14.8, 171.0], [-10.5, 162.4], [-9.5, 152.5], [-10.3, 142.6], [-11.1, 132.6], [-12.0, 122.6], [-13.1, 112.7], [-14.3, 102.8], [-15.5, 92.9], [-16.6, 82.9], [-18.1, 73.0], [-19.8, 63.2], [-21.5, 53.3], [-23.3, 43.5], [-25.0, 33.6], [-26.7, 23.8], [-28.4, 13.9], [-30.1, 4.1], [-32.0, -5.8], [-33.8, -15.6], [-35.6, -25.4], [-37.5, -35.3], [-39.4, -45.1], [-41.3, -54.9], [-43.2, -64.7], [-45.9, -74.3], [-48.5, -84.0], [-51.6, -93.5], [-54.7, -103.0], [-57.9, -112.5], [-61.0, -122.0], [-64.2, -131.5], [-67.4, -140.9], [-70.5, -150.4], [-73.7, -159.9], [-76.7, -169.5], [-79.6, -179.0], [-82.5, -188.6], [-85.5, -198.1], [-88.4, -207.7], [-91.3, -217.3], [-94.3, -226.8], [-97.2, -236.4], [-100.4, -245.9], [-103.5, -255.3], [-105.1, -265.2], [-106.0, -275.2], [-104.9, -285.0], [-102.4, -294.6], [-98.4, -303.8], [-93.2, -312.4], [-87.1, -320.1], [-79.8, -327.0], [-71.5, -332.6], [-62.5, -336.9], [-53.5, -341.2], [-44.4, -345.5], [-35.4, -349.7], [-26.3, -353.9], [-17.2, -358.0], [-8.1, -362.2], [1.0, -366.4], [9.2, -372.0], [16.3, -378.8], [21.2, -387.5], [23.7, -397.1], [23.8, -407.0], [21.5, -416.8], [17.9, -425.8], [10.7, -432.8], [2.7, -438.7], [-6.1, -443.4], [-15.0, -448.0], [-23.8, -452.7], [-32.7, -457.3], [-41.5, -462.0], [-50.3, -466.8], [-59.0, -471.7], [-67.7, -476.6], [-76.4, -481.5], [-85.1, -486.4], [-93.9, -491.3], [-102.6, -496.2], [-111.3, -501.2], [-119.6, -506.6], [-128.0, -512.1], [-136.4, -517.5], [-144.7, -523.1], [-152.9, -528.9], [-161.0, -534.6], [-169.2, -540.4], [-177.0, -546.6], [-184.4, -553.3], [-191.8, -560.0], [-199.3, -566.7], [-206.7, -573.4], [-214.1, -580.1], [-221.5, -586.8], [-228.7, -593.8], [-235.9, -600.8], [-243.0, -607.8], [-249.9, -615.0], [-256.3, -622.7], [-262.6, -630.5], [-268.9, -638.2], [-275.1, -646.0], [-281.3, -653.9], [-287.4, -661.8], [-293.5, -669.7], [-299.3, -677.9], [-304.9, -686.2], [-310.5, -694.4], [-316.2, -702.7], [-321.3, -711.3], [-326.4, -719.9], [-331.5, -728.5], [-336.6, -737.1], [-341.7, -745.7], [-346.8, -754.3], [-351.9, -762.9], [-357.8, -770.9], [-364.8, -778.0], [-373.4, -782.7], [-382.9, -785.6], [-392.9, -785.7], [-402.4, -782.9], [-411.1, -778.1], [-418.6, -771.6], [-424.2, -763.4], [-426.8, -753.8], [-427.6, -743.9], [-426.6, -734.1], [-422.9, -724.8], [-416.2, -717.4], [-409.2, -710.3], [-402.1, -703.2], [-395.0, -696.2], [-387.9, -689.2], [-380.8, -682.1], [-373.8, -675.1], [-366.7, -668.0], [-359.6, -661.0], [-352.5, -653.9], [-345.4, -646.9], [-338.3, -639.8], [-331.2, -632.8], [-324.1, -625.8], [-317.0, -618.7], [-309.9, -611.7], [-302.8, -604.6], [-295.7, -597.6], [-288.6, -590.5], [-281.5, -583.5], [-274.4, -576.4], [-267.3, -569.4], [-260.2, -562.4], [-253.1, -555.3], [-246.0, -548.3], [-238.9, -541.2], [-231.8, -534.2], [-224.7, -527.1], [-217.9, -519.9], [-212.4, -511.5], [-208.1, -502.5], [-204.2, -493.3], [-201.6, -483.6], [-199.6, -473.9], [-199.2, -463.9], [-198.8, -453.9], [-200.2, -444.0], [-201.9, -434.2], [-204.6, -424.6], [-207.8, -415.1], [-211.0, -405.6], [-214.0, -396.1], [-215.7, -386.2], [-216.7, -376.3], [-216.7, -366.3], [-216.7, -356.3], [-215.6, -346.4], [-213.5, -336.7], [-211.2, -326.9], [-208.2, -317.4], [-205.1, -307.9], [-202.0, -298.4], [-199.0, -288.9], [-195.9, -279.3], [-192.8, -269.8], [-189.8, -260.3], [-186.7, -250.8], [-183.6, -241.3], [-180.6, -231.7], [-177.5, -222.2], [-174.4, -212.7], [-171.4, -203.2], [-168.3, -193.7], [-165.2, -184.2], [-162.1, -174.6], [-159.1, -165.1], [-156.0, -155.6], [-152.9, -146.1], [-149.9, -136.6], [-146.8, -127.1], [-143.7, -117.5], [-140.7, -108.0], [-137.6, -98.5], [-134.5, -89.0], [-131.5, -79.5], [-128.4, -69.9], [-125.4, -60.4], [-122.3, -50.9], [-119.2, -41.4], [-116.2, -31.9], [-113.1, -22.3], [-110.1, -12.8], [-107.1, -3.3], [-104.4, 6.4], [-101.8, 16.0], [-99.1, 25.6], [-97.9, 35.4], [-99.6, 45.2], [-104.3, 54.0], [-109.7, 62.3], [-117.5, 68.3], [-126.6, 72.6], [-135.7, 76.6], [-144.9, 80.6], [-154.0, 84.7], [-163.2, 88.7], [-172.3, 92.7], [-181.5, 96.7], [-190.6, 100.8], [-199.8, 104.8], [-209.0, 108.8], [-218.1, 112.8], [-227.3, 116.9], [-236.4, 120.9], [-245.4, 125.3], [-253.0, 131.8], [-259.9, 138.8], [-265.3, 147.2], [-268.6, 156.6], [-270.7, 166.3], [-271.2, 176.3], [-270.7, 186.2], [-268.4, 195.9], [-263.9, 204.9], [-258.8, 213.4], [-252.6, 221.3], [-246.4, 229.1], [-240.1, 236.9], [-233.7, 244.6], [-227.3, 252.3], [-220.9, 260.0], [-214.5, 267.6], [-208.1, 275.3], [-201.7, 283.0], [-195.3, 290.7], [-188.9, 298.4], [-182.5, 306.1], [-176.1, 313.8], [-169.7, 321.4], [-163.3, 329.1], [-156.9, 336.8], [-150.6, 344.5], [-144.2, 352.2], [-137.8, 359.9], [-131.4, 367.6], [-125.0, 375.3], [-118.6, 383.0], [-112.3, 390.7], [-105.9, 398.4], [-99.5, 406.1], [-93.2, 413.8], [-86.8, 421.5], [-80.4, 429.2], [-74.0, 436.9], [-67.7, 444.7], [-61.3, 452.4], [-54.9, 460.1], [-48.6, 467.8], [-42.2, 475.5], [-35.8, 483.2], [-28.3, 489.8], [-20.4, 495.8], [-12.3, 501.7], [-3.7, 506.7], [5.4, 510.9], [14.7, 514.6], [24.3, 517.4], [33.9, 520.1], [43.5, 522.8], [53.1, 525.6], [62.7, 528.3], [72.4, 531.1], [82.0, 533.8], [91.6, 536.4], [101.3, 539.0], [111.0, 541.5], [120.6, 544.0], [130.3, 546.5], [140.0, 549.1], [149.7, 551.6], [159.4, 554.1], [169.0, 556.6], [178.7, 559.1], [188.4, 561.7], [198.1, 564.2], [207.7, 566.7], [217.4, 569.2], [227.1, 571.8], [236.8, 574.3], [246.4, 576.8], [256.1, 579.3], [265.8, 581.9], [275.5, 584.4], [285.1, 586.9], [294.8, 589.4], [304.5, 592.0], [314.2, 594.5], [323.8, 597.0], [333.5, 599.5], [343.2, 602.0], [352.9, 604.6], [362.6, 607.1], [372.2, 609.6], [381.9, 612.1], [391.6, 614.7], [401.3, 617.2], [410.9, 619.7], [419.9, 623.5], [422.4, 632.5], [419.7, 642.1], [417.6, 651.9], [418.4, 661.6], [425.2, 668.0], [433.9, 673.0], [443.0, 677.1], [452.1, 681.3], [461.2, 685.4], [470.3, 689.5], [479.4, 693.6], [488.5, 697.7], [498.1, 700.6], [507.8, 703.3], [517.4, 706.0], [527.0, 708.6], [536.8, 710.8], [546.5, 713.1], [556.3, 715.3], [566.0, 717.6], [575.8, 719.8], [585.5, 722.1], [595.2, 724.3], [605.0, 726.6], [614.7, 728.9], [624.5, 731.1], [634.2, 733.4], [643.9, 735.6], [653.9, 735.8], [663.8, 735.2], [672.7, 730.8], [680.9, 725.3], [687.7, 717.9], [693.0, 709.6], [696.8, 700.4], [698.6, 690.6], [698.5, 680.6], [696.9, 670.8], [693.7, 661.3], [687.5, 653.7], [680.4, 646.6], [673.4, 639.5], [666.4, 632.4], [659.4, 625.3], [652.4, 618.1], [645.3, 611.0], [638.3, 603.9], [631.3, 596.8], [624.3, 589.6], [617.3, 582.5], [610.2, 575.4], [603.2, 568.3], [596.2, 561.2], [589.2, 554.0], [582.2, 546.9], [575.1, 539.8], [568.1, 532.7], [561.1, 525.5], [554.1, 518.4], [547.1, 511.3], [540.0, 504.2], [533.0, 497.1]]}, "redbullring": {"name": "Red Bull Ring", "length": 4298, "pts": [[232.5, -370.3], [222.9, -372.8], [213.2, -375.4], [203.5, -377.9], [193.8, -380.5], [184.2, -383.0], [174.5, -385.6], [164.8, -388.1], [155.2, -390.7], [145.5, -393.2], [135.9, -395.8], [126.2, -398.4], [116.5, -401.0], [106.9, -403.7], [97.2, -406.3], [87.6, -408.9], [77.9, -411.5], [68.3, -414.1], [58.6, -416.7], [49.0, -419.3], [39.3, -421.9], [29.7, -424.5], [20.0, -427.1], [10.4, -429.8], [0.7, -432.4], [-9.0, -435.0], [-18.6, -437.6], [-28.3, -440.2], [-37.9, -442.8], [-47.6, -445.4], [-57.2, -448.0], [-66.9, -450.6], [-76.8, -451.5], [-85.7, -449.0], [-92.8, -442.1], [-97.4, -433.2], [-102.0, -424.3], [-106.6, -415.5], [-112.0, -407.1], [-117.9, -399.0], [-123.9, -391.0], [-129.9, -383.0], [-135.9, -375.0], [-141.8, -367.0], [-147.8, -358.9], [-153.8, -350.9], [-159.8, -342.9], [-165.6, -334.8], [-171.4, -326.6], [-177.2, -318.5], [-182.9, -310.3], [-188.7, -302.1], [-194.5, -294.0], [-200.3, -285.8], [-206.1, -277.7], [-211.8, -269.5], [-217.6, -261.3], [-223.0, -252.9], [-228.3, -244.4], [-233.7, -236.0], [-239.0, -227.5], [-244.3, -219.1], [-249.7, -210.6], [-255.0, -202.2], [-260.3, -193.7], [-265.5, -185.1], [-270.5, -176.5], [-275.6, -167.9], [-280.6, -159.2], [-285.7, -150.6], [-290.7, -141.9], [-295.7, -133.3], [-300.8, -124.7], [-305.4, -115.8], [-309.6, -106.8], [-313.8, -97.7], [-318.0, -88.6], [-322.2, -79.5], [-326.4, -70.4], [-330.6, -61.4], [-334.8, -52.3], [-339.0, -43.2], [-343.2, -34.1], [-347.4, -25.0], [-351.5, -16.0], [-355.7, -6.9], [-359.9, 2.2], [-364.1, 11.3], [-368.3, 20.3], [-372.6, 29.4], [-376.9, 38.4], [-381.2, 47.4], [-385.5, 56.5], [-390.1, 65.3], [-395.4, 73.8], [-400.7, 82.3], [-405.9, 90.8], [-411.2, 99.3], [-416.5, 107.8], [-422.8, 115.5], [-429.2, 123.3], [-435.5, 131.0], [-441.9, 138.7], [-448.2, 146.4], [-454.6, 154.1], [-461.0, 161.8], [-468.1, 168.8], [-475.2, 175.9], [-482.3, 183.0], [-489.4, 190.0], [-496.4, 197.1], [-503.5, 204.2], [-510.6, 211.2], [-517.7, 218.3], [-524.8, 225.3], [-531.9, 232.4], [-538.9, 239.4], [-546.0, 246.5], [-553.1, 253.5], [-560.2, 260.6], [-567.3, 267.6], [-574.4, 274.7], [-581.5, 281.7], [-588.6, 288.8], [-595.7, 295.8], [-601.2, 304.0], [-602.6, 313.6], [-596.9, 320.5], [-587.4, 323.1], [-577.6, 324.9], [-567.6, 326.0], [-557.7, 327.2], [-547.8, 328.3], [-537.8, 329.5], [-527.9, 330.6], [-517.9, 331.4], [-507.9, 331.8], [-497.9, 332.2], [-487.9, 332.6], [-478.0, 332.9], [-468.0, 333.3], [-458.0, 333.2], [-448.0, 333.1], [-438.0, 333.0], [-428.0, 332.9], [-418.0, 332.8], [-408.0, 332.4], [-398.0, 331.4], [-388.1, 330.5], [-378.1, 329.5], [-368.2, 328.6], [-358.2, 327.6], [-348.3, 326.0], [-338.5, 324.4], [-328.6, 322.9], [-318.7, 321.3], [-308.8, 319.7], [-299.0, 318.1], [-289.1, 316.3], [-279.3, 314.5], [-269.5, 312.6], [-259.7, 310.7], [-249.8, 308.8], [-240.0, 306.9], [-230.2, 305.0], [-220.4, 303.1], [-210.6, 301.3], [-200.7, 299.4], [-190.9, 297.5], [-181.1, 295.6], [-171.3, 293.7], [-161.5, 291.8], [-151.6, 290.0], [-141.8, 288.1], [-132.0, 286.2], [-122.2, 284.3], [-112.4, 282.4], [-102.5, 280.7], [-92.6, 279.4], [-82.7, 278.1], [-72.8, 276.8], [-62.8, 275.5], [-52.9, 274.2], [-43.0, 272.9], [-33.1, 271.6], [-23.2, 270.3], [-13.2, 269.5], [-3.2, 269.1], [6.8, 268.7], [16.8, 268.3], [26.7, 267.9], [36.7, 267.4], [46.7, 267.0], [56.7, 266.6], [66.7, 266.2], [76.7, 265.8], [86.7, 265.3], [96.7, 264.9], [106.7, 264.5], [116.7, 264.1], [126.7, 263.7], [136.6, 263.3], [146.6, 262.8], [156.6, 262.4], [166.6, 262.0], [176.2, 259.3], [185.1, 255.3], [191.8, 247.9], [195.6, 238.8], [196.3, 229.0], [194.3, 219.3], [190.1, 210.2], [184.4, 202.1], [178.6, 193.9], [172.9, 185.7], [166.5, 178.0], [160.1, 170.3], [153.1, 163.3], [145.5, 156.7], [138.0, 150.1], [130.5, 143.5], [121.8, 138.6], [113.0, 133.9], [104.2, 129.1], [95.0, 125.3], [85.5, 122.1], [76.0, 119.0], [66.5, 115.9], [56.7, 113.9], [46.9, 112.3], [37.0, 110.7], [27.1, 109.1], [17.2, 109.2], [7.2, 109.8], [-2.8, 110.5], [-12.8, 111.1], [-22.7, 112.3], [-32.6, 113.9], [-42.4, 115.5], [-52.3, 117.1], [-62.2, 118.6], [-72.1, 120.2], [-81.9, 121.8], [-91.8, 123.4], [-101.7, 125.0], [-111.6, 126.5], [-121.4, 128.1], [-131.3, 129.7], [-141.2, 131.3], [-151.1, 132.8], [-160.9, 134.4], [-170.8, 136.0], [-180.7, 136.4], [-190.6, 135.1], [-200.4, 133.3], [-209.8, 130.0], [-218.8, 125.7], [-227.0, 120.0], [-234.5, 113.4], [-241.4, 106.2], [-246.8, 97.9], [-251.3, 89.0], [-254.3, 79.5], [-256.7, 69.8], [-257.4, 59.8], [-257.5, 49.9], [-256.1, 40.0], [-253.9, 30.3], [-250.5, 20.9], [-245.7, 12.2], [-240.7, 3.5], [-235.7, -5.2], [-230.7, -13.8], [-225.7, -22.5], [-220.7, -31.2], [-215.7, -39.8], [-210.7, -48.5], [-205.7, -57.2], [-200.7, -65.8], [-195.7, -74.5], [-190.8, -83.2], [-185.8, -91.8], [-180.8, -100.5], [-175.8, -109.2], [-170.1, -117.3], [-163.3, -124.7], [-155.7, -131.0], [-147.2, -136.3], [-138.7, -141.5], [-128.9, -143.7], [-119.2, -145.8], [-109.3, -146.1], [-99.3, -145.1], [-89.6, -143.3], [-80.4, -139.4], [-71.1, -135.6], [-62.9, -130.0], [-55.1, -123.8], [-48.6, -116.2], [-42.3, -108.5], [-36.1, -100.6], [-29.9, -92.8], [-23.7, -85.0], [-16.7, -77.8], [-9.7, -70.7], [-1.5, -64.9], [6.7, -59.3], [15.3, -54.0], [23.9, -49.0], [32.7, -44.2], [42.1, -40.8], [51.5, -37.4], [60.9, -34.0], [70.6, -31.9], [80.4, -29.8], [90.2, -27.7], [100.1, -27.1], [110.1, -26.9], [120.1, -26.7], [130.1, -26.5], [140.1, -26.3], [150.1, -26.0], [160.1, -25.8], [170.1, -25.6], [180.1, -25.4], [190.1, -25.2], [200.1, -25.0], [210.1, -24.8], [220.1, -24.6], [230.1, -24.4], [240.1, -24.2], [250.1, -23.9], [260.1, -23.7], [270.1, -23.5], [280.1, -23.3], [290.1, -23.1], [300.1, -22.9], [310.1, -22.7], [320.1, -22.5], [330.1, -22.3], [340.1, -22.1], [350.1, -21.8], [360.1, -21.6], [370.1, -21.3], [380.1, -21.1], [390.1, -20.8], [400.1, -20.6], [410.1, -20.4], [420.1, -20.1], [430.1, -19.9], [440.1, -19.6], [450.0, -19.4], [460.0, -19.1], [470.0, -18.9], [480.0, -18.7], [490.0, -18.4], [500.0, -18.2], [510.0, -17.9], [520.0, -17.7], [530.0, -17.4], [540.0, -17.6], [550.0, -17.8], [559.5, -20.9], [568.9, -24.2], [577.2, -29.7], [585.3, -35.7], [591.8, -43.2], [598.1, -51.0], [602.7, -59.8], [606.9, -68.9], [610.5, -78.1], [613.4, -87.7], [616.3, -97.3], [619.1, -106.9], [622.0, -116.5], [624.8, -126.1], [627.7, -135.6], [630.6, -145.2], [633.4, -154.8], [636.3, -164.4], [639.2, -174.0], [642.0, -183.5], [644.9, -193.1], [647.7, -202.7], [649.8, -212.5], [649.0, -222.2], [644.5, -231.0], [636.9, -237.5], [629.1, -243.7], [620.5, -248.8], [611.9, -253.9], [603.1, -258.7], [594.2, -263.1], [585.3, -267.6], [576.1, -271.7], [566.9, -275.6], [557.7, -279.5], [548.4, -283.0], [538.9, -286.2], [529.4, -289.3], [519.9, -292.4], [510.2, -295.1], [500.6, -297.7], [490.9, -300.3], [481.3, -303.0], [471.6, -305.6], [462.0, -308.2], [452.3, -310.8], [442.7, -313.4], [433.0, -316.0], [423.4, -318.6], [413.7, -321.2], [404.1, -323.8], [394.4, -326.5], [384.8, -329.1], [375.1, -331.7], [365.4, -334.3], [355.8, -336.9], [346.1, -339.5], [336.5, -342.1], [326.8, -344.7], [317.2, -347.4], [307.5, -350.0], [297.9, -352.6], [288.2, -355.2], [278.6, -357.8], [268.9, -360.4], [259.3, -363.0], [249.6, -365.6], [240.0, -368.3]]}, "watkins_glen": {"name": "Watkins Glen", "length": 5428, "pts": [[-313.6, 615.4], [-313.0, 625.4], [-312.3, 635.3], [-311.7, 645.3], [-311.0, 655.3], [-310.3, 665.3], [-309.7, 675.2], [-309.0, 685.2], [-308.4, 695.2], [-307.7, 705.2], [-307.0, 715.2], [-306.4, 725.1], [-305.7, 735.1], [-305.0, 745.1], [-304.4, 755.1], [-303.7, 765.0], [-303.1, 775.0], [-302.4, 785.0], [-301.7, 795.0], [-301.1, 805.0], [-300.4, 814.9], [-299.8, 824.9], [-299.1, 834.9], [-298.4, 844.9], [-297.8, 854.8], [-297.1, 864.8], [-296.5, 874.8], [-295.8, 884.8], [-295.1, 894.8], [-294.5, 904.7], [-293.8, 914.7], [-293.1, 924.7], [-292.5, 934.7], [-291.8, 944.6], [-287.8, 953.8], [-281.9, 961.6], [-274.2, 967.9], [-265.0, 971.1], [-255.2, 972.7], [-245.2, 973.1], [-235.2, 972.7], [-225.3, 971.3], [-215.5, 969.5], [-205.7, 967.6], [-195.9, 965.8], [-186.0, 964.0], [-176.2, 962.2], [-166.4, 960.3], [-156.5, 958.5], [-146.7, 956.7], [-136.9, 954.9], [-127.0, 953.0], [-117.2, 951.2], [-107.4, 949.4], [-97.5, 947.5], [-87.7, 945.7], [-77.9, 943.9], [-68.0, 942.1], [-58.2, 940.2], [-48.4, 938.4], [-38.5, 936.6], [-28.7, 934.8], [-18.9, 932.9], [-9.1, 931.1], [0.8, 929.3], [10.0, 925.4], [19.1, 921.4], [28.3, 917.3], [37.0, 912.5], [45.4, 907.1], [53.8, 901.7], [61.5, 895.4], [68.3, 888.0], [75.0, 880.7], [81.8, 873.3], [87.1, 864.9], [92.3, 856.3], [97.6, 847.8], [102.1, 838.9], [106.0, 829.7], [109.8, 820.5], [112.9, 811.0], [115.6, 801.4], [118.2, 791.7], [119.9, 781.9], [121.3, 772.0], [122.4, 762.0], [123.5, 752.1], [124.5, 742.1], [125.6, 732.2], [126.6, 722.2], [127.7, 712.3], [129.9, 702.6], [132.9, 693.1], [136.0, 683.6], [140.1, 674.4], [144.1, 665.3], [148.9, 656.5], [154.4, 648.2], [159.9, 639.8], [165.4, 631.5], [172.3, 624.2], [179.1, 616.9], [186.0, 609.6], [193.5, 603.1], [201.2, 596.7], [209.0, 590.4], [216.7, 584.1], [224.5, 577.8], [232.2, 571.4], [239.9, 565.1], [247.7, 558.8], [255.4, 552.5], [263.1, 546.1], [269.6, 538.5], [276.2, 530.9], [282.7, 523.3], [289.2, 515.7], [295.3, 507.8], [301.0, 499.6], [306.7, 491.4], [312.4, 483.2], [317.3, 474.5], [321.8, 465.6], [326.4, 456.7], [330.7, 447.7], [334.1, 438.3], [337.4, 428.8], [340.8, 419.4], [344.1, 410.0], [347.4, 400.6], [350.1, 391.0], [351.6, 381.1], [353.1, 371.2], [354.6, 361.3], [356.2, 351.4], [357.0, 341.5], [357.7, 331.5], [358.4, 321.5], [359.1, 311.5], [359.5, 301.5], [359.9, 291.5], [360.2, 281.6], [360.5, 271.6], [360.9, 261.6], [361.2, 251.6], [361.5, 241.6], [361.9, 231.6], [362.2, 221.6], [362.6, 211.6], [362.9, 201.6], [363.2, 191.6], [363.6, 181.6], [363.9, 171.6], [364.2, 161.6], [364.6, 151.6], [364.9, 141.6], [365.3, 131.6], [365.6, 121.6], [365.9, 111.6], [366.3, 101.7], [366.6, 91.7], [366.9, 81.7], [367.3, 71.7], [367.6, 61.7], [368.0, 51.7], [368.3, 41.7], [368.6, 31.7], [369.0, 21.7], [369.3, 11.7], [369.6, 1.7], [370.0, -8.3], [370.3, -18.3], [370.6, -28.3], [371.0, -38.3], [371.3, -48.3], [371.7, -58.3], [372.0, -68.2], [372.3, -78.2], [372.7, -88.2], [373.0, -98.2], [373.3, -108.2], [373.7, -118.2], [374.0, -128.2], [374.4, -138.2], [374.7, -148.2], [375.0, -158.2], [375.4, -168.2], [375.7, -178.2], [376.0, -188.2], [376.4, -198.2], [376.7, -208.2], [377.1, -218.2], [377.4, -228.2], [377.7, -238.2], [378.1, -248.1], [378.4, -258.1], [378.7, -268.1], [379.1, -278.1], [379.4, -288.1], [379.7, -298.1], [380.1, -308.1], [380.4, -318.1], [380.8, -328.1], [381.1, -338.1], [381.4, -348.1], [381.8, -358.1], [382.1, -368.1], [382.4, -378.1], [382.8, -388.1], [383.1, -398.1], [383.5, -408.1], [383.8, -418.0], [384.1, -428.0], [384.5, -438.0], [384.8, -448.0], [385.1, -458.0], [384.9, -468.0], [384.1, -478.0], [382.3, -487.8], [379.5, -497.4], [376.3, -506.8], [372.0, -515.8], [367.0, -524.5], [361.2, -532.6], [355.0, -540.4], [347.9, -547.4], [340.5, -554.1], [332.0, -559.5], [323.6, -564.8], [314.7, -569.1], [305.2, -572.3], [295.7, -575.5], [285.8, -576.9], [275.9, -578.0], [265.9, -578.4], [255.9, -577.9], [245.9, -577.5], [236.3, -574.9], [226.8, -572.0], [217.5, -568.3], [208.9, -563.3], [200.2, -558.3], [192.3, -552.3], [184.8, -545.7], [177.3, -539.1], [170.7, -531.6], [164.4, -523.8], [158.0, -516.1], [151.6, -508.4], [145.2, -500.7], [138.9, -493.0], [132.5, -485.3], [126.1, -477.6], [119.7, -469.9], [113.4, -462.2], [107.0, -454.5], [100.6, -446.8], [94.2, -439.1], [87.9, -431.4], [81.5, -423.7], [75.1, -416.0], [68.7, -408.3], [62.4, -400.6], [56.0, -392.9], [49.6, -385.2], [43.2, -377.5], [36.9, -369.8], [30.5, -362.0], [24.1, -354.3], [17.7, -346.6], [11.4, -338.9], [3.1, -333.5], [-5.6, -328.6], [-14.8, -324.9], [-24.5, -322.2], [-34.4, -321.9], [-44.4, -322.0], [-54.2, -323.4], [-63.6, -326.9], [-72.9, -330.3], [-81.5, -335.1], [-89.2, -341.5], [-96.1, -348.7], [-101.8, -356.9], [-107.0, -365.4], [-110.9, -374.6], [-112.3, -384.4], [-113.2, -394.4], [-114.1, -404.4], [-114.0, -414.3], [-113.5, -424.3], [-113.0, -434.3], [-112.5, -444.3], [-112.0, -454.3], [-111.5, -464.3], [-111.0, -474.3], [-110.4, -484.2], [-109.9, -494.2], [-109.4, -504.2], [-108.9, -514.2], [-108.4, -524.2], [-107.9, -534.2], [-107.4, -544.2], [-106.9, -554.2], [-106.4, -564.1], [-105.9, -574.1], [-105.4, -584.1], [-104.9, -594.1], [-104.4, -604.1], [-103.9, -614.1], [-103.4, -624.1], [-102.9, -634.1], [-102.4, -644.0], [-101.9, -654.0], [-101.4, -664.0], [-100.9, -674.0], [-100.4, -684.0], [-99.9, -694.0], [-99.4, -704.0], [-98.9, -714.0], [-100.6, -723.7], [-103.2, -733.4], [-107.6, -742.4], [-112.7, -750.8], [-119.6, -758.1], [-128.0, -763.6], [-136.7, -768.3], [-146.3, -770.9], [-156.1, -772.8], [-166.1, -772.4], [-175.9, -771.2], [-185.1, -767.4], [-194.2, -763.2], [-201.9, -756.9], [-209.3, -750.2], [-214.9, -742.0], [-220.4, -733.7], [-225.1, -724.8], [-229.1, -715.7], [-230.4, -705.8], [-231.7, -695.9], [-232.5, -685.9], [-233.4, -676.0], [-234.2, -666.0], [-235.1, -656.1], [-235.9, -646.1], [-236.8, -636.1], [-237.6, -626.2], [-238.5, -616.2], [-239.3, -606.2], [-240.2, -596.3], [-241.0, -586.3], [-241.8, -576.3], [-242.7, -566.4], [-243.5, -556.4], [-244.4, -546.4], [-245.2, -536.5], [-246.1, -526.5], [-246.9, -516.6], [-247.8, -506.6], [-248.6, -496.6], [-249.5, -486.7], [-250.3, -476.7], [-251.2, -466.7], [-252.0, -456.8], [-252.8, -446.8], [-253.7, -436.8], [-254.5, -426.9], [-255.4, -416.9], [-256.2, -406.9], [-257.1, -397.0], [-257.9, -387.0], [-258.8, -377.1], [-259.6, -367.1], [-260.5, -357.1], [-261.3, -347.2], [-262.2, -337.2], [-263.0, -327.2], [-263.8, -317.3], [-264.7, -307.3], [-265.5, -297.3], [-266.4, -287.4], [-267.2, -277.4], [-268.1, -267.4], [-268.9, -257.5], [-269.8, -247.5], [-270.6, -237.6], [-271.5, -227.6], [-272.3, -217.6], [-273.2, -207.7], [-274.0, -197.7], [-274.8, -187.7], [-275.7, -177.8], [-276.5, -167.8], [-275.2, -158.0], [-273.0, -148.2], [-267.0, -140.3], [-260.1, -133.2], [-251.7, -127.7], [-242.8, -123.8], [-232.9, -122.2], [-223.0, -122.6], [-213.0, -123.6], [-203.3, -125.5], [-193.7, -128.5], [-184.2, -131.5], [-175.0, -135.5], [-166.0, -139.8], [-156.9, -144.0], [-147.9, -148.3], [-138.8, -152.5], [-129.8, -156.8], [-120.7, -161.0], [-111.7, -165.3], [-102.6, -169.6], [-93.6, -173.8], [-84.5, -178.1], [-75.5, -182.3], [-66.4, -186.6], [-57.4, -190.8], [-48.3, -195.1], [-39.3, -199.4], [-30.3, -203.6], [-21.2, -207.9], [-12.2, -212.1], [-3.1, -216.4], [6.4, -218.9], [16.4, -219.7], [26.3, -218.9], [36.0, -216.9], [44.4, -211.4], [52.7, -205.9], [59.5, -198.5], [66.1, -191.1], [70.6, -182.2], [74.8, -173.1], [76.6, -163.5], [76.9, -153.5], [75.2, -143.7], [73.0, -133.9], [70.7, -124.2], [68.4, -114.4], [66.2, -104.7], [63.9, -95.0], [61.6, -85.2], [59.3, -75.5], [57.1, -65.8], [54.8, -56.0], [52.5, -46.3], [50.3, -36.5], [48.0, -26.8], [45.7, -17.1], [43.5, -7.3], [41.2, 2.4], [38.9, 12.2], [36.7, 21.9], [34.4, 31.6], [32.1, 41.4], [29.8, 51.1], [27.6, 60.9], [25.3, 70.6], [23.0, 80.3], [20.8, 90.1], [18.5, 99.8], [16.2, 109.6], [14.0, 119.3], [11.7, 129.0], [7.6, 138.0], [2.5, 146.6], [-3.4, 154.7], [-10.0, 162.2], [-17.3, 169.0], [-25.3, 174.9], [-33.7, 180.1], [-43.3, 183.2], [-52.8, 186.1], [-62.5, 188.5], [-72.5, 189.4], [-82.4, 190.0], [-92.4, 190.6], [-102.4, 191.2], [-112.4, 191.8], [-122.4, 192.5], [-132.3, 193.1], [-142.3, 193.7], [-152.3, 194.3], [-162.3, 194.9], [-172.3, 195.6], [-182.2, 196.2], [-192.2, 196.8], [-202.2, 197.4], [-212.2, 198.1], [-222.2, 198.7], [-232.1, 199.3], [-242.1, 199.9], [-252.1, 200.5], [-262.1, 201.2], [-272.1, 201.8], [-282.0, 202.5], [-290.9, 207.1], [-299.8, 211.7], [-307.8, 217.4], [-314.6, 224.8], [-321.3, 232.2], [-326.1, 240.9], [-330.9, 249.7], [-334.5, 258.9], [-335.8, 268.8], [-337.0, 278.7], [-337.1, 288.6], [-336.3, 298.6], [-335.6, 308.6], [-334.9, 318.6], [-334.2, 328.5], [-333.5, 338.5], [-332.8, 348.5], [-332.1, 358.5], [-331.3, 368.4], [-330.6, 378.4], [-329.9, 388.4], [-329.2, 398.4], [-328.5, 408.3], [-327.8, 418.3], [-327.0, 428.3], [-326.3, 438.3], [-325.6, 448.2], [-324.9, 458.2], [-324.2, 468.2], [-323.5, 478.2], [-322.8, 488.1], [-322.0, 498.1], [-321.3, 508.1], [-320.6, 518.1], [-319.9, 528.0], [-319.2, 538.0], [-318.5, 548.0], [-317.8, 558.0], [-317.0, 567.9], [-316.3, 577.9], [-315.6, 587.9], [-314.9, 597.9], [-314.2, 607.8]]}, "norisring": {"name": "Norisring", "length": 2291, "pts": [[15.7, -63.6], [24.2, -68.9], [32.7, -74.2], [41.1, -79.6], [49.6, -84.9], [58.1, -90.1], [66.7, -95.2], [75.6, -99.9], [84.4, -104.6], [92.9, -109.8], [100.7, -116.0], [108.0, -122.9], [115.7, -129.2], [124.3, -134.4], [133.0, -139.3], [141.7, -144.2], [150.4, -149.2], [159.0, -154.2], [167.7, -159.2], [176.3, -164.3], [185.0, -169.3], [193.6, -174.3], [202.3, -179.3], [210.9, -184.3], [219.6, -189.3], [228.3, -194.3], [236.9, -199.3], [245.6, -204.3], [254.3, -209.3], [262.8, -214.5], [270.9, -220.4], [278.5, -226.8], [286.0, -233.4], [293.6, -239.9], [301.3, -246.3], [309.0, -252.8], [316.7, -259.1], [324.3, -265.5], [332.0, -272.0], [339.5, -278.6], [346.9, -285.3], [354.2, -292.2], [361.2, -299.3], [368.0, -306.6], [374.6, -314.1], [381.0, -321.8], [387.4, -329.5], [394.3, -336.8], [402.7, -342.0], [412.5, -343.0], [420.9, -338.0], [425.3, -329.2], [423.3, -319.6], [416.9, -312.0], [410.1, -304.6], [403.3, -297.3], [396.6, -289.9], [389.8, -282.5], [382.9, -275.3], [375.8, -268.3], [368.4, -261.5], [360.8, -255.0], [353.1, -248.7], [345.3, -242.4], [337.7, -235.9], [330.1, -229.3], [322.6, -222.8], [314.9, -216.4], [306.9, -210.4], [298.7, -204.7], [290.3, -199.2], [281.9, -193.9], [273.4, -188.6], [264.9, -183.3], [256.4, -178.1], [247.8, -172.8], [239.3, -167.7], [230.7, -162.5], [222.1, -157.4], [213.6, -152.2], [205.0, -147.1], [196.3, -142.1], [187.7, -137.0], [179.1, -131.9], [170.5, -126.9], [161.8, -121.8], [153.2, -116.8], [144.6, -111.7], [135.9, -106.7], [127.3, -101.7], [118.7, -96.5], [110.6, -90.6], [104.4, -83.0], [105.0, -73.3], [109.6, -64.5], [114.8, -55.9], [119.7, -47.2], [124.6, -38.5], [129.8, -30.0], [134.6, -21.2], [135.1, -11.5], [130.9, -2.5], [123.6, 4.3], [115.0, 9.4], [106.4, 14.4], [97.7, 19.4], [89.0, 24.4], [80.4, 29.4], [71.7, 34.4], [63.1, 39.4], [54.4, 44.5], [45.8, 49.5], [37.1, 54.5], [28.5, 59.6], [19.9, 64.6], [11.2, 69.6], [2.5, 74.6], [-6.1, 79.6], [-14.8, 84.6], [-23.4, 89.6], [-32.1, 94.6], [-40.8, 99.6], [-49.4, 104.6], [-58.1, 109.6], [-66.7, 114.6], [-75.4, 119.6], [-84.0, 124.7], [-92.7, 129.7], [-101.3, 134.7], [-109.9, 139.8], [-118.6, 144.9], [-127.2, 149.9], [-135.8, 154.9], [-144.5, 160.0], [-153.1, 165.0], [-161.8, 169.9], [-170.5, 174.8], [-179.3, 179.7], [-188.0, 184.6], [-196.6, 189.6], [-205.2, 194.7], [-213.8, 199.9], [-222.1, 205.4], [-230.4, 211.1], [-238.4, 217.0], [-246.4, 223.1], [-254.2, 229.2], [-262.0, 235.6], [-269.3, 242.4], [-275.8, 249.9], [-282.0, 257.8], [-288.1, 265.7], [-294.2, 273.7], [-300.2, 281.7], [-306.2, 289.7], [-312.2, 297.6], [-318.3, 305.6], [-324.4, 313.5], [-330.5, 321.4], [-336.6, 329.4], [-342.6, 337.3], [-348.6, 345.4], [-354.5, 353.4], [-360.6, 361.3], [-367.1, 368.9], [-375.4, 374.0], [-384.3, 370.5], [-387.7, 361.5], [-386.9, 351.5], [-385.5, 341.6], [-383.9, 331.8], [-381.9, 322.0], [-379.6, 312.2], [-377.1, 302.6], [-374.4, 292.9], [-371.5, 283.3], [-368.6, 273.8], [-365.7, 264.2], [-362.8, 254.6], [-360.0, 245.0], [-357.3, 235.4], [-354.5, 225.8], [-351.8, 216.2], [-349.1, 206.6], [-346.2, 197.0], [-343.1, 187.5], [-339.9, 178.0], [-336.3, 168.7], [-332.1, 159.6], [-327.1, 150.9], [-321.3, 142.8], [-314.4, 135.5], [-306.6, 129.3], [-298.4, 123.6], [-290.1, 118.1], [-281.6, 112.7], [-273.1, 107.5], [-264.6, 102.3], [-256.0, 97.2], [-247.3, 92.2], [-238.7, 87.2], [-230.0, 82.2], [-221.3, 77.2], [-212.6, 72.3], [-203.9, 67.4], [-195.2, 62.5], [-186.5, 57.5], [-177.8, 52.6], [-169.1, 47.7], [-160.4, 42.8], [-151.7, 37.8], [-143.0, 32.9], [-134.3, 27.9], [-125.7, 22.8], [-117.1, 17.8], [-108.5, 12.7], [-99.9, 7.6], [-91.3, 2.4], [-82.7, -2.8], [-74.2, -8.0], [-65.7, -13.2], [-57.2, -18.4], [-48.7, -23.7], [-40.2, -28.9], [-31.7, -34.2], [-23.2, -39.5], [-14.7, -44.8], [-6.2, -50.1], [2.3, -55.3], [10.8, -60.6]]}, "oschersleben": {"name": "Oschersleben", "length": 3687, "pts": [[233.2, -158.1], [223.6, -155.3], [214.0, -152.5], [204.4, -149.7], [194.8, -146.9], [185.2, -144.1], [175.6, -141.3], [166.0, -138.5], [156.4, -135.7], [146.8, -132.9], [137.2, -130.1], [127.6, -127.3], [118.0, -124.4], [108.4, -121.6], [98.8, -118.8], [89.2, -116.0], [79.6, -113.2], [70.0, -110.4], [60.4, -107.6], [50.9, -104.8], [41.3, -101.9], [31.7, -99.1], [22.1, -96.3], [12.5, -93.5], [2.9, -90.7], [-6.7, -87.8], [-16.3, -85.0], [-25.9, -82.2], [-35.5, -79.4], [-45.1, -76.6], [-54.7, -73.7], [-64.3, -70.9], [-73.9, -68.1], [-83.5, -65.3], [-93.1, -62.4], [-102.7, -59.6], [-112.3, -56.9], [-122.0, -54.5], [-131.9, -53.3], [-141.7, -54.9], [-150.7, -59.3], [-158.7, -65.2], [-166.4, -71.6], [-174.3, -77.8], [-182.6, -83.3], [-191.6, -87.7], [-201.2, -90.6], [-211.1, -91.8], [-221.0, -91.0], [-230.5, -87.9], [-239.2, -83.0], [-246.8, -76.6], [-253.2, -68.8], [-258.1, -60.2], [-261.6, -50.8], [-263.5, -41.0], [-263.5, -31.0], [-261.7, -21.2], [-258.1, -11.9], [-253.0, -3.3], [-246.5, 4.3], [-238.7, 10.6], [-229.8, 15.0], [-220.1, 17.4], [-210.1, 18.0], [-200.1, 17.7], [-190.2, 16.8], [-180.2, 15.6], [-170.3, 14.3], [-160.4, 13.0], [-150.5, 11.6], [-140.6, 10.3], [-130.7, 9.0], [-120.8, 7.7], [-110.8, 6.4], [-100.9, 5.1], [-91.0, 3.8], [-81.1, 2.5], [-71.2, 1.2], [-61.3, -0.0], [-51.3, -1.3], [-41.4, -2.6], [-31.5, -3.9], [-21.6, -5.1], [-11.7, -6.4], [-1.7, -7.7], [8.2, -8.9], [18.1, -10.2], [28.0, -11.5], [37.9, -12.7], [47.9, -14.0], [57.8, -15.2], [67.7, -16.0], [77.7, -15.2], [87.1, -12.0], [95.5, -6.6], [102.6, 0.5], [108.0, 8.8], [111.7, 18.1], [113.5, 27.9], [113.3, 37.9], [111.0, 47.6], [106.5, 56.5], [100.0, 64.0], [91.8, 69.8], [82.7, 73.8], [72.9, 76.0], [63.1, 77.6], [53.2, 79.4], [43.4, 81.2], [33.6, 83.1], [23.8, 84.9], [13.9, 86.8], [4.1, 88.7], [-5.7, 90.6], [-15.5, 92.4], [-25.4, 94.3], [-35.2, 96.1], [-45.0, 97.9], [-54.9, 99.8], [-64.7, 101.6], [-74.5, 103.4], [-84.4, 105.2], [-94.2, 107.0], [-104.0, 108.8], [-113.9, 110.6], [-123.7, 112.5], [-133.5, 114.3], [-143.4, 116.2], [-153.2, 118.0], [-163.0, 119.9], [-172.8, 121.7], [-182.7, 123.6], [-192.5, 125.4], [-202.3, 127.3], [-212.1, 129.1], [-222.0, 130.9], [-231.8, 132.8], [-241.7, 134.2], [-251.7, 134.1], [-261.5, 132.2], [-270.9, 128.8], [-279.9, 124.4], [-288.4, 119.2], [-296.8, 113.7], [-305.1, 108.1], [-313.5, 102.8], [-322.1, 97.7], [-330.5, 92.2], [-338.3, 86.0], [-345.1, 78.7], [-350.5, 70.2], [-353.9, 60.9], [-355.7, 51.1], [-356.9, 41.1], [-358.2, 31.2], [-359.8, 21.3], [-361.6, 11.5], [-363.3, 1.6], [-364.7, -8.3], [-365.2, -18.2], [-364.1, -28.1], [-359.9, -37.2], [-354.4, -45.5], [-349.3, -54.1], [-345.6, -63.4], [-343.6, -73.2], [-343.8, -83.1], [-345.9, -92.9], [-349.9, -102.0], [-355.8, -110.1], [-363.1, -116.8], [-371.7, -121.9], [-381.1, -125.3], [-390.9, -126.9], [-400.9, -126.7], [-410.7, -124.7], [-419.9, -120.8], [-428.1, -115.1], [-435.0, -107.9], [-440.4, -99.5], [-443.9, -90.2], [-445.4, -80.3], [-445.6, -70.3], [-445.5, -60.3], [-445.4, -50.3], [-445.3, -40.3], [-445.1, -30.3], [-444.9, -20.3], [-444.7, -10.3], [-444.5, -0.3], [-444.4, 9.7], [-444.3, 19.7], [-444.2, 29.7], [-444.1, 39.7], [-444.2, 49.7], [-444.1, 59.7], [-443.4, 69.7], [-441.7, 79.5], [-437.4, 88.4], [-430.0, 95.0], [-421.8, 100.8], [-414.7, 107.7], [-410.0, 116.5], [-408.5, 126.3], [-408.7, 136.3], [-408.8, 146.3], [-407.6, 156.2], [-404.8, 165.8], [-400.7, 174.9], [-395.3, 183.3], [-388.8, 190.8], [-381.3, 197.5], [-373.0, 203.0], [-364.0, 207.4], [-354.6, 210.7], [-344.8, 212.8], [-334.8, 213.7], [-324.9, 213.4], [-315.0, 212.0], [-305.2, 210.1], [-295.4, 208.0], [-285.5, 206.1], [-275.7, 204.2], [-265.9, 202.2], [-256.1, 200.3], [-246.3, 198.3], [-236.5, 196.4], [-226.7, 194.4], [-216.9, 192.5], [-207.1, 190.5], [-197.3, 188.6], [-187.4, 186.7], [-177.6, 184.8], [-167.8, 182.9], [-158.0, 181.0], [-148.2, 179.2], [-138.3, 177.3], [-128.5, 175.4], [-118.7, 173.6], [-108.9, 171.7], [-99.0, 169.9], [-89.2, 168.0], [-79.4, 166.2], [-69.6, 164.3], [-59.7, 162.5], [-49.9, 160.6], [-40.1, 158.7], [-30.3, 156.9], [-20.4, 155.0], [-10.6, 153.1], [-0.8, 151.2], [9.0, 149.3], [18.8, 147.3], [28.6, 145.4], [38.5, 143.5], [48.3, 141.5], [58.1, 139.5], [67.9, 137.6], [77.7, 135.6], [87.5, 133.6], [97.3, 131.7], [107.1, 129.7], [116.9, 127.7], [126.7, 125.7], [136.5, 123.8], [146.3, 121.8], [156.1, 119.9], [165.9, 117.9], [175.7, 116.0], [185.6, 114.1], [195.4, 112.2], [205.2, 110.1], [214.9, 107.8], [223.8, 103.4], [230.5, 96.1], [235.6, 87.5], [239.6, 78.3], [243.0, 68.9], [246.5, 59.5], [250.0, 50.2], [253.6, 40.8], [257.2, 31.5], [261.5, 22.5], [267.0, 14.2], [274.2, 7.3], [283.1, 2.9], [292.9, 0.7], [302.7, -1.0], [312.6, -2.5], [322.5, -3.8], [332.4, -5.0], [342.4, -6.2], [352.3, -7.3], [362.2, -8.6], [372.1, -9.9], [382.1, -11.2], [392.0, -12.5], [401.9, -13.8], [411.8, -15.1], [421.7, -16.3], [431.7, -17.5], [441.6, -18.8], [451.5, -20.0], [461.4, -21.3], [471.3, -22.6], [481.2, -23.9], [491.2, -25.1], [501.1, -26.4], [510.9, -28.3], [520.4, -31.4], [529.0, -36.3], [535.6, -43.8], [540.0, -52.7], [543.7, -62.0], [547.1, -71.4], [550.3, -80.9], [553.6, -90.4], [556.9, -99.8], [560.2, -109.2], [563.6, -118.6], [567.0, -128.0], [570.4, -137.4], [573.7, -146.9], [577.0, -156.3], [580.3, -165.7], [583.5, -175.2], [586.6, -184.7], [589.5, -194.3], [591.6, -204.1], [592.1, -214.0], [590.1, -223.8], [585.9, -232.8], [579.7, -240.7], [571.9, -246.7], [562.4, -249.9], [552.5, -250.0], [542.6, -248.3], [533.0, -245.7], [523.4, -242.8], [513.8, -239.9], [504.3, -237.0], [494.7, -234.2], [485.1, -231.4], [475.5, -228.6], [465.9, -225.8], [456.2, -223.1], [446.6, -220.3], [437.0, -217.5], [427.4, -214.7], [417.8, -211.9], [408.2, -209.1], [398.6, -206.3], [389.0, -203.6], [379.4, -200.8], [369.8, -198.0], [360.2, -195.2], [350.6, -192.4], [341.0, -189.6], [331.4, -186.8], [321.8, -184.0], [312.2, -181.2], [302.6, -178.4], [293.0, -175.6], [283.4, -172.8], [273.8, -170.0], [264.2, -167.2], [254.6, -164.4], [245.0, -161.6]]}};
+
+const CIRC_OFFICIEL = {zolder:11,zandvoort:14,hockenheim:17,lausitzring:14,norisring:8,nurburgring:15,oschersleben:14,redbullring:10,sachsenring:13,spa:20,watkins_glen:11};
+let circCurrent = null;
+let circTurns = [];          // [{x,y,dir,sharp,num, manual?}]
+let circAddMode = false;
+const circGears = {};        // {key: {num: {gear,note}}}
+const circCustom = {};       // {key: {added:[{x,y}], removed:[idx]}}  corrections manuelles
+
+function circTurnAngle(a,b,c){
+  const v1x=b[0]-a[0],v1y=b[1]-a[1],v2x=c[0]-b[0],v2y=c[1]-b[1];
+  return Math.atan2(v1x*v2y-v1y*v2x, v1x*v2x+v1y*v2y);
+}
+function circDetectRaw(pts){
+  const n=pts.length, ang=new Array(n).fill(0);
+  for(let i=1;i<n-1;i++) ang[i]=circTurnAngle(pts[i-1],pts[i],pts[i+1]);
+  const turns=[]; let i=1;
+  while(i<n-1){
+    if(Math.abs(ang[i])>0.04){
+      const dir=ang[i]>0?1:-1; let total=0,j=i,miss=0,peak=i,pk=0;
+      while(j<n-1 && miss<2){
+        if(ang[j]*dir>0.01){ total+=Math.abs(ang[j]); if(Math.abs(ang[j])>pk){pk=Math.abs(ang[j]);peak=j;} miss=0; }
+        else if(Math.abs(ang[j])>0.04 && ang[j]*dir<0) break;
+        else miss++;
+        j++;
+      }
+      if(total>0.20) turns.push({idx:peak, x:pts[peak][0], y:pts[peak][1], dir:dir, sharp:total>1.4});
+      i=j;
+    } else i++;
+  }
+  return turns;
+}
+
+function circBuildTurns(key){
+  const c=CIRCUITS_DATA[key], pts=c.pts;
+  let raw=circDetectRaw(pts);
+  const cust=circCustom[key]||{added:[],removed:[]};
+  // retire les virages supprimes manuellement (par proximite)
+  raw=raw.filter(t=>!(cust.removed||[]).some(r=>Math.hypot(r.x-t.x,r.y-t.y)<30));
+  // ajoute les virages manuels
+  for(const a of (cust.added||[])){
+    // trouve le sens depuis le trace au point le plus proche
+    let bi=0,bd=1e18;
+    for(let i=0;i<pts.length;i++){ const dd=Math.hypot(pts[i][0]-a.x,pts[i][1]-a.y); if(dd<bd){bd=dd;bi=i;} }
+    let dir=1;
+    if(bi>0&&bi<pts.length-1) dir=circTurnAngle(pts[bi-1],pts[bi],pts[bi+1])>0?1:-1;
+    raw.push({idx:bi, x:a.x, y:a.y, dir:dir, sharp:false, manual:true});
+  }
+  // ordonne par position sur le circuit (idx) et numerote
+  raw.sort((a,b)=>a.idx-b.idx);
+  raw.forEach((t,k)=>t.num=k+1);
+  return raw;
+}
+
+
+function circUpdateMeta(c){
+  const off=CIRC_OFFICIEL[circCurrent];
+  let msg='Longueur : '+c.length+' m<br>Virages détectés : '+circTurns.length;
+  if(off){
+    const diff=circTurns.length-off;
+    if(diff===0) msg+=' <span style="color:var(--grn)">✓ conforme 51gt3</span>';
+    else if(diff>0) msg+=' <span style="color:var(--y)">/ '+off+' officiels — enlève-en '+diff+'</span>';
+    else msg+=' <span style="color:var(--y)">/ '+off+' officiels — ajoute-en '+(-diff)+'</span>';
+  }
+  $('circMeta').innerHTML=msg;
+}
+
+function circLoad(key){
+  const c=CIRCUITS_DATA[key]; if(!c) return;
+  circCurrent=key;
+  try{ Object.assign(circGears, JSON.parse(localStorage.getItem('apexCircGears')||'{}')); }catch(e){}
+  try{ Object.assign(circCustom, JSON.parse(localStorage.getItem('apexCircCustom')||'{}')); }catch(e){}
+  circTurns=circBuildTurns(key);
+  circDrawMap(c);
+  circDrawTable(c);
+  $('circName').textContent=c.name;
+  circUpdateMeta(c);
+}
+
+function circProject(c){
+  const pts=c.pts;
+  let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;
+  for(const p of pts){ if(p[0]<mnx)mnx=p[0]; if(p[0]>mxx)mxx=p[0]; if(p[1]<mny)mny=p[1]; if(p[1]>mxy)mxy=p[1]; }
+  const pad=40,W=400,H=400;
+  const sc=Math.min((W-2*pad)/(mxx-mnx),(H-2*pad)/(mxy-mny));
+  return { px:p=>pad+(p[0]-mnx)*sc, py:p=>H-pad-(p[1]-mny)*sc,
+           inv:(sx,sy)=>[ (sx-pad)/sc+mnx, (H-pad-sy)/sc+mny ] };
+}
+
+function circDrawMap(c){
+  const svg=$('circuitMap'); if(!svg) return;
+  const pts=c.pts, pr=circProject(c);
+  let d='M'+pr.px(pts[0]).toFixed(1)+','+pr.py(pts[0]).toFixed(1);
+  for(let i=1;i<pts.length;i++) d+='L'+pr.px(pts[i]).toFixed(1)+','+pr.py(pts[i]).toFixed(1);
+  d+='Z';
+  let h='<path class="ctrack" d="'+d+'"/><path class="ctrackline'+(circAddMode?' addmode':'')+'" d="'+d+'"/>';
+  h+='<circle class="cstart" cx="'+pr.px(pts[0]).toFixed(1)+'" cy="'+pr.py(pts[0]).toFixed(1)+'" r="7"/>';
+  for(const t of circTurns){
+    const x=pr.px([t.x,t.y]), y=pr.py([t.x,t.y]);
+    h+='<g class="cturng">';
+    h+='<circle class="cturn'+(t.sharp?' sharp':'')+'" data-turn="'+t.num+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="12"/>';
+    h+='<text class="cnum" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'">'+t.num+'</text>';
+    h+='<circle class="cdel" data-del="'+t.num+'" cx="'+(x+11).toFixed(1)+'" cy="'+(y-11).toFixed(1)+'" r="6"/>';
+    h+='</g>';
+  }
+  svg.innerHTML=h;
+  // clic virage : focus tableau ; clic croix : supprime
+  svg.querySelectorAll('.cturn').forEach(el=>el.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    const num=el.getAttribute('data-turn');
+    const row=$('circRow'+num);
+    if(row){ row.scrollIntoView({behavior:'smooth',block:'center'}); const i=row.querySelector('input'); if(i)i.focus(); }
+  }));
+  svg.querySelectorAll('.cdel').forEach(el=>el.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    const num=+el.getAttribute('data-del');
+    const t=circTurns.find(x=>x.num===num);
+    if(!t) return;
+    if(!circCustom[circCurrent]) circCustom[circCurrent]={added:[],removed:[]};
+    // si c'etait un ajout manuel, on le retire des ajouts ; sinon on le marque supprime
+    const added=circCustom[circCurrent].added||[];
+    const ai=added.findIndex(a=>Math.hypot(a.x-t.x,a.y-t.y)<5);
+    if(ai>=0) added.splice(ai,1);
+    else { if(!circCustom[circCurrent].removed) circCustom[circCurrent].removed=[]; circCustom[circCurrent].removed.push({x:t.x,y:t.y}); }
+    localStorage.setItem('apexCircCustom', JSON.stringify(circCustom));
+    circTurns=circBuildTurns(circCurrent);
+    circDrawMap(c); circDrawTable(c);
+    circUpdateMeta(c);
+  }));
+  // clic sur la piste en mode ajout
+  svg.onclick=(e)=>{
+    if(!circAddMode) return;
+    const rect=svg.getBoundingClientRect();
+    const sx=(e.clientX-rect.left)/rect.width*400, sy=(e.clientY-rect.top)/rect.height*400;
+    const [wx,wy]=pr.inv(sx,sy);
+    // accroche au point de piste le plus proche
+    let bi=0,bd=1e18;
+    for(let i=0;i<pts.length;i++){ const dd=Math.hypot(pts[i][0]-wx,pts[i][1]-wy); if(dd<bd){bd=dd;bi=i;} }
+    if(!circCustom[circCurrent]) circCustom[circCurrent]={added:[],removed:[]};
+    if(!circCustom[circCurrent].added) circCustom[circCurrent].added=[];
+    circCustom[circCurrent].added.push({x:pts[bi][0], y:pts[bi][1]});
+    localStorage.setItem('apexCircCustom', JSON.stringify(circCustom));
+    circTurns=circBuildTurns(circCurrent);
+    circDrawMap(c); circDrawTable(c);
+    circUpdateMeta(c);
   };
-  try {
-    if (ws && ws.readyState === 1) ws.send(JSON.stringify(cfg));
-    localStorage.setItem('apexHud', JSON.stringify(cfg));
-  } catch(e){}
 }
 
-let hudEditing = false;
-function setHudEdit(on){
-  hudEditing = on;
-  const b = $('hudEdit');
-  if (b){
-    b.textContent = on ? '✓ Termine — clique pour figer' : 'Placer librement à la souris';
-    b.style.background = on ? 'linear-gradient(180deg,#FFCB44,#E9A61F)' : '';
-    b.style.color = on ? '#151004' : '';
-    b.style.fontWeight = on ? '800' : '';
+function circDrawTable(c){
+  const t=$('circTable'); if(!t) return;
+  const g=circGears[circCurrent]||{};
+  let html='<thead><tr><th>N°</th><th>Sens</th><th>Rapport</th><th>Note</th></tr></thead><tbody>';
+  for(const turn of circTurns){
+    const saved=g[turn.num]||{};
+    const dir=turn.dir>0?'gauche':'droite';
+    html+='<tr id="circRow'+turn.num+'"><td>'+turn.num+'</td>'+
+      '<td class="cdir">'+dir+(turn.sharp?' · serré':'')+(turn.manual?' · ajouté':'')+'</td>'+
+      '<td><input type="text" maxlength="2" data-turn="'+turn.num+'" data-f="gear" value="'+(saved.gear||'')+'" placeholder="—"></td>'+
+      '<td><input type="text" class="cnote-in" data-turn="'+turn.num+'" data-f="note" value="'+(saved.note||'').replace(/"/g,'&quot;')+'" placeholder="ton repère..."></td>'+
+      '</tr>';
   }
-  try {
-    if (ws && ws.readyState === 1)
-      ws.send(JSON.stringify({ type:'hudcfg', edit: on ? 'true' : 'false' }));
-  } catch(e){}
+  html+='</tbody>';
+  t.innerHTML=html;
+  t.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{
+    const num=inp.getAttribute('data-turn'), f=inp.getAttribute('data-f');
+    if(!circGears[circCurrent]) circGears[circCurrent]={};
+    if(!circGears[circCurrent][num]) circGears[circCurrent][num]={};
+    circGears[circCurrent][num][f]=inp.value;
+    localStorage.setItem('apexCircGears', JSON.stringify(circGears));
+  }));
 }
 
-function buildHudList(){
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem('apexHud') || '{}'); } catch(e){}
-  const act = (saved.widgets != null)
-    ? String(saved.widgets).split(',')
-    : HUD_WIDGETS.filter(w => w.def).map(w => w.id);
-
-  $('hudList').innerHTML = HUD_WIDGETS.map(w =>
-    `<label class="chk"><input type="checkbox" id="hud_${w.id}"${
-      act.indexOf(w.id) >= 0 ? ' checked' : ''
-    }><span>${esc(w.label)}</span></label>`).join('');
-
-  HUD_WIDGETS.forEach(w => {
-    const el = $('hud_'+w.id);
-    if (el) el.addEventListener('change', hudSend);
+function circInit(){
+  const sel=$('circuitSel'); if(!sel) return;
+  const order=['zolder','zandvoort','nurburgring','hockenheim','redbullring','norisring','oschersleben','spa','watkins_glen'];
+  sel.innerHTML=order.filter(k=>CIRCUITS_DATA[k]).map(k=>'<option value="'+k+'">'+CIRCUITS_DATA[k].name+'</option>').join('');
+  sel.addEventListener('change',()=>{ circAddMode=false; updateAddBtn(); circLoad(sel.value); });
+  const addBtn=$('circAddMode');
+  function updateAddBtn(){
+    addBtn.classList.toggle('active',circAddMode);
+    $('circEditNote').textContent=circAddMode?'Clique sur la piste à l\'endroit du virage manquant.':'';
+  }
+  window.updateAddBtn=updateAddBtn;
+  addBtn.addEventListener('click',()=>{ circAddMode=!circAddMode; updateAddBtn(); circDrawMap(CIRCUITS_DATA[circCurrent]); });
+  $('circReset').addEventListener('click',()=>{
+    if(circCustom[circCurrent]){ delete circCustom[circCurrent]; localStorage.setItem('apexCircCustom',JSON.stringify(circCustom)); }
+    circAddMode=false; updateAddBtn();
+    circTurns=circBuildTurns(circCurrent);
+    circLoad(circCurrent);
   });
-  if (saved.corner && $('hudCorner')) $('hudCorner').value = saved.corner;
-  if (saved.opacity && $('hudOpacity')) $('hudOpacity').value = saved.opacity;
-  $('hudCorner').addEventListener('change', () => {
-    if (hudEditing) setHudEdit(false);   // choisir un coin sort du mode libre
-    hudSend();
+  circLoad(order.find(k=>CIRCUITS_DATA[k]));
+}
+/* ============ MODULE Donnees circuit — fin ============ */
+
+
+/* ============ MODULE Training — debut ============ */
+let trainEx = 'degressif';
+let trainLastBrake = 0, trainLastThrottle = 0, trainLastSteer = 0;
+
+// --- reception telemetrie pour le training (appelee depuis onTelemetry) ---
+function trainFeed(d){
+  const conn=$('trainConn'); if(conn) conn.textContent = d ? 'pédale connectée' : '';
+  if(!d) return;
+  // exercice 1 : freinage degressif
+  if(trainEx==='degressif') trainFeedDegressif(d.brake, d.dist!=null?d.dist:0);
+  // exercice 2 : reflexe freinage (detecte le front montant du frein)
+  if(trainEx==='reflexe') reflexCheck('brake', d.brake, trainLastBrake);
+  // exercice 3 : reflexe general (frein OU gaz)
+  if(trainEx==='reflexe2') reflexCheck2(d.brake, d.throttle, trainLastBrake, trainLastThrottle);
+  esqFeed(d.steer!=null?d.steer:0, d.brake, trainLastSteer, trainLastBrake);
+  trainLastBrake=d.brake; trainLastThrottle=d.throttle; trainLastSteer=d.steer!=null?d.steer:0;
+}
+
+/* ---- exercice 1 : freinage degressif ---- */
+function trainDrawTarget(){
+  const svg=$('trainCurve'); if(!svg) return;
+  const W=300,H=150,pad=10;
+  const px=v=>pad+v*(W-2*pad), py=v=>H-pad-v*(H-2*pad);
+  const tgt=[[0,0],[0.08,1]];
+  for(let k=0;k<=20;k++){const t=k/20;tgt.push([0.08+t*0.92,1-(1-0.13)*t]);}
+  let d='';
+  tgt.forEach((p,i)=>d+=(i?'L':'M')+px(p[0]).toFixed(1)+','+py(p[1]).toFixed(1));
+  svg.innerHTML='<line x1="'+pad+'" y1="'+py(0.13)+'" x2="'+(W-pad)+'" y2="'+py(0.13)+'" stroke="#1E2024"/>'
+    +'<path d="'+d+'" fill="none" stroke="#5F656B" stroke-width="1.5" stroke-dasharray="4,3"/>'
+    +'<path id="trainLive" d="" fill="none" stroke="var(--red)" stroke-width="2.5"/>';
+}
+let trainRec=null;
+const trainPrecHist=[];
+function trainFeedDegressif(brake, dist){
+  const live=$('trainLive'); if(!live) return;
+  if(brake>0.15){
+    if(!trainRec) trainRec={pts:[], d0:dist};
+    trainRec.pts.push({d:dist-trainRec.d0, br:brake});
+    if(trainRec.pts.length>2) trainRenderLive(trainRec.pts, live);
+  } else if(trainRec && trainRec.pts.length>4){
+    trainScore(trainRec.pts); trainRec=null;
+  } else trainRec=null;
+}
+function trainRenderLive(pts, live){
+  const W=300,H=150,pad=10;
+  const maxD=Math.max(1,pts[pts.length-1].d);
+  const px=v=>pad+(v/maxD)*(W-2*pad), py=v=>H-pad-v*(H-2*pad);
+  let d='';
+  pts.forEach((p,i)=>d+=(i?'L':'M')+px(p.d).toFixed(1)+','+py(p.br).toFixed(1));
+  live.setAttribute('d', d);
+}
+function trainScore(pts){
+  const maxD=pts[pts.length-1].d;
+  let dev=0;
+  pts.forEach(p=>{
+    const t=p.d/maxD;
+    const ideal=t<0.08?(t/0.08):(1-(1-0.13)*((t-0.08)/0.92));
+    dev+=Math.abs(p.br-ideal);
   });
-  $('hudOpacity').addEventListener('change', hudSend);
-  const eb = $('hudEdit');
-  if (eb) eb.addEventListener('click', () => setHudEdit(!hudEditing));
+  const prec=Math.max(0,Math.round((1-dev/pts.length*2)*100));
+  const el=$('trainPrec');
+  if(el){ el.textContent=prec+'%'; el.style.color=prec>=75?'var(--grn)':(prec>=50?'var(--y)':'var(--red)'); }
+  trainPrecHist.unshift(prec);
+  if(trainPrecHist.length>5) trainPrecHist.pop();
+  $('trainPrecHist').textContent='(5 derniers : '+trainPrecHist.join(', ')+')';
 }
 
-/* Envoie un conseil au HUD (2 lignes courtes, lisibles en pilotant). */
-function hudTip(tip){
-  const el = $('hud_coach');
-  if (!el || !el.checked) return;
-  const l1 = 'Virage ' + tip.turn + ' : ' + shortAction(tip.kind);
-  const l2 = tip.detail.charAt(0).toUpperCase() + tip.detail.slice(1);
-  try {
-    if (ws && ws.readyState === 1)
-      ws.send(JSON.stringify({ type:'hudtip', l1:l1, l2:l2, secs:9 }));
-  } catch(e){}
+/* ---- exercice 2 : reflexe freinage ---- */
+let reflexState='idle', reflexGoTime=0, reflexTimer=null;
+const reflexTimes=[];
+function reflexArm(lightId, txtId){
+  const light=$(lightId), txt=$(txtId);
+  reflexState='wait';
+  light.className='reflex-light wait'; txt.textContent='Attends...';
+  // delai aleatoire 1.5 a 4.5 s
+  const delay=1500+Math.random()*3000;
+  reflexTimer=setTimeout(()=>{
+    reflexState='go'; reflexGoTime=performance.now();
+    light.className='reflex-light go'; txt.textContent='FREINE !';
+  }, delay);
 }
-
-function shortAction(kind){
-  switch(kind){
-    case 'freinage_tot': return 'freine plus tard';
-    case 'freinage_mou': return 'appuie plus fort';
-    case 'coasting':     return 'enchaîne frein et gaz';
-    case 'gaz_tard':     return 'rouvre plus tôt';
-    case 'trop_lent':    return 'porte plus de vitesse';
-    default:             return 'à corriger';
+function reflexCheck(type, val, last){
+  if(reflexState==='wait' && val>0.3){
+    // parti trop tot
+    clearTimeout(reflexTimer);
+    reflexState='idle';
+    $('reflexLight').className='reflex-light early';
+    $('reflexTxt').textContent='Trop tôt !';
+  } else if(reflexState==='go' && val>0.5 && last<=0.5){
+    const rt=Math.round(performance.now()-reflexGoTime);
+    reflexState='idle';
+    $('reflexLight').className='reflex-light';
+    $('reflexTxt').textContent=rt+' ms';
+    reflexRecord(rt, 'reflexTime','reflexBest','reflexAvg', reflexTimes);
   }
 }
+function reflexRecord(rt, tId, bId, aId, arr){
+  $(tId).textContent=rt+' ms';
+  arr.push(rt);
+  const best=Math.min(...arr), avg=Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
+  $(bId).textContent=best+' ms';
+  $(aId).textContent=avg+' ms';
+}
+
+/* ---- exercice 3 : reflexe general ---- */
+let reflex2State='idle', reflex2GoTime=0, reflex2Timer=null;
+const reflex2Times=[];
+function reflex2Arm(){
+  const light=$('reflexLight2'), txt=$('reflexTxt2');
+  reflex2State='wait';
+  light.className='reflex-light wait'; txt.textContent='Attends...';
+  reflex2Timer=setTimeout(()=>{
+    reflex2State='go'; reflex2GoTime=performance.now();
+    light.className='reflex-light go'; txt.textContent='GO !';
+  }, 1500+Math.random()*3000);
+}
+function reflexCheck2(brake, thr, lastBr, lastThr){
+  const pressed=(brake>0.4&&lastBr<=0.4)||(thr>0.4&&lastThr<=0.4);
+  if(reflex2State==='wait' && (brake>0.3||thr>0.3)){
+    clearTimeout(reflex2Timer); reflex2State='idle';
+    $('reflexLight2').className='reflex-light early'; $('reflexTxt2').textContent='Trop tôt !';
+  } else if(reflex2State==='go' && pressed){
+    const rt=Math.round(performance.now()-reflex2GoTime);
+    reflex2State='idle';
+    $('reflexLight2').className='reflex-light'; $('reflexTxt2').textContent=rt+' ms';
+    reflexRecord(rt,'reflexTime2','reflexBest2','reflexAvg2', reflex2Times);
+  }
+}
+
+
+/* ---- plein ecran generique pour les exercices ---- */
+let tfCurrentEx=null, tfPlaceholder=null, tfParent=null;
+const TF_TITLES={degressif:'Freinage dégressif', reflexe:'Réflexe freinage', reflexe2:'Réflexe général'};
+function tfLaunch(ex){
+  const src=$('ex-'+ex); if(!src) return;
+  tfCurrentEx=ex;
+  // memorise la place d'origine pour restaurer ensuite
+  tfParent=src.parentNode;
+  tfPlaceholder=document.createComment('ex-'+ex);
+  tfParent.insertBefore(tfPlaceholder, src);
+  // deplace l'exercice dans le plein ecran
+  $('tfBody').innerHTML='';
+  $('tfBody').appendChild(src);
+  src.style.display='';
+  $('tfTitle').textContent=TF_TITLES[ex]||'';
+  $('trainFull').classList.add('on');
+  // masque le bouton "plein ecran" a l'interieur (evite la recursion)
+  const btn=src.querySelector('.tf-launch'); if(btn) btn.style.display='none';
+  const el=document.documentElement;
+  try{ (el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el); }catch(e){}
+  if(ex==='degressif') trainDrawTarget();
+}
+function tfQuit(){
+  if(!tfCurrentEx) return;
+  const src=$('ex-'+tfCurrentEx);
+  // remet l'exercice a sa place
+  if(tfParent && tfPlaceholder){ tfParent.insertBefore(src, tfPlaceholder); tfPlaceholder.remove(); }
+  src.style.display=(trainEx===tfCurrentEx)?'':'none';
+  const btn=src.querySelector('.tf-launch'); if(btn) btn.style.display='';
+  $('trainFull').classList.remove('on');
+  tfCurrentEx=null; tfParent=null; tfPlaceholder=null;
+  try{ if(document.fullscreenElement) (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); }catch(e){}
+}
+
+/* ---- init training ---- */
+function trainInit(){
+  document.querySelectorAll('.train-tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.train-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    trainEx=t.dataset.ex;
+    document.querySelectorAll('.train-ex').forEach(e=>e.style.display='none');
+    $('ex-'+trainEx).style.display='';
+    if(trainEx==='degressif') trainDrawTarget();
+  }));
+  const rs=$('reflexStart'); if(rs) rs.addEventListener('click',()=>reflexArm('reflexLight','reflexTxt'));
+  const rs2=$('reflexStart2'); if(rs2) rs2.addEventListener('click',()=>reflex2Arm());
+  const el=$('esqLaunch'); if(el) el.addEventListener('click',esqLaunch);
+  const eq=$('esqQuit'); if(eq) eq.addEventListener('click',esqQuit);
+  document.querySelectorAll('.tf-launch').forEach(b=>b.addEventListener('click',()=>tfLaunch(b.dataset.full)));
+  const tq=$('tfQuit'); if(tq) tq.addEventListener('click',tfQuit);
+  const eh=$('esqHiscore'); if(eh){ try{ eh.textContent=parseInt(localStorage.getItem('apexEsqHiscore')||'0'); }catch(e){} }
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ if(esqActive) esqQuit(); if(tfCurrentEx) tfQuit(); } });
+  trainDrawTarget();
+}
+
+/* ---- exercice 4 : jeu esquive plein ecran ---- */
+let esqActive=false, esqState='idle', esqScore=0, esqLevel=1, esqCombo=0;
+let esqSide=null, esqNeedBrake=false, esqCueTime=0, esqTimer=null;
+let esqHiscore=0;
+try{ esqHiscore=parseInt(localStorage.getItem('apexEsqHiscore')||'0'); }catch(e){}
+
+function esqLaunch(){
+  esqActive=true; esqScore=0; esqLevel=1; esqCombo=0; esqState='idle';
+  $('esqGame').classList.add('on');
+  $('esqHiscore') && ($('esqHiscore').textContent=esqHiscore);
+  esqUpdateHud();
+  // plein ecran navigateur
+  const el=document.documentElement;
+  try{ (el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el); }catch(e){}
+  esqBig('PRÊT ?','Prépare-toi...');
+  setTimeout(esqNextRound, 1600);
+}
+function esqQuit(){
+  esqActive=false; esqState='idle';
+  clearTimeout(esqTimer);
+  $('esqGame').classList.remove('on');
+  esqClearSides();
+  if(esqScore>esqHiscore){ esqHiscore=esqScore; try{ localStorage.setItem('apexEsqHiscore',String(esqHiscore)); }catch(e){} }
+  $('esqHiscore') && ($('esqHiscore').textContent=esqHiscore);
+  try{ if(document.fullscreenElement) (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); }catch(e){}
+}
+function esqClearSides(){
+  $('esqLeft').className='esq-side esq-left';
+  $('esqRight').className='esq-side esq-right';
+}
+function esqUpdateHud(){
+  $('esqScore').textContent=esqScore;
+  $('esqLevel').textContent=esqLevel;
+  $('esqCombo').textContent=esqCombo;
+}
+function esqBig(big,msg){
+  $('esqBig').textContent=big;
+  $('esqMsg').textContent=msg||'';
+}
+function esqNextRound(){
+  if(!esqActive) return;
+  esqState='wait';
+  esqClearSides();
+  esqBig('','Attends le signal...');
+  // WAIT aleatoire, raccourcit avec le niveau
+  const base=Math.max(500, 2200 - esqLevel*180);
+  const delay=base + Math.random()*1200;
+  esqTimer=setTimeout(()=>{
+    if(!esqActive) return;
+    // choisit cote + type (rouge = freiner)
+    esqSide=Math.random()<0.5?'left':'right';
+    esqNeedBrake=Math.random()<0.35;   // ~1 sur 3 avec frein
+    const cls=esqNeedBrake?'lit-r':'lit-y';
+    (esqSide==='left'?$('esqLeft'):$('esqRight')).classList.add(cls);
+    esqState='go'; esqCueTime=performance.now();
+    esqBig(esqNeedBrake?'ESQUIVE + FREIN !':'ESQUIVE !',
+           'Braque à '+(esqSide==='left'?'DROITE':'GAUCHE')+(esqNeedBrake?' et freine':''));
+    // fenetre de reponse : rate si trop lent
+    esqTimer=setTimeout(()=>{ if(esqState==='go') esqMiss('Trop lent !'); }, Math.max(700,1500-esqLevel*60));
+  }, delay);
+}
+function esqSuccess(reactMs){
+  esqState='idle';
+  clearTimeout(esqTimer);
+  esqCombo++;
+  // points : plus vite = plus, bonus combo
+  const speedPts=Math.max(10, Math.round(300-reactMs*0.5));
+  const comboBonus=Math.min(esqCombo*5, 100);
+  const gain=speedPts+comboBonus;
+  esqScore+=gain;
+  // niveau monte tous les 5 succes
+  esqLevel=1+Math.floor(esqCombo/5);
+  esqClearSides();
+  esqBig('+'+gain, reactMs+' ms · série '+esqCombo);
+  esqUpdateHud();
+  setTimeout(esqNextRound, 700);
+}
+function esqMiss(reason){
+  esqState='idle';
+  clearTimeout(esqTimer);
+  esqCombo=0; esqLevel=1;
+  esqClearSides();
+  esqBig('RATÉ', reason);
+  esqUpdateHud();
+  setTimeout(esqNextRound, 1100);
+}
+// recoit la telemetrie pendant le jeu
+function esqFeed(steer, brake, lastSteer, lastBrake){
+  if(!esqActive) return;
+  // faux depart : bouge avant le signal
+  if(esqState==='wait' && Math.abs(steer)>0.2){
+    esqMiss('Parti trop tôt !');
+    return;
+  }
+  if(esqState==='go'){
+    // il faut braquer a l'OPPOSE du cote allume
+    // cote gauche allume => braquer a droite => steer positif (convention R3E)
+    const wantPositive = (esqSide==='left');
+    const steerOk = wantPositive ? steer>0.18 : steer<-0.18;
+    const brakeOk = !esqNeedBrake || brake>0.4;
+    if(Math.abs(steer)>0.18){
+      if(steerOk && brakeOk){
+        esqSuccess(Math.round(performance.now()-esqCueTime));
+      } else if(!steerOk){
+        esqMiss('Mauvais sens !');
+      } else if(!brakeOk){
+        // a braque bon sens mais pas freine : attend le frein un court instant
+        // (ne penalise pas tde suite)
+      }
+    }
+  }
+}
+
+/* ============ MODULE Training — fin ============ */
 
 /* ============ WebSocket ============ */
 let ws = null, retry = 0;
@@ -2408,7 +3198,7 @@ function setConn(on, msg){
 function connect(){
   try { ws = new WebSocket('ws://' + location.host + '/ws'); }
   catch(e){ scheduleRetry(); return; }
-  ws.onopen = () => { retry = 0; setConn(true,'connecté'); setTimeout(hudSend, 300);
+  ws.onopen = () => { retry = 0; setConn(true,'connecté');
     try { ws.send(JSON.stringify({ type:'listfiches' })); } catch(e){} };
   ws.onclose = () => { setConn(false,'reconnexion…'); scheduleRetry(); };
   ws.onerror = () => { try{ws.close();}catch(e){} };
@@ -2425,11 +3215,6 @@ function connect(){
     else if (m.type === 'fiches'){
       (m.list || []).forEach(f => { if (f && f.key) fiches[f.key] = f; });
       drawRevision(); drawHistory();
-    }
-    else if (m.type === 'hudstate'){
-      const e = $('hudStat');
-      if (e) e.textContent = m.ok ? 'actif' : 'indisponible';
-      if (typeof m.edit === 'boolean' && m.edit !== hudEditing) setHudEdit(m.edit);
     }
     else if (m.type === 'state'){ $('trk').textContent = m.msg; }
   };
@@ -2476,7 +3261,6 @@ window.addEventListener('keydown', e => {
   if (e.key && e.key.toLowerCase() === (window.__hotkey||'c').toLowerCase()) announce();
 });
 
-buildHudList();
 
 $('modeSeg').addEventListener('click', () => {
   mapMode = 'seg';
@@ -2502,6 +3286,42 @@ const sfb = $('saveFicheBtn');
 if (sfb) sfb.addEventListener('click', saveFiche);
 
 connect();
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',()=>{
+    try{ circInit(); }catch(e){ console.error("circInit", e); }
+    try{ trainInit(); }catch(e){ console.error("trainInit", e); }
+  });
+} else {
+  try{ circInit(); }catch(e){ console.error("circInit", e); }
+  try{ trainInit(); }catch(e){ console.error("trainInit", e); }
+}
 </script>
+<!-- ---- Jeu Esquive plein ecran ---- -->
+<div id="esqGame" class="esq-game">
+  <div class="esq-side esq-left" id="esqLeft"></div>
+  <div class="esq-side esq-right" id="esqRight"></div>
+  <div class="esq-hud">
+    <div class="esq-top">
+      <div class="esq-score-box">SCORE<br><b id="esqScore">0</b></div>
+      <div class="esq-level-box">NIVEAU<br><b id="esqLevel">1</b></div>
+      <div class="esq-combo-box">SÉRIE<br><b id="esqCombo">0</b></div>
+    </div>
+    <div class="esq-center" id="esqCenter">
+      <div class="esq-big" id="esqBig">PRÊT ?</div>
+      <div class="esq-msg" id="esqMsg">Le jeu démarre dans un instant...</div>
+    </div>
+    <div class="esq-bottom">
+      <button class="btn" id="esqQuit">Quitter (Échap)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---- Plein ecran generique pour les 3 autres exercices ---- -->
+<div id="trainFull" class="train-full">
+  <div class="tf-quit"><button class="btn" id="tfQuit">Quitter (Échap)</button></div>
+  <div class="tf-title" id="tfTitle"></div>
+  <div class="tf-body" id="tfBody"></div>
+</div>
+
 </body>
 </html>

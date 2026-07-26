@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Genere EmbeddedDashboard.cs depuis live.html + mobile.html (exe autonome)."""
+"""Genere EmbeddedDashboard.cs depuis live.html (exe autonome)."""
 import base64
 
 def chunks_of(path):
@@ -14,19 +14,14 @@ def emit(name, chunks):
         out.append(f'        "{c}"{end}')
     return out
 
-lines = ['// GENERE AUTOMATIQUEMENT par embed.py — ne pas editer a la main.',
+lines = ['// GENERE AUTOMATIQUEMENT par embed.py - ne pas editer a la main.',
          'using System;', 'using System.Text;', '',
          'static class EmbeddedDashboard', '{',
-         '    static string _cache, _mcache;',
+         '    static string _cache;',
          '    public static string Html {',
          '        get { if (_cache == null) _cache = Encoding.UTF8.GetString(Convert.FromBase64String(B64)); return _cache; }',
-         '    }',
-         '    public static string Mobile {',
-         '        get { if (_mcache == null) _mcache = Encoding.UTF8.GetString(Convert.FromBase64String(M64)); return _mcache; }',
          '    }', '']
 lines += emit('B64', chunks_of('live.html'))
-lines.append('')
-lines += emit('M64', chunks_of('mobile.html'))
 lines.append('}')
 open('EmbeddedDashboard.cs', 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
-print('embedded live.html + mobile.html')
+print('embedded live.html')

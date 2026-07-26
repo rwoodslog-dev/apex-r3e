@@ -17,7 +17,6 @@ class WebServer
 
     readonly TcpListener listener;
     readonly string indexHtml;
-    public string MobileHtml = null;
     readonly List<TcpClient> wsClients = new List<TcpClient>();
     readonly object clientLock = new object();
     volatile bool running = true;
@@ -111,11 +110,6 @@ class WebServer
             if (path == "/" || path == "/index.html")
             {
                 body = Encoding.UTF8.GetBytes(indexHtml);
-                ctype = "text/html; charset=utf-8";
-            }
-            else if ((path == "/mobile" || path == "/mobile.html") && MobileHtml != null)
-            {
-                body = Encoding.UTF8.GetBytes(MobileHtml);
                 ctype = "text/html; charset=utf-8";
             }
             else
