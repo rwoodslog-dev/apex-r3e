@@ -39,7 +39,7 @@ jobs:
           & $csc /nologo /optimize /warn:4 /target:exe /out:dist\APEX.exe `
             /reference:System.Drawing.dll `
             app\Program.cs app\Telemetry.cs app\WebServer.cs `
-            app\EmbeddedDashboard.cs
+            app\EmbeddedDashboard.cs app\Ams2Reader.cs
           if ($LASTEXITCODE -ne 0) { throw "La compilation a echoue" }
 
           $size = (Get-Item dist\APEX.exe).Length
