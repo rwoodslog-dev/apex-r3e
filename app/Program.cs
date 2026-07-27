@@ -163,6 +163,7 @@ static class Program
     static void Main(string[] args)
     {
         string outDir = "laps";
+        string gameMode = "auto";
         double hz = 60.0;
         int port = DEFAULT_PORT;
         bool keepInvalid = false, noBrowser = false;
@@ -176,11 +177,15 @@ static class Program
                 int.TryParse(args[++i], out port);
             else if (args[i] == "--keep-invalid") keepInvalid = true;
             else if (args[i] == "--no-browser") noBrowser = true;
+            else if (args[i] == "--ams2") gameMode = "ams2";
+            else if (args[i] == "--r3e") gameMode = "r3e";
             else if (args[i] == "--help" || args[i] == "-h")
             {
                 Console.WriteLine("APEX — options :");
                 Console.WriteLine("  --out DOSSIER      dossier de sortie (defaut: laps)");
                 Console.WriteLine("  --hz N             frequence d'echantillonnage (defaut: 60)");
+                Console.WriteLine("  --ams2             forcer le mode AMS2 (via CREST2)");
+                Console.WriteLine("  --r3e              forcer le mode RaceRoom");
                 Console.WriteLine("  --port N           port du dashboard (defaut: 8422)");
                 Console.WriteLine("  --keep-invalid     garde les tours passes par les stands");
                 Console.WriteLine("  --no-browser       n'ouvre pas le navigateur");
@@ -213,6 +218,8 @@ static class Program
             Console.WriteLine("  Sur le reseau : http://" + lanIp + ":" + server.Port + "/");
         Console.WriteLine("  Sortie       : " + Path.GetFullPath(outDir));
         Console.WriteLine("  Frequence    : " + hz.ToString(INV) + " Hz");
+        Console.WriteLine("  Mode jeu     : " + gameMode + " (auto/r3e/ams2)");
+        Console.WriteLine("  AMS2 via     : CREST2 (localhost:8180)");
         Console.WriteLine(new string('=', 64));
         Console.WriteLine();
 
@@ -281,6 +288,13 @@ static class Program
         // metriques du tour en cours
         double coastAcc = 0, topSpeed = 0, prevT = -1;
 
+
+        // ---- mode de jeu ----
+
+        var ams2 = new Ams2Reader();
+        bool useAms2 = (gameMode == "ams2");
+        string activeGame = "";
+
         var sw = Stopwatch.StartNew();
         long lastPush = 0;
         // etat de course, partage entre la diffusion et le HUD
@@ -297,6 +311,99 @@ static class Program
 
         while (true)
         {
+            // ---- AUTO-DETECT ou mode force ----
+            if (gameMode == "auto" && !useAms2 && acc == null)
+            {
+                // essaie AMS2 d'abord (plus rapide a tester via HTTP)
+                if (ams2.Poll()) { useAms2 = true; }
+            }
+
+            if (useAms2)
+            {
+                // ---- MODE AMS2 via CREST2 ----
+                if (!ams2.Poll())
+                {
+                    if (connected)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("[!] AMS2/CREST2 deconnecte. En attente...");
+                        connected = false;
+                        rows.Clear(); t0 = null; lastLaps = -999;
+                        server.Broadcast("{\"type\":\"state\",\"msg\":\"" + (ams2.Error ?? "AMS2 deconnecte") + "\"}");
+                    }
+                    Thread.Sleep(500);
+                    continue;
+                }
+                if (!connected || activeGame != "AMS2")
+                {
+                    connected = true; activeGame = "AMS2";
+                    Console.WriteLine("[OK] Connecte a AMS2 via CREST2.");
+                    Console.WriteLine("  Voiture : " + ams2.CarName + " (" + ams2.CarClass + ")");
+                }
+                // mappe les variables AMS2 vers les memes noms que R3E
+                float a_speedMs = (float)(ams2.Speed / 3.6);
+                float a_dist = (float)ams2.Dist;
+                
+                float a_thr = (float)ams2.Throttle;
+                float a_brk = (float)ams2.Brake;
+                float a_steer = (float)ams2.Steer;
+                int a_gear = ams2.Gear;
+                float a_curLap = (float)ams2.CurLap;
+                float a_bestLap = (float)ams2.BestLap;
+                int a_laps = ams2.LapsCompleted;
+                string a_track = ams2.Track;
+                string a_layout = ams2.Layout;
+
+                string a_label = a_track + " - " + a_layout;
+                if (a_label != trackLabel)
+                {
+                    trackLabel = a_label; curTrack = a_track; curLayout = a_layout;
+                    trackDir = Path.Combine(outDir, Telemetry.Safe(a_track) + "__" + Telemetry.Safe(a_layout));
+                    Directory.CreateDirectory(trackDir);
+                    Console.WriteLine();
+                    Console.WriteLine(">>> Circuit : " + a_label + "  (" + ams2.TrackLength.ToString("0", INV) + " m)");
+                    rows.Clear(); t0 = null; lastLaps = -999;
+                    lapHistory.Clear(); bestTimeSeen = 0;
+                }
+
+                // broadcast AMS2
+                if (sw.ElapsedMilliseconds - lastPush >= 50 && server.ClientCount > 0)
+                {
+                    lastPush = sw.ElapsedMilliseconds;
+                    var sb = new StringBuilder(512);
+                    sb.Append("{\"type\":\"telemetry\",\"game\":\"AMS2\"")
+                      .Append(",\"speed\":").Append(J(ams2.Speed, 1))
+                      .Append(",\"gear\":").Append(a_gear)
+                      .Append(",\"rpm\":").Append(J(ams2.Rpm, 0))
+                      .Append(",\"throttle\":").Append(J(a_thr, 3))
+                      .Append(",\"brake\":").Append(J(a_brk, 3))
+                      .Append(",\"steer\":").Append(J(a_steer, 3))
+                      .Append(",\"cur\":").Append(a_curLap > 0 ? J(a_curLap, 3) : "null")
+                      .Append(",\"best\":").Append(a_bestLap > 0 ? J(a_bestLap, 3) : "null")
+                      .Append(",\"delta\":null")
+                      .Append(",\"px\":").Append(J(ams2.PosX, 1))
+                      .Append(",\"pz\":").Append(J(ams2.PosZ, 1))
+                      .Append(",\"dist\":").Append(J(a_dist, 1))
+                      .Append(",\"track\":").Append(JsonStr(a_track))
+                      .Append(",\"layout\":").Append(JsonStr(a_layout))
+                      .Append(",\"pos\":").Append(ams2.RacePos)
+                      .Append(",\"cars\":").Append(ams2.NumCars)
+                      .Append(",\"lap\":").Append(a_laps)
+                      .Append(",\"totalLaps\":").Append(ams2.TotalLaps)
+                      .Append(",\"fuelLeft\":").Append(J(ams2.FuelLeft, 2))
+                      .Append(",\"fuelPct\":").Append(J(ams2.FuelPct, 1))
+                      .Append(",\"tireWear\":").Append(J(ams2.TyreWear[0]*100, 1))
+                      .Append(",\"tireTemp\":").Append(J((ams2.TyreTemp[0]+ams2.TyreTemp[1]+ams2.TyreTemp[2]+ams2.TyreTemp[3])/4.0, 0))
+                      .Append(",\"carName\":").Append(JsonStr(ams2.CarName))
+                      .Append(",\"carClass\":").Append(JsonStr(ams2.CarClass))
+                      .Append("}");
+                    server.Broadcast(sb.ToString());
+                }
+                Thread.Sleep(periodMs);
+                continue;  // saute le code R3E ci-dessous
+            }
+
+            // ---- MODE R3E (code original) ----
             if (acc == null)
             {
                 try
@@ -335,6 +442,7 @@ static class Program
             {
                 connected = true;
                 Console.WriteLine("[OK] Connecte a la shared memory R3E.");
+                activeGame = "R3E";
             }
             if (!warnedVersion && vMaj != Telemetry.EXPECT_MAJOR)
             {
